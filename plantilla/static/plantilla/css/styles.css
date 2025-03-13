@@ -1,0 +1,46 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #682145;
+}
+/* LOGIN */
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    margin-top: auto;
+    padding: 20px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: rgb(252, 247, 247); /* Fondo blanco para la tarjeta */
+    margin: auto; /* Centra el login en la pantalla */
+}
+.login-logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-logo img {
+    width: 100px;
+    height: auto;
+}
+/* NAVBAR */
+.navbar {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.container {
+    flex: 1;
+    padding-top: 70px;  /* Ajusta según la altura del navbar */
+}
+
+/* Navbar */
+.navbar {
+    width: 100%; /* Ocupa toda la anchura */
+}
