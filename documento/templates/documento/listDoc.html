@@ -4,7 +4,7 @@
 <div class="container">
     <h1 class="text-center">Lista Documentos</h1>
     <button>Actulizar</button>
-    <button>Crear</button>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#formularioPopup">Registrar</button>
     <table class="table table-border">
         <thead>
             <tr>
@@ -25,5 +25,46 @@
             </tr>
         </thead>
     </table>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formularioPopupLabel">Registrar Documento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="fecha_recibo" class="form-label">Fecha Recibo</label>
+                        <input type="date" name="" id="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fehca_oficio">Fecha Oficio</label>
+                        <input type="date" name="" id="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="">Enviado Por:</label>
+                        <input type="text" name="" id="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="">Procedencia:</label>
+                        <input type="text" name="" id="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="">Asunto:</label>
+                        <input type="text" name="" id="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="">Referencia:</label>
+                        <input type="text" name="" id="">
+                    </div>
+
+                </form>
+            </div>        
+        </div>
+    </div>
 </div>
 {% endblock content %}

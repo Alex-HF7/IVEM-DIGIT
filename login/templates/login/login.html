@@ -1,12 +1,13 @@
 {% extends "plantilla/base.html" %}
 {% block title %}Inicio de Sesion{% endblock title %}
+{% block navbar %}{% endblock  %}
 {% block content %}
-<div class="login-container">
+<div class="d-flex justify-content-center align-items-center vh-100">
     <div class="login-card card">
         <div class="login-logo">
             <!-- Aquí puedes poner tu logo -->
             {% load static %}
-            <img src="{% static 'plantilla/img/logo.jpeg' %}" alt="Logo">
+            <img src="{% static 'plantilla/img/logo.png' %}" alt="Logo">
         </div>
         <h2 class="text-center mb-4">Iniciar Sesión</h2>
         <form method="post">
