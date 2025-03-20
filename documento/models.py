@@ -24,7 +24,7 @@ class Regsitro(models.Model):
         ('comercializacion', 'Subdirección de Comercialización'),
     ]
 
-    folio = models.IntegerField(blank=True, null=True, verbose_name="Flio", unique=True)
+    folio = models.IntegerField(blank=True, null=True, verbose_name="Folio", unique=True)
     fehca_recibido = models.DateField(verbose_name="Fecha Recibido")
     fecha_oficio = models.DateField(verbose_name="Fecha Oficio")
     enviado_por = models.CharField(max_length=255, verbose_name="Enviado Por")
@@ -33,6 +33,8 @@ class Regsitro(models.Model):
     referencia = models.CharField(max_length=255, verbose_name="Referencia")
     asunto_opciones = models.CharField(max_length=255, choices=ASUNTO_OPCIONES, verbose_name="Asunto Opciones")
     area = models.CharField(max_length=255, choices=AREA_OPCIONES, verbose_name="Área IVEM")
+    pebdiente = models.BooleanField(verbose_name="Pendiente", default=False)
+    archivo = models.FileField(upload_to='archivos/', blank=True, null=True, verbose_name="Archivo")
 
     def __str__(self):
         return f"Documento {self.folio} - {self.asunto}"
