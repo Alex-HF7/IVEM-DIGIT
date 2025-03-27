@@ -1,9 +1,20 @@
 from django.contrib import admin
+from django.db import connection
 
-# Register your models here.
-class DocumentoAdmin(admin.ModelAdmin):
-    list_display = ('folio', 'fehca_recibido', 'fecha_oficio', 'enviado_por', 'procedencia', 'asunto', 'referencia', 'asunto_opciones', 'area', 'pendiente', 'archivo')
-    search_fields = ('folio', 'enviado_por', 'procedencia', 'asunto', 'referencia', 'asunto_opciones', 'area', 'pendiente')
-    list_filter = ('fehca_recibido', 'fecha_oficio', 'asunto_opciones', 'area', 'pendiente')
-    date_hierarchy = 'fehca_recibido'
-    ordering = ('-fehca_recibido',)
+def tablas_existentes():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
+        return [row[0] for row in cursor.fetchall()]
+
+# Registrar modelos dinámicos solo si existen las tablas
+tablas = tablas_existentes()
+for tabla in tablas:
+    if tabla.startswith('oficios_ucg_'):
+        anno = tabla.split('_')[-1]
+        model_name = f'Oficios{anno}'
+        
+        try:
+            model = getattr(__import__('documento.models', fromlist=[model_name]), model_name)
+            admin.site.register(model)
+        except AttributeError:
+            pass
