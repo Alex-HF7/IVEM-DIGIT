@@ -22,6 +22,7 @@ from documento import views as viewsDoc
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', auth_views.LoginView.as_view(template_name='login/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('list/', viewsDoc.list, name='list')
 ]
 if settings.DEBUG:

@@ -2,7 +2,7 @@ from tabnanny import verbose
 from django.db import models
 
 # Create your models here.
-class Regsitro(models.Model):
+class Oficio(models.Model):
     ASUNTO_OPCIONES = [
         ('atencion', 'Atención'),
         ('conocimiento', 'Conocimiento'),
@@ -34,7 +34,14 @@ class Regsitro(models.Model):
     asunto_opciones = models.CharField(max_length=255, choices=ASUNTO_OPCIONES, verbose_name="Asunto Opciones")
     area = models.CharField(max_length=255, choices=AREA_OPCIONES, verbose_name="Área IVEM")
     pebdiente = models.BooleanField(verbose_name="Pendiente", default=False)
-    archivo = models.FileField(upload_to='archivos/', blank=True, null=True, verbose_name="Archivo")
+    archivo = models.FileField(upload_to='archivos/%Y', blank=True, null=True, verbose_name="Archivo")
 
     def __str__(self):
         return f"Documento {self.folio} - {self.asunto}"
+    
+    class Meta:
+        abstract = True
+
+class Oficios2025(Oficio):
+    class Meta:
+        db_table = "oficios_ucg_2025"
