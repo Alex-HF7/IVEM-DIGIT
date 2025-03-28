@@ -41,11 +41,3 @@ class Oficio(models.Model):
     
     class Meta:
         abstract = True
-
-class Oficios2024(Oficio):
-    class Meta:
-        db_table = "oficios_ucg_2024"
-
-class Oficios2025(Oficio):
-    class Meta:
-        db_table = "oficios_ucg_2025"
