@@ -8,10 +8,7 @@ def crear_tablas_dinamicas(sender, instance, created, **kwargs):
     if created:
         anno = instance.anno
         
-        # Lista de departamentos a crear
-        departamentos = ['ucg', 'delegacion']
-        
-        for depto in departamentos:
+        for depto in ['ucg', 'delegacion']:
             tabla_nombre = f'oficios_{depto}_{anno}'
             
             # Verificar si la tabla ya existe
