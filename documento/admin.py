@@ -8,7 +8,7 @@ class ModeloDinamicoAdmin(admin.ModelAdmin):
         super().__init__(model, admin_site)
     
     def get_available_fields(self, model):
-        fields = []
+        
         with connection.cursor() as cursor:
             cursor.execute(f"""
                 SELECT column_name
@@ -19,10 +19,17 @@ class ModeloDinamicoAdmin(admin.ModelAdmin):
         
         for field in ['id', 'folio', 'fecha_recibido', 'enviado_por', 'asunto']:
             if field in columns:
-                fields.append(field)
-        
-        return fields or ['__str__']
-    
+                return [field]
+        return ['__str__']
+class LazyModelRegistry:
+    _registered = False
+
+    @classmethod
+    def register_all(cls):
+        if not cls._registered and apps.ready:
+            cls._registered=True
+            registrar_modelo_dinamico()
+
 def registrar_modelo_dinamico():
     try:
         with connection.cursor() as cursor:
@@ -37,6 +44,7 @@ def registrar_modelo_dinamico():
                 parts = table_name.split('_')
                 if len(parts) !=3:
                     continue
+
                 depto, year = parts[1], parts[2]
                 model_name = f'Oficios{depto.capitalize()}{year}'
 
@@ -45,7 +53,7 @@ def registrar_modelo_dinamico():
 
                 attrs = {
                     '__module__': 'documento.models',
-                    '__str__': lambda self: f"{self._meta.verbose_name} {getattr(self, 'folio', '')}",
+                    #'__str__': lambda self: f"{self._meta.verbose_name} {getattr(self, 'folio', '')}",
                     'Meta': type('Meta', (), {
                         'db_table': table_name,
                         'verbose_name': f'Oficio {depto} {year}',
@@ -53,21 +61,25 @@ def registrar_modelo_dinamico():
                     }),
                 }
 
-                with connection.cursor() as field_cursor:
-                    field_cursor.execute(f"""
-                        SELECT column_name 
-                        FROM information_schema.columns 
-                        WHERE table_name = '{table_name}'
-                        AND column_name NOT IN ('id')
-                    """)
-                    for (column,) in field_cursor.fetchall():
-                        attrs[column] = models.CharField(max_length=255, blank=True)
-                
                 model = type(model_name, (models.Model,), attrs)
                 admin.site.register(model, ModeloDinamicoAdmin)
+
     except Exception as e:
         print(f"Error registrando modelos: {e}")
 
-from django.contrib.admin import site as admin_site
-if not admin_site.is_registered('documento'):
-    registrar_modelo_dinamico()
+if not hasattr(admin.site.__class__, '_original_admin_view'):
+    admin.site.__class__._original_admin_view = admin.site.__class__.admin_view
+    
+    def patched_admin_view(self, view, cacheable=False):
+        LazyModelRegistry.register_all()
+        return self._original_admin_view(view, cacheable)
+    
+    admin.site.__class__.admin_view = patched_admin_view
+
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
+
+@receiver(post_migrate)
+def on_migrate(sender, **kwargs):
+    if sender.name =='documento':
+        LazyModelRegistry.register_all()
