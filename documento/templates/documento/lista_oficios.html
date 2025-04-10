@@ -5,16 +5,14 @@
 {% block content %}
 <div class="container">
     <h1 class="text-center">Oficios {{ depto|upper }} {{ year }}</h1>
-    
     <div class="mb-3">
         <button class="btn btn-secondary" onclick="location.reload()">Actualizar</button>
         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#formularioPopup">
             Registrar Nuevo
         </button>
     </div>
-
     <div class="table-responsive">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover table-striped">
             <thead class="table-dark">
                 <tr>
                     <th>Folio</th>
@@ -67,8 +65,62 @@
         </table>
     </div>
 </div>
+<div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="formularioPopupLabel">Registrar Nuevo Oficio</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'crear_oficio' depto=depto year=year %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="departamento" value="{{ depto }}">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fecha_recibido" class="form-label">Fecha Recibido</label>
+                                <input type="date" class="form-control" name="fecha_recibido" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fecha_oficio" class="form-label">Fecha Oficio</label>
+                                <input type="date" class="form-control" name="fecha_oficio">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="enviado_por" class="form-label">Enviado Por</label>
+                                <input type="text" class="form-control" name="enviado_por" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="procedencia" class="form-label">Procedencia</label>
+                                <input type="text" class="form-control" name="procedencia" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="asunto" class="form-label">Asunto</label>
+                                <input type="text" class="form-control" name="asunto" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="referencia" class="form-label">Referencia</label>
+                                <input type="text" class="form-control" name="referencia">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
 
 {% block extra_js %}
 <script>

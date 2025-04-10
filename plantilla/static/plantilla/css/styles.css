@@ -102,3 +102,21 @@
 .btn-group .btn {
     margin-right: 5px;
 }
+
+.custom-zebra tbody tr:nth-child(odd) {
+    background-color: #C83182;  /* Color personalizado para filas impares (azul claro) */
+}
+
+.custom-zebra tbody tr:nth-child(even) {
+    background-color: #fffaf0;  /* Color personalizado para filas pares (blanco hueso) */
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td {
+    background-color: #c83182; /* Tu color personalizado */
+    color: #f0f0f0
+}
+
+.table-striped>tbody>tr:nth-child(even)>td {
+    background-color: #f8f8f8; /* Tu otro color personalizado */
+    color: #333333;
+}

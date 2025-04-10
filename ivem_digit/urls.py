@@ -9,6 +9,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('list/', viewsDoc.list, name='list'),
     path('oficios/<str:depto>/<int:year>/', viewsDoc.lista_oficios, name='lista_oficios'),
+    path('oficios/<str:depto>/<int:year>/crear/', viewsDoc.crear_oficio, name='crear_oficio')
 ]
 if settings.DEBUG:
     from django.conf.urls.static import static 
