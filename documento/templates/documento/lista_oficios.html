@@ -1,0 +1,87 @@
+{% extends "plantilla/base.html" %}
+{% load static %}
+{% block title %}Lista Documentos - {{ depto|upper }} {{ year }}{% endblock title %}
+{% block body_class %}body-documento{% endblock body_class %}
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Oficios {{ depto|upper }} {{ year }}</h1>
+    
+    <div class="mb-3">
+        <button class="btn btn-secondary" onclick="location.reload()">Actualizar</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#formularioPopup">
+            Registrar Nuevo
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Folio</th>
+                    <th>Fecha Recibido</th>
+                    <th>Fecha Oficio</th>
+                    <th>Enviado por</th>
+                    <th>Procedencia</th>
+                    <th>Asunto</th>
+                    <th>Archivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oficio in oficios %}
+                <tr>
+                    <td>{{ oficio.folio|default:"-" }}</td>
+                    <td>{{ oficio.fecha_recibido|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ oficio.fecha_oficio|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ oficio.enviado_por|default:"-" }}</td>
+                    <td>{{ oficio.procedencia|default:"-" }}</td>
+                    <td>{{ oficio.asunto|default:"-" }}</td>
+                    <td>
+                        {% if oficio.archivo %}
+                        <a href="{{ oficio.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
+                            Ver <i class="fas fa-file-pdf"></i>
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editarModal{{ oficio.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="#" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No hay documentos registrados para este año</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    // Script para manejar acciones dinámicas
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ejemplo: Confirmación antes de eliminar
+        document.querySelectorAll('.btn-danger').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!confirm('¿Estás seguro de eliminar este oficio?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

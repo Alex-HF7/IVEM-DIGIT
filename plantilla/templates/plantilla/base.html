@@ -26,16 +26,31 @@
                             Registro
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <!-- Delegacion -->
                             <li class="dropdown-submenu">
                                 <a class="dropdown-item dropdown-toggle" href="#">Delegacion Administrativa</a>
                                 <ul class="dropdown-menu">
-                                    {% for anno in  anno_dispobinle %}
-                                        <li><a class="dropdown-item" href="{% url 'oficios_list' departamento='delegacion' anno=anno %}">Oficios Delegación {{ anno }}</a></li>
+                                    {% for year in years_disponibles %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url "lista_oficios" depto='delegacion' year=year%}">
+                                            Delegacion {{year}}
+                                        </a>
+                                    </li>
                                     {% endfor %}
                                 </ul>
                             </li>
+                            <!-- UCG -->
                             <li class="dropdown-submenu">
                                 <a class="dropdown-item dropdown-toggle" href="#">Unidad de Control de Gestion</a>
+                                <ul class="dropdown-menu">
+                                    {% for year in years_disponibles %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url "lista_oficios" depto='ucg' year=year %}">
+                                            U.C.G {{year}}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
                             </li>
                         </ul>
                     </li>
