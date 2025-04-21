@@ -42,6 +42,6 @@ def create_yearly_tables(anno):
 
 def verify_tables():
     with connection.cursor() as cursor:
-        cursor.execute("SELECT año FROM gestion_tables_configuraciontable")
+        cursor.execute("SELECT anno FROM gestion_tables_configuraciontable")
         for(anno,) in cursor.fetchall():
             create_yearly_tables(anno)

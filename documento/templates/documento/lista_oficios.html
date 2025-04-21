@@ -28,7 +28,13 @@
             <tbody>
                 {% for oficio in oficios %}
                 <tr>
-                    <td>{{ oficio.folio|default:"-" }}</td>
+                    <td>
+                        {% if oficio.pendiente %}
+                            <span class="badge bg-warning">Pendiente</span>
+                        {% else %}
+                            {{ oficio.folio }}
+                        {% endif %}
+                    </td>
                     <td>{{ oficio.fecha_recibido|date:"d/m/Y"|default:"-" }}</td>
                     <td>{{ oficio.fecha_oficio|date:"d/m/Y"|default:"-" }}</td>
                     <td>{{ oficio.enviado_por|default:"-" }}</td>
@@ -54,6 +60,15 @@
                                 <i class="fas fa-trash-alt"></i>
                             </a>
                         </div>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'actualizar_pendiente' depto=depto year=year oficio_id=oficio.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="pendiente" value="{{ oficio.pendiente_value }}">
+                            <button type="submit" class="btn btn-sm {% if oficio.pendiente %}btn-success{% else %}btn-warning{% endif %}">
+                                {% if oficio.pendiente %}Asignar Folio{% else %}Marcar como Pendiente{% endif %}
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% empty %}

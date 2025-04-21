@@ -1,0 +1,117 @@
+(0.001) SELECT 1; args=None; alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.008) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.003) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.004) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.001) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.001) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.007) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.002) SELECT nextval('folio_sequence'); args=None; alias=default
+(0.002) INSERT INTO oficios_ucg_2025 (fecha_recibido, fecha_oficio, enviado_por, procedencia, asunto, referencia, pendiente, folio) VALUES ('2025-04-21'::date, '2025-04-10'::date, 'fcvygbhuinjomkpl', 'vgubhinjomk', 'vgubhinjo', 'ybinomk', false, 1); args=[datetime.date(2025, 4, 21), datetime.date(2025, 4, 10), 'fcvygbhuinjomkpl', 'vgubhinjomk', 'vgubhinjo', 'ybinomk', False, 1]; alias=default
+(0.001) COMMIT; args=None; alias=default
+(0.001) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.004) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.003) SELECT nextval('folio_sequence'); args=None; alias=default
+(0.001) INSERT INTO oficios_ucg_2025 (fecha_recibido, fecha_oficio, enviado_por, procedencia, asunto, referencia, pendiente, folio) VALUES ('2025-04-10'::date, '2025-04-18'::date, 'asdfasdf', 'asdfasdf', 'asfasdf', 'asdfasdf', false, 2); args=[datetime.date(2025, 4, 10), datetime.date(2025, 4, 18), 'asdfasdf', 'asdfasdf', 'asfasdf', 'asdfasdf', False, 2]; alias=default
+(0.001) COMMIT; args=None; alias=default
+(0.001) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.006) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.002) 
+                        UPDATE oficios_ucg_2025
+                        SET folio = NULL, pendiente = true
+                        WHERE id = 2
+                    ; args=[2]; alias=default
+(0.002) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.006) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.002) 
+                        UPDATE oficios_ucg_2025
+                        SET folio = NULL, pendiente = true
+                        WHERE id = 3
+                    ; args=[3]; alias=default
+(0.002) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.006) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT nextval('folio_sequence'); args=None; alias=default
+(0.003) 
+                        UPDATE oficios_ucg_2025 
+                        SET folio = 3, pendiente = false
+                        WHERE id = 1
+                    ; args=[3, 1]; alias=default
+(0.001) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.007) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.000) SELECT nextval('folio_sequence'); args=None; alias=default
+(0.004) 
+                        UPDATE oficios_ucg_2025 
+                        SET folio = 4, pendiente = false
+                        WHERE id = 2
+                    ; args=[4, 2]; alias=default
+(0.001) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.006) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.000) SELECT nextval('folio_sequence'); args=None; alias=default
+(0.002) 
+                        UPDATE oficios_ucg_2025 
+                        SET folio = 5, pendiente = false
+                        WHERE id = 3
+                    ; args=[5, 3]; alias=default
+(0.001) SELECT * FROM oficios_ucg_2025; args=None; alias=default
+(0.004) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
