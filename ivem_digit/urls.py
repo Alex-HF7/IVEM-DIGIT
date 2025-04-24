@@ -11,6 +11,7 @@ urlpatterns = [
     path('oficios/<str:depto>/<int:year>/', viewsDoc.lista_oficios, name='lista_oficios'),
     path('oficios/<str:depto>/<int:year>/crear/', viewsDoc.crear_oficio, name='crear_oficio'),
     path('oficios/<str:depto>/<int:year>/<int:oficio_id>/actualizar/', viewsDoc.actualizar_pendiente, name='actualizar_pendiente'),
+    path('inicio/', viewsDoc.grafica, name='inicio')
 ]
 if settings.DEBUG:
     from django.conf.urls.static import static 

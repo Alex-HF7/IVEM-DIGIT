@@ -1,0 +1,72 @@
+{% extends 'plantilla/base.html' %}
+{% load static %}
+{% block title %}Incio{% endblock title %}
+{% block body_class %}body-documento{% endblock body_class %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mt-4">Dashboard de Oficios</h1>
+    
+    {% if no_data %}
+        <div class="alert alert-warning mt-4">
+            No hay datos disponibles para mostrar.
+        </div>
+    {% else %}
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Resumen General</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-light mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Total Oficios</h6>
+                                        <p class="card-text display-4">{{ total_oficios }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Pendientes</h6>
+                                        <p class="card-text display-4">{{ pendientes_total }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        {{ plot_mes|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        {{ plot_asunto|safe }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        {{ plot_pendientes|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

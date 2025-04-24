@@ -33,7 +33,7 @@ class Oficio(models.Model):
     referencia = models.CharField(max_length=255, verbose_name="Referencia")
     asunto_opciones = models.CharField(max_length=255, choices=ASUNTO_OPCIONES, verbose_name="Asunto Opciones")
     area = models.CharField(max_length=255, choices=AREA_OPCIONES, verbose_name="Área IVEM")
-    pendiente = models.BooleanField(verbose_name="Pendiente", default=False)
+    pendiente = models.BooleanField(verbose_name="Pendiente", default=True)
     archivo = models.FileField(upload_to='archivos/%Y', blank=True, null=True, verbose_name="Archivo")
 
     def __str__(self):

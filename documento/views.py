@@ -1,7 +1,11 @@
 from django.db import connection, transaction
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
+import json
+import plotly.express as px
+import pandas as pd;
 
 # Create your views here.
 def list(request):
@@ -67,21 +71,22 @@ def crear_oficio(request, depto, year):
             }                
             # Consulta SQL para insertar
             with transaction.atomic():
-                if not data['pendiente']:
-                    with connection.cursor() as cursor:
-                        cursor.execute("SELECT nextval('folio_sequence')")
-                        data['folio'] = cursor.fetchone()[0]
-            
-                columns = [k for k in data.keys() if data[k] is not None]
-                values = [data[k] for k in columns]
-                placeholders = ', '.join(['%s'] * len(values))
-
                 with connection.cursor() as cursor:
+                    columns = [k for k in data.keys() if data[k] is not None]
+                    values = [data[k] for k in columns]
+                    
                     cursor.execute(
-                        f"INSERT INTO oficios_{depto}_{year} ({', '.join(columns)}) VALUES ({placeholders})",
+                        f"""
+                        INSERT INTO oficios_{depto}_{year} ({', '.join(columns)})
+                        VALUES ({', '.join(['%s']*len(values))})
+                        RETURNING id, folio;
+                        """,
                         values
                     )
-            messages.success(request, "Oficio creado exitosamente!")
+                    result = cursor.fetchone()
+            
+            msg = f"Oficio {f'n° {result[1]} ' if result[1] else ''}creado exitosamente"
+            messages.success(request, msg)
             return redirect('lista_oficios', depto=depto, year=year)
             
         except Exception as e:
@@ -101,28 +106,131 @@ def crear_oficio(request, depto, year):
 def actualizar_pendiente(request, depto, year, oficio_id):
     if request.method == 'POST':
         try:
-            tabla_nombre = f'oficios_{depto}_{year}'
+            new_pendiente = request.POST.get('pendiente') == 'true'
             
-            with connection.cursor() as cursor:
-                # Verificar si está marcando como no pendiente
-                if request.POST.get('pendiente') == 'false':
-                    cursor.execute("SELECT nextval('folio_sequence')")
-                    folio = cursor.fetchone()[0]
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    if not new_pendiente:  # Si está marcando como NO pendiente
+                        cursor.execute(f"""
+                            UPDATE oficios_{depto}_{year}
+                            SET pendiente = FALSE, 
+                                folio = nextval('folio_seq_{depto}_{year}')
+                            WHERE id = %s AND pendiente = TRUE
+                            RETURNING folio;
+                        """, [oficio_id])
+                        
+                        if cursor.rowcount == 0:
+                            raise ValueError("No se pudo actualizar - ¿Ya tenía folio?")
+                            
+                        folio = cursor.fetchone()[0]
+                        msg = f"Folio {folio} asignado correctamente"
+                    else:
+                        cursor.execute(f"""
+                            UPDATE oficios_{depto}_{year}
+                            SET pendiente = TRUE, folio = NULL
+                            WHERE id = %s AND pendiente = FALSE
+                        """, [oficio_id])
+                        msg = "Marcado como pendiente (folio removido)"
                     
-                    cursor.execute(f"""
-                        UPDATE {tabla_nombre} 
-                        SET folio = %s, pendiente = false
-                        WHERE id = %s
-                    """, [folio, oficio_id])
-                else:
-                    cursor.execute(f"""
-                        UPDATE {tabla_nombre}
-                        SET folio = NULL, pendiente = true
-                        WHERE id = %s
-                    """, [oficio_id])
-                
-                messages.success(request, "Estado actualizado correctamente")
+                    messages.success(request, msg)
+                    
         except Exception as e:
             messages.error(request, f"Error al actualizar: {str(e)}")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error actualizar oficio {oficio_id}: {str(e)}", exc_info=True)
     
     return redirect('lista_oficios', depto=depto, year=year)
+
+def grafica(request):
+    # Obtener el año actual y los últimos 3 años
+    current_year = timezone.now().year
+    years = [current_year - i for i in range(3)]
+    
+    # Consulta para obtener datos de todas las tablas relevantes
+    data = []
+    for year in years:
+        for depto in ['ucg', 'delegacion']:
+            table_name = f'oficios_{depto}_{year}'
+            
+            # Verificar si la tabla existe
+            with connection.cursor() as cursor:
+                cursor.execute(f"""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.tables 
+                        WHERE table_name = '{table_name}'
+                    );
+                """)
+                table_exists = cursor.fetchone()[0]
+                
+                if table_exists:
+                    # Consultar datos de la tabla
+                    cursor.execute(f"""
+                        SELECT 
+                            fecha_recibido,
+                            asunto_opciones,
+                            area,
+                            pendiente,
+                            departamento
+                        FROM {table_name}
+                        WHERE fecha_recibido >= %s
+                        ORDER BY fecha_recibido DESC
+                    """, [timezone.now() - timedelta(days=365)])
+                    
+                    columns = [col[0] for col in cursor.description]
+                    rows = cursor.fetchall()
+                    
+                    for row in rows:
+                        data.append(dict(zip(columns, row)))
+    
+    if not data:
+        return render(request, 'dashboard_oficios.html', {'no_data': True})
+    
+    # Convertir a DataFrame para facilitar el análisis
+    df = pd.DataFrame(data)
+    
+    # Convertir fecha a datetime y extraer año-mes como string
+    df['fecha_recibido'] = pd.to_datetime(df['fecha_recibido'])
+    df['mes'] = df['fecha_recibido'].dt.strftime('%Y-%m')  # Formato: '2023-01'
+    
+    # Gráfico 1: Oficios por mes
+    oficios_por_mes = df.groupby(['mes', 'departamento']).size().reset_index(name='count')
+    
+    fig_mes = px.bar(
+        oficios_por_mes,
+        x='mes',
+        y='count',
+        color='departamento',
+        title='Oficios recibidos por mes',
+        labels={'count': 'Número de oficios', 'mes': 'Mes'},
+        category_orders={"mes": sorted(df['mes'].unique())}  # Ordenar meses cronológicamente
+    )
+    
+    # Gráfico 2: Distribución por asunto
+    asunto_dist = df['asunto_opciones'].value_counts().reset_index()
+    fig_asunto = px.pie(
+        asunto_dist,
+        values='count',
+        names='asunto_opciones',
+        title='Distribución por tipo de asunto'
+    )
+    
+    # Gráfico 3: Pendientes por área
+    pendientes = df[df['pendiente']].groupby(['area', 'departamento']).size().reset_index(name='count')
+    fig_pendientes = px.treemap(
+        pendientes,
+        path=['area', 'departamento'],
+        values='count',
+        title='Oficios pendientes por área'
+    )
+    
+    # Convertir figuras a HTML
+    context = {
+        'plot_mes': fig_mes.to_html(full_html=False, include_plotlyjs='cdn'),
+        'plot_asunto': fig_asunto.to_html(full_html=False, include_plotlyjs='cdn'),
+        'plot_pendientes': fig_pendientes.to_html(full_html=False, include_plotlyjs='cdn'),
+        'total_oficios': len(df),
+        'pendientes_total': len(df[df['pendiente']]),
+        'no_data': False
+    }
+    return render(request, 'documento/grafica.html', context)
