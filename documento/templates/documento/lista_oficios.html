@@ -40,13 +40,34 @@
                     <td>{{ oficio.enviado_por|default:"-" }}</td>
                     <td>{{ oficio.procedencia|default:"-" }}</td>
                     <td>{{ oficio.asunto|default:"-" }}</td>
-                    <td>
+                    <td class="archivo-cell">
+                        <!-- En el formulario de cada oficio -->
+                        <form method="post" enctype="multipart/form-data" action="{% url 'actualizar_pendiente' depto=depto year=year oficio_id=oficio.id %}">
+                            {% csrf_token %}
+                            
+                            <!-- Campo para subir archivo (solo si no tiene) -->
+                            {% if not oficio.archivo %}
+                            <div class="mb-2">
+                                <label class="form-label">Subir documento:</label>
+                                <input type="file" name="archivo" class="form-control form-control-sm">
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Botón para cambiar estado -->
+                            <button type="submit" class="btn btn-sm {% if oficio.pendiente %}btn-success{% else %}btn-warning{% endif %}">
+                                {% if oficio.pendiente %}
+                                    Asignar Folio {% if not oficio.archivo %}y Subir Documento{% endif %}
+                                {% else %}
+                                    Marcar como Pendiente
+                                {% endif %}
+                            </button>
+                        </form>
+                        
+                        <!-- Enlace para ver archivo si existe -->
                         {% if oficio.archivo %}
                         <a href="{{ oficio.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
-                            Ver <i class="fas fa-file-pdf"></i>
+                            Ver Documento
                         </a>
-                        {% else %}
-                        -
                         {% endif %}
                     </td>
                     <td>
@@ -54,21 +75,24 @@
                             <button class="btn btn-sm btn-primary" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#editarModal{{ oficio.id }}">
-                                <i class="fas fa-edit"></i>
+                                <i class="bi bi-pencil"></i>
                             </button>
                             <a href="#" class="btn btn-sm btn-danger">
-                                <i class="fas fa-trash-alt"></i>
+                                <i class="bi bi-trash3"></i>
                             </a>
                         </div>
                     </td>
                     <td>
-                        <form method="post" action="{% url 'actualizar_pendiente' depto=depto year=year oficio_id=oficio.id %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="pendiente" value="{{ oficio.pendiente_value }}">
-                            <button type="submit" class="btn btn-sm {% if oficio.pendiente %}btn-success{% else %}btn-warning{% endif %}">
-                                {% if oficio.pendiente %}Asignar Folio{% else %}Marcar como Pendiente{% endif %}
-                            </button>
-                        </form>
+                        {% if oficio.pendiente %}
+                            <form method="post" action="{% url 'actualizar_pendiente' depto=depto year=year oficio_id=oficio.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Asignar Folio
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Folio asignado</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -83,7 +107,7 @@
 <div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header">
                 <h5 class="modal-title" id="formularioPopupLabel">Registrar Nuevo Oficio</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -102,6 +126,10 @@
                                 <label for="fecha_oficio" class="form-label">Fecha Oficio</label>
                                 <input type="date" class="form-control" name="fecha_oficio">
                             </div>
+                            <div class="mb-3">
+                                <label for="referencia" class="form-label">Referencia</label>
+                                <input type="text" class="form-control" name="referencia">
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -115,14 +143,6 @@
                             <div class="mb-3">
                                 <label for="asunto" class="form-label">Asunto</label>
                                 <input type="text" class="form-control" name="asunto" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="referencia" class="form-label">Referencia</label>
-                                <input type="text" class="form-control" name="referencia">
                             </div>
                         </div>
                     </div>
@@ -147,6 +167,63 @@
                 if (!confirm('¿Estás seguro de eliminar este oficio?')) {
                     e.preventDefault();
                 }
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar formulario de subida
+        document.querySelectorAll('.subir-archivo-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const oficioId = this.getAttribute('data-oficio-id');
+                this.style.display = 'none';
+                document.querySelector(`.upload-form input[data-oficio-id="${oficioId}"]`)
+                    .closest('.upload-form').style.display = 'block';
+            });
+        });
+        
+        // Cancelar subida
+        document.querySelectorAll('.cancel-upload').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const oficioId = this.closest('.upload-form').querySelector('input').getAttribute('data-oficio-id');
+                this.closest('.upload-form').style.display = 'none';
+                document.querySelector(`.subir-archivo-btn[data-oficio-id="${oficioId}"]`).style.display = 'inline-block';
+            });
+        });
+        
+        // Confirmar subida
+        document.querySelectorAll('.confirm-upload').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const form = this.closest('.upload-form');
+                const input = form.querySelector('input[type="file"]');
+                const oficioId = input.getAttribute('data-oficio-id');
+                
+                if (input.files.length === 0) {
+                    alert('Por favor selecciona un archivo');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('archivo', input.files[0]);
+                
+                fetch(`/oficios/{{ depto }}/{{ year }}/${oficioId}/subir-archivo/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload(); // Recargar para mostrar el nuevo archivo
+                    } else {
+                        alert('Error al subir el archivo');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al subir el archivo');
+                });
             });
         });
     });

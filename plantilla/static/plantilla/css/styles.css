@@ -120,3 +120,21 @@
     background-color: #f8f8f8; /* Tu otro color personalizado */
     color: #333333;
 }
+
+.modal-header {
+    background-color: rgb(104, 33, 69) !important;  /* Color de fondo */
+    color: white !important;               /* Color del texto */
+}
+
+.archivo-cell {
+    width: 200px;
+    min-width: 200px;
+}
+.upload-form {
+    margin-top: 5px;
+}
+.upload-form input[type="file"] {
+    margin-bottom: 5px;
+    width: 100%;
+}
+

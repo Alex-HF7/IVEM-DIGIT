@@ -3,10 +3,10 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from datetime import datetime, timedelta
 from django.utils import timezone
-import json
 import plotly.express as px
 import pandas as pd;
-
+from django.http import JsonResponse
+import os
 # Create your views here.
 def list(request):
     print("Configuración actual de DB:", connection.settings_dict)
@@ -67,7 +67,7 @@ def crear_oficio(request, depto, year):
                 'procedencia': request.POST['procedencia'],
                 'asunto': request.POST['asunto'],
                 'referencia': request.POST.get('referencia', ''),
-                'pendiente': request.POST.get('pendiente', 'false') == 'true'
+                'pendiente': True
             }                
             # Consulta SQL para insertar
             with transaction.atomic():
@@ -106,33 +106,21 @@ def crear_oficio(request, depto, year):
 def actualizar_pendiente(request, depto, year, oficio_id):
     if request.method == 'POST':
         try:
-            new_pendiente = request.POST.get('pendiente') == 'true'
-            
             with transaction.atomic():
                 with connection.cursor() as cursor:
-                    if not new_pendiente:  # Si está marcando como NO pendiente
-                        cursor.execute(f"""
-                            UPDATE oficios_{depto}_{year}
-                            SET pendiente = FALSE, 
-                                folio = nextval('folio_seq_{depto}_{year}')
-                            WHERE id = %s AND pendiente = TRUE
-                            RETURNING folio;
+                    cursor.execute(f"""
+                        UPDATE oficios_{depto}_{year}
+                        SET pendiente = FALSE, 
+                            folio = nextval('folio_seq_{depto}_{year}')
+                        WHERE id = %s AND pendiente = TRUE
+                        RETURNING folio;
                         """, [oficio_id])
                         
-                        if cursor.rowcount == 0:
-                            raise ValueError("No se pudo actualizar - ¿Ya tenía folio?")
+                    if cursor.rowcount == 0:
+                        raise ValueError("No se pudo actualizar - ¿Ya tenía folio?")
                             
-                        folio = cursor.fetchone()[0]
-                        msg = f"Folio {folio} asignado correctamente"
-                    else:
-                        cursor.execute(f"""
-                            UPDATE oficios_{depto}_{year}
-                            SET pendiente = TRUE, folio = NULL
-                            WHERE id = %s AND pendiente = FALSE
-                        """, [oficio_id])
-                        msg = "Marcado como pendiente (folio removido)"
-                    
-                    messages.success(request, msg)
+                    folio = cursor.fetchone()[0]
+                    messages.success(request, f"Folio {folio} asignado correctamente")
                     
         except Exception as e:
             messages.error(request, f"Error al actualizar: {str(e)}")
@@ -234,3 +222,73 @@ def grafica(request):
         'no_data': False
     }
     return render(request, 'documento/grafica.html', context)
+
+def archivo_path(instance, filename):
+    ext = filename.split('.')[-1]
+    folio = instance.folio if instance.folio else 'pendiente'
+    depto = instance.departamento
+    year = instance.fecha_recibido.year if instance.fecha_recibido else '0000'
+
+    new_filename = f"{folio}-{depto}-{year}.{ext}"
+
+    return os.path.join('oficios', depto, str(year), new_filename)
+def actualizar_pendiente(request, depto, year, oficio_id):
+    if request.method == 'POST':
+        try:
+            tabla_nombre = f'oficios_{depto}_{year}'
+            archivo = request.FILES.get('archivo')
+            
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    # Obtener datos actuales
+                    cursor.execute(f"""
+                        SELECT folio, archivo FROM {tabla_nombre} 
+                        WHERE id = %s
+                    """, [oficio_id])
+                    actual = cursor.fetchone()
+                    
+                    if request.POST.get('pendiente') == 'false':
+                        # Asignar folio si no lo tiene
+                        folio = actual[0]
+                        if not folio:
+                            cursor.execute(f"SELECT nextval('folio_seq_{depto}_{year}')")
+                            folio = cursor.fetchone()[0]
+                        
+                        # Procesar archivo si se subió
+                        nombre_archivo = None
+                        if archivo:
+                            ext = os.path.splitext(archivo.name)[1]
+                            nombre_archivo = f"{folio}-{depto}-{year}{ext}"
+                            fs = FileSystemStorage()
+                            ruta = os.path.join('oficios', depto, str(year), nombre_archivo)
+                            nombre_archivo = fs.save(ruta, archivo)
+                        
+                        # Actualizar registro
+                        update_sql = f"""
+                            UPDATE {tabla_nombre}
+                            SET pendiente = FALSE, 
+                                folio = %s
+                                {', archivo = %s' if nombre_archivo else ''}
+                            WHERE id = %s
+                        """
+                        params = [folio]
+                        if nombre_archivo:
+                            params.append(nombre_archivo)
+                        params.append(oficio_id)
+                        
+                        cursor.execute(update_sql, params)
+                        
+                    else:
+                        # Marcando como pendiente
+                        cursor.execute(f"""
+                            UPDATE {tabla_nombre}
+                            SET pendiente = TRUE, folio = NULL
+                            WHERE id = %s
+                        """, [oficio_id])
+            
+            messages.success(request, "Estado actualizado correctamente")
+            
+        except Exception as e:
+            messages.error(request, f"Error al actualizar: {str(e)}")
+    
+    return redirect('lista_oficios', depto=depto, year=year)
