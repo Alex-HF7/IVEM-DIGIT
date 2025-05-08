@@ -135,92 +135,93 @@ def grafica(request):
     current_year = timezone.now().year
     years = [current_year - i for i in range(3)]
     
-    # Consulta para obtener datos de todas las tablas relevantes
     data = []
-    for year in years:
-        for depto in ['ucg', 'delegacion']:
-            table_name = f'oficios_{depto}_{year}'
-            
-            # Verificar si la tabla existe
-            with connection.cursor() as cursor:
-                cursor.execute(f"""
-                    SELECT EXISTS (
-                        SELECT FROM information_schema.tables 
-                        WHERE table_name = '{table_name}'
-                    );
-                """)
-                table_exists = cursor.fetchone()[0]
+    
+    try:
+        # Consulta para obtener datos de todas las tablas relevantes
+        for year in years:
+            for depto in ['ucg', 'delegacion']:
+                table_name = f'oficios_{depto}_{year}'
                 
-                if table_exists:
-                    # Consultar datos de la tabla
+                # Verificar si la tabla existe
+                with connection.cursor() as cursor:
                     cursor.execute(f"""
-                        SELECT 
-                            fecha_recibido,
-                            asunto_opciones,
-                            area,
-                            pendiente,
-                            departamento
-                        FROM {table_name}
-                        WHERE fecha_recibido >= %s
-                        ORDER BY fecha_recibido DESC
-                    """, [timezone.now() - timedelta(days=365)])
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = '{table_name}'
+                        );
+                    """)
+                    table_exists = cursor.fetchone()[0]
                     
-                    columns = [col[0] for col in cursor.description]
-                    rows = cursor.fetchall()
-                    
-                    for row in rows:
-                        data.append(dict(zip(columns, row)))
+                    if table_exists:
+                        # Consultar datos de la tabla
+                        cursor.execute(f"""
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM {table_name}
+                            WHERE fecha_recibido >= %s
+                            ORDER BY fecha_recibido DESC
+                        """, [timezone.now() - timedelta(days=365)])
+                        
+                        columns = [col[0] for col in cursor.description]
+                        rows = cursor.fetchall()
+                        
+                        for row in rows:
+                            data.append(dict(zip(columns, row)))
+        
+        if not data:
+            return render(request, 'documento/grafica.html', {'no_data': True})
+        
+        # Convertir a DataFrame para facilitar el análisis
+        df = pd.DataFrame(data)
+        
+        # Convertir fecha a datetime y extraer año-mes
+        df['fecha_recibido'] = pd.to_datetime(df['fecha_recibido'])
+        df['mes'] = df['fecha_recibido'].dt.strftime('%Y-%m')
+        
+        # Gráfico 1: Oficios por mes (nuevos registros)
+        oficios_por_mes = df.groupby(['mes', 'departamento']).size().reset_index(name='count')
+        
+        fig_nuevos = px.bar(
+            oficios_por_mes,
+            x='mes',
+            y='count',
+            color='departamento',
+            title='Nuevos oficios recibidos por mes',
+            labels={'count': 'Número de oficios', 'mes': 'Mes'},
+            category_orders={"mes": sorted(df['mes'].unique())}
+        )
+        
+        # Gráfico 2: Oficios pendientes
+        pendientes = df[df['pendiente']].groupby('departamento').size().reset_index(name='count')
+        
+        if not pendientes.empty:
+            fig_pendientes = px.bar(
+                pendientes,
+                x='departamento',
+                y='count',
+                title='Oficios pendientes por departamento',
+                labels={'count': 'Número de oficios', 'departamento': 'Departamento'}
+            )
+            plot_pendientes = fig_pendientes.to_html(full_html=False, include_plotlyjs='cdn')
+        else:
+            plot_pendientes = None
+        
+        context = {
+            'plot_nuevos': fig_nuevos.to_html(full_html=False, include_plotlyjs='cdn'),
+            'plot_pendientes': plot_pendientes,
+            'total_oficios': len(df),
+            'pendientes_total': len(df[df['pendiente']]),
+            'no_data': False
+        }
+        
+    except Exception as e:
+        # En caso de cualquier error, mostrar mensaje de no datos
+        print(f"Error al generar gráficas: {e}")
+        return render(request, 'documento/grafica.html', {'no_data': True})
     
-    if not data:
-        return render(request, 'dashboard_oficios.html', {'no_data': True})
-    
-    # Convertir a DataFrame para facilitar el análisis
-    df = pd.DataFrame(data)
-    
-    # Convertir fecha a datetime y extraer año-mes como string
-    df['fecha_recibido'] = pd.to_datetime(df['fecha_recibido'])
-    df['mes'] = df['fecha_recibido'].dt.strftime('%Y-%m')  # Formato: '2023-01'
-    
-    # Gráfico 1: Oficios por mes
-    oficios_por_mes = df.groupby(['mes', 'departamento']).size().reset_index(name='count')
-    
-    fig_mes = px.bar(
-        oficios_por_mes,
-        x='mes',
-        y='count',
-        color='departamento',
-        title='Oficios recibidos por mes',
-        labels={'count': 'Número de oficios', 'mes': 'Mes'},
-        category_orders={"mes": sorted(df['mes'].unique())}  # Ordenar meses cronológicamente
-    )
-    
-    # Gráfico 2: Distribución por asunto
-    asunto_dist = df['asunto_opciones'].value_counts().reset_index()
-    fig_asunto = px.pie(
-        asunto_dist,
-        values='count',
-        names='asunto_opciones',
-        title='Distribución por tipo de asunto'
-    )
-    
-    # Gráfico 3: Pendientes por área
-    pendientes = df[df['pendiente']].groupby(['area', 'departamento']).size().reset_index(name='count')
-    fig_pendientes = px.treemap(
-        pendientes,
-        path=['area', 'departamento'],
-        values='count',
-        title='Oficios pendientes por área'
-    )
-    
-    # Convertir figuras a HTML
-    context = {
-        'plot_mes': fig_mes.to_html(full_html=False, include_plotlyjs='cdn'),
-        'plot_asunto': fig_asunto.to_html(full_html=False, include_plotlyjs='cdn'),
-        'plot_pendientes': fig_pendientes.to_html(full_html=False, include_plotlyjs='cdn'),
-        'total_oficios': len(df),
-        'pendientes_total': len(df[df['pendiente']]),
-        'no_data': False
-    }
     return render(request, 'documento/grafica.html', context)
 
 def archivo_path(instance, filename):
@@ -232,6 +233,7 @@ def archivo_path(instance, filename):
     new_filename = f"{folio}-{depto}-{year}.{ext}"
 
     return os.path.join('oficios', depto, str(year), new_filename)
+
 def actualizar_pendiente(request, depto, year, oficio_id):
     if request.method == 'POST':
         try:
