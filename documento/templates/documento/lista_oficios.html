@@ -48,20 +48,13 @@
                             <!-- Campo para subir archivo (solo si no tiene) -->
                             {% if not oficio.archivo %}
                             <div class="mb-2">
-                                <label class="form-label">Subir documento:</label>
-                                <input type="file" name="archivo" class="form-control form-control-sm">
+                                <!-- Botón/Ícono para abrir el modal -->
+                                <button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#uploadModal{{ oficio.id }}">
+                                    <i class="bi bi-upload"></i> 
+                                </button>
                             </div>
                             {% endif %}
-                            
-                            <!-- Botón para cambiar estado -->
-                            <button type="submit" class="btn btn-sm {% if oficio.pendiente %}btn-success{% else %}btn-warning{% endif %}">
-                                {% if oficio.pendiente %}
-                                    Asignar Folio {% if not oficio.archivo %}y Subir Documento{% endif %}
-                                {% else %}
-                                    Marcar como Pendiente
-                                {% endif %}
-                            </button>
-                        </form>
+                        </form> 
                         
                         <!-- Enlace para ver archivo si existe -->
                         {% if oficio.archivo %}
@@ -155,77 +148,15 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Script para manejar acciones dinámicas
-    document.addEventListener('DOMContentLoaded', function() {
-        // Ejemplo: Confirmación antes de eliminar
-        document.querySelectorAll('.btn-danger').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                if (!confirm('¿Estás seguro de eliminar este oficio?')) {
-                    e.preventDefault();
-                }
-            });
-        });
-    });
-    document.addEventListener('DOMContentLoaded', function() {
-        // Mostrar formulario de subida
-        document.querySelectorAll('.subir-archivo-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const oficioId = this.getAttribute('data-oficio-id');
-                this.style.display = 'none';
-                document.querySelector(`.upload-form input[data-oficio-id="${oficioId}"]`)
-                    .closest('.upload-form').style.display = 'block';
-            });
-        });
-        
-        // Cancelar subida
-        document.querySelectorAll('.cancel-upload').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const oficioId = this.closest('.upload-form').querySelector('input').getAttribute('data-oficio-id');
-                this.closest('.upload-form').style.display = 'none';
-                document.querySelector(`.subir-archivo-btn[data-oficio-id="${oficioId}"]`).style.display = 'inline-block';
-            });
-        });
-        
-        // Confirmar subida
-        document.querySelectorAll('.confirm-upload').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const form = this.closest('.upload-form');
-                const input = form.querySelector('input[type="file"]');
-                const oficioId = input.getAttribute('data-oficio-id');
-                
-                if (input.files.length === 0) {
-                    alert('Por favor selecciona un archivo');
-                    return;
-                }
-                
-                const formData = new FormData();
-                formData.append('archivo', input.files[0]);
-                
-                fetch(`/oficios/{{ depto }}/{{ year }}/${oficioId}/subir-archivo/`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        location.reload(); // Recargar para mostrar el nuevo archivo
-                    } else {
-                        alert('Error al subir el archivo');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al subir el archivo');
-                });
-            });
-        });
-    });
+    // Variables globales necesarias para el JS
+    const depto = "{{ depto }}";
+    const year = "{{ year }}";
+    const csrfToken = "{{ csrf_token }}";
 </script>
+<script src="{% static 'js/documento.js' %}"></script>
 {% endblock %}
