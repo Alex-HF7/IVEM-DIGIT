@@ -192,7 +192,7 @@
 }
 
 .custom-zebra tbody tr:nth-child(odd) {
-    background-color: #C83182;  /* Color personalizado para filas impares (azul claro) */
+    background-color:  #e5e8e8 ;  /* Color personalizado para filas impares (azul claro) */
 }
 
 .custom-zebra tbody tr:nth-child(even) {
@@ -200,8 +200,8 @@
 }
 
 .table-striped>tbody>tr:nth-child(odd)>td {
-    background-color: #c83182; /* Tu color personalizado */
-    color: #f0f0f0
+    background-color:  #e5e8e8 ; /* Tu color personalizado */
+    color: #333333
 }
 
 .table-striped>tbody>tr:nth-child(even)>td {

@@ -15,6 +15,7 @@
         <table class="table table-bordered table-hover table-striped">
             <thead class="table-dark">
                 <tr>
+                    <th>ID</th>
                     <th>Folio</th>
                     <th>Fecha Recibido</th>
                     <th>Fecha Oficio</th>
@@ -28,6 +29,7 @@
             <tbody>
                 {% for oficio in oficios %}
                 <tr>
+                    <td>{{ oficio.id|default:"-"}}</td>
                     <td>
                         {% if oficio.pendiente %}
                             <span class="badge bg-warning">Pendiente</span>
@@ -40,52 +42,25 @@
                     <td>{{ oficio.enviado_por|default:"-" }}</td>
                     <td>{{ oficio.procedencia|default:"-" }}</td>
                     <td>{{ oficio.asunto|default:"-" }}</td>
-                    <td class="archivo-cell">
-                        <!-- En el formulario de cada oficio -->
-                        <form method="post" enctype="multipart/form-data" action="{% url 'actualizar_pendiente' depto=depto year=year oficio_id=oficio.id %}">
-                            {% csrf_token %}
-                            
-                            <!-- Campo para subir archivo (solo si no tiene) -->
-                            {% if not oficio.archivo %}
-                            <div class="mb-2">
-                                <!-- Botón/Ícono para abrir el modal -->
-                                <button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#uploadModal{{ oficio.id }}">
-                                    <i class="bi bi-upload"></i> 
-                                </button>
-                            </div>
-                            {% endif %}
-                        </form> 
-                        
-                        <!-- Enlace para ver archivo si existe -->
-                        {% if oficio.archivo %}
-                        <a href="{{ oficio.archivo.url }}" target="_blank" class="btn btn-sm btn-info">
-                            Ver Documento
-                        </a>
-                        {% endif %}
+                    
+                    <td>
+                        <button class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#modalCargarArchivo" data-depto="{{ depto }}" data-year="{{ year }}" data-oficio-id="{{ oficio.id }}">
+                        <i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i></button>
                     </td>
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-primary" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#editarModal{{ oficio.id }}">
+                                    data-bs-target="modalCargarArchivo"
+                                    data-depto="{{depto}}" 
+                                    data-year="{{ year }}"
+                                    data-oficio-id="{{ oficio.id }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
                             <a href="#" class="btn btn-sm btn-danger">
                                 <i class="bi bi-trash3"></i>
                             </a>
                         </div>
-                    </td>
-                    <td>
-                        {% if oficio.pendiente %}
-                            <form method="post" action="{% url 'actualizar_pendiente' depto=depto year=year oficio_id=oficio.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    Asignar Folio
-                                </button>
-                            </form>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">Folio asignado</span>
-                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -149,14 +124,31 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="modalCargarArchivo" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="" enctype="multipart/form-data" id="formCargarArchivo">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Cargar archivo PDF</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="file" name="archivo_pdf" accept=".pdf" class="form-control" required>
+          <input type="hidden" name="oficio_id" id="modalOficioId">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Subir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // Variables globales necesarias para el JS
-    const depto = "{{ depto }}";
-    const year = "{{ year }}";
-    const csrfToken = "{{ csrf_token }}";
-</script>
 <script src="{% static 'js/documento.js' %}"></script>
 {% endblock %}

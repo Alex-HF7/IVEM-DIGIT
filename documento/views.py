@@ -3,10 +3,12 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from datetime import datetime, timedelta
 from django.utils import timezone
+from ivem_digit import settings
 import plotly.express as px
 import pandas as pd;
-from django.http import JsonResponse
 import os
+from django.core.files.storage import FileSystemStorage
+
 # Create your views here.
 def list(request):
     print("Configuración actual de DB:", connection.settings_dict)
@@ -224,73 +226,58 @@ def grafica(request):
     
     return render(request, 'documento/grafica.html', context)
 
-def archivo_path(instance, filename):
-    ext = filename.split('.')[-1]
-    folio = instance.folio if instance.folio else 'pendiente'
-    depto = instance.departamento
-    year = instance.fecha_recibido.year if instance.fecha_recibido else '0000'
-
-    new_filename = f"{folio}-{depto}-{year}.{ext}"
-
-    return os.path.join('oficios', depto, str(year), new_filename)
-
-def actualizar_pendiente(request, depto, year, oficio_id):
+def cargar_archivo(request, depto, year, oficio_id):
+    print("\nDEBUG: Inicio de la función cargar_archivo")  # Debug 1
+    
     if request.method == 'POST':
         try:
-            tabla_nombre = f'oficios_{depto}_{year}'
-            archivo = request.FILES.get('archivo')
+            print("DEBUG: Método POST detectado")  # Debug 2
             
-            with transaction.atomic():
-                with connection.cursor() as cursor:
-                    # Obtener datos actuales
-                    cursor.execute(f"""
-                        SELECT folio, archivo FROM {tabla_nombre} 
-                        WHERE id = %s
-                    """, [oficio_id])
-                    actual = cursor.fetchone()
-                    
-                    if request.POST.get('pendiente') == 'false':
-                        # Asignar folio si no lo tiene
-                        folio = actual[0]
-                        if not folio:
-                            cursor.execute(f"SELECT nextval('folio_seq_{depto}_{year}')")
-                            folio = cursor.fetchone()[0]
-                        
-                        # Procesar archivo si se subió
-                        nombre_archivo = None
-                        if archivo:
-                            ext = os.path.splitext(archivo.name)[1]
-                            nombre_archivo = f"{folio}-{depto}-{year}{ext}"
-                            fs = FileSystemStorage()
-                            ruta = os.path.join('oficios', depto, str(year), nombre_archivo)
-                            nombre_archivo = fs.save(ruta, archivo)
-                        
-                        # Actualizar registro
-                        update_sql = f"""
-                            UPDATE {tabla_nombre}
-                            SET pendiente = FALSE, 
-                                folio = %s
-                                {', archivo = %s' if nombre_archivo else ''}
-                            WHERE id = %s
-                        """
-                        params = [folio]
-                        if nombre_archivo:
-                            params.append(nombre_archivo)
-                        params.append(oficio_id)
-                        
-                        cursor.execute(update_sql, params)
-                        
-                    else:
-                        # Marcando como pendiente
-                        cursor.execute(f"""
-                            UPDATE {tabla_nombre}
-                            SET pendiente = TRUE, folio = NULL
-                            WHERE id = %s
-                        """, [oficio_id])
+            # Verificación de archivo
+            if 'archivo_pdf' not in request.FILES:
+                raise ValueError("Debes seleccionar un archivo PDF")
             
-            messages.success(request, "Estado actualizado correctamente")
+            pdf_file = request.FILES['archivo_pdf']
+            print(f"DEBUG: Archivo recibido - Nombre: {pdf_file.name}, Tamaño: {pdf_file.size}")  # Debug 3
+
+            # Generación de rutas
+            nombre_tabla = f"oficios_{depto}_{year}"
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'oficios', depto, str(year))
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            filename = f"oficio_{oficio_id}_{pdf_file.name}"
+            filepath = os.path.join(upload_dir, filename)
+            relative_path = os.path.join('oficios', depto, str(year), filename).replace('\\', '/')
+            
+            print(f"DEBUG: Ruta física: {filepath}")  # Debug 4
+            print(f"DEBUG: Ruta para DB: {relative_path}")  # Debug 5
+
+            # Guardado físico
+            with open(filepath, 'wb+') as destination:
+                for chunk in pdf_file.chunks():
+                    destination.write(chunk)
+            print("DEBUG: Archivo guardado físicamente")  # Debug 6
+
+            # Actualización en BD
+            with connection.cursor() as cursor:
+                query = f"UPDATE {nombre_tabla} SET archivo = %s WHERE id = %s"
+                params = [relative_path, oficio_id]
+                print(f"DEBUG: Query: {query % tuple(params)}")  # Debug 7
+                
+                cursor.execute(query, params)
+                print(f"DEBUG: Filas afectadas: {cursor.rowcount}")  # Debug 8
+                
+                # Verificación adicional para PostgreSQL
+                if hasattr(connection, 'commit'):
+                    connection.commit()
+                    print("DEBUG: Commit ejecutado")  # Debug 9
+            
+            messages.success(request, "¡Archivo guardado correctamente!")
+            return redirect('lista_oficios', depto=depto, year=year)
             
         except Exception as e:
-            messages.error(request, f"Error al actualizar: {str(e)}")
+            print(f"DEBUG: Error - {str(e)}")  # Debug 10
+            messages.error(request, f"Error al guardar: {str(e)}")
+            return redirect('lista_oficios', depto=depto, year=year)
     
     return redirect('lista_oficios', depto=depto, year=year)

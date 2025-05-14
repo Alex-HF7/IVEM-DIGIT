@@ -34,7 +34,7 @@ class Oficio(models.Model):
     asunto_opciones = models.CharField(max_length=255, choices=ASUNTO_OPCIONES, verbose_name="Asunto Opciones")
     area = models.CharField(max_length=255, choices=AREA_OPCIONES, verbose_name="Área IVEM")
     pendiente = models.BooleanField(verbose_name="Pendiente", default=True)
-    archivo = models.FileField(upload_to='archivos/%Y', blank=True, null=True, verbose_name="Archivo")
+    archivo = models.FileField(upload_to='archivos/', blank=True, null=True, verbose_name="Archivo")
 
     def __str__(self):
         return f"Documento {self.folio} - {self.asunto}"
