@@ -1,14 +1,18 @@
+import os
+import logging
+from django.conf import settings
 from django.db import connection, transaction
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from datetime import datetime, timedelta
 from django.utils import timezone
-from ivem_digit import settings
+import json
+from django.http import JsonResponse
 import plotly.express as px
 import pandas as pd;
-import os
 from django.core.files.storage import FileSystemStorage
 
+logger = logging.getLogger(__name__)
 # Create your views here.
 def list(request):
     print("Configuración actual de DB:", connection.settings_dict)
@@ -35,7 +39,7 @@ def lista_oficios(request, depto, year):
     tabla_nombre = f'oficios_{depto}_{year}'
     try:
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM {tabla_nombre}")
+            cursor.execute(f"SELECT * FROM {tabla_nombre} ORDER BY id ASC")
             columns = [col[0] for col in cursor.description]
             oficios = [dict(zip(columns, row)) for row in cursor.fetchall()]
             
@@ -226,58 +230,74 @@ def grafica(request):
     
     return render(request, 'documento/grafica.html', context)
 
-def cargar_archivo(request, depto, year, oficio_id):
-    print("\nDEBUG: Inicio de la función cargar_archivo")  # Debug 1
-    
+def cargar_archivo(request):
     if request.method == 'POST':
         try:
-            print("DEBUG: Método POST detectado")  # Debug 2
+            # Validar parámetros
+            depto = request.POST.get('depto')
+            year = request.POST.get('year')
+            id_oficio = request.POST.get('id_oficio')
             
-            # Verificación de archivo
-            if 'archivo_pdf' not in request.FILES:
-                raise ValueError("Debes seleccionar un archivo PDF")
+            if not all([depto, year, id_oficio]):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Faltan parámetros requeridos'
+                }, status=400)
             
-            pdf_file = request.FILES['archivo_pdf']
-            print(f"DEBUG: Archivo recibido - Nombre: {pdf_file.name}, Tamaño: {pdf_file.size}")  # Debug 3
-
-            # Generación de rutas
-            nombre_tabla = f"oficios_{depto}_{year}"
+            # Validar archivo
+            if 'archivo' not in request.FILES:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No se ha seleccionado ningún archivo'
+                }, status=400)
+            
+            archivo = request.FILES['archivo']
+            
+            # Validar extensión
+            extensiones_permitidas = ['.pdf', '.doc', '.docx', '.jpg', '.png', '.jpeg']
+            if not any(archivo.name.lower().endswith(ext) for ext in extensiones_permitidas):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Tipo de archivo no permitido. Use PDF, DOC, DOCX, JPG o PNG'
+                }, status=400)
+            
+            # Crear directorio si no existe
             upload_dir = os.path.join(settings.MEDIA_ROOT, 'oficios', depto, str(year))
             os.makedirs(upload_dir, exist_ok=True)
             
-            filename = f"oficio_{oficio_id}_{pdf_file.name}"
-            filepath = os.path.join(upload_dir, filename)
-            relative_path = os.path.join('oficios', depto, str(year), filename).replace('\\', '/')
+            # Generar nombre del archivo
+            nombre_archivo = f"{id_oficio}_{depto}_{year}{os.path.splitext(archivo.name)[1]}"
+            ruta_completa = os.path.join(upload_dir, nombre_archivo)
             
-            print(f"DEBUG: Ruta física: {filepath}")  # Debug 4
-            print(f"DEBUG: Ruta para DB: {relative_path}")  # Debug 5
-
-            # Guardado físico
-            with open(filepath, 'wb+') as destination:
-                for chunk in pdf_file.chunks():
-                    destination.write(chunk)
-            print("DEBUG: Archivo guardado físicamente")  # Debug 6
-
-            # Actualización en BD
-            with connection.cursor() as cursor:
-                query = f"UPDATE {nombre_tabla} SET archivo = %s WHERE id = %s"
-                params = [relative_path, oficio_id]
-                print(f"DEBUG: Query: {query % tuple(params)}")  # Debug 7
-                
-                cursor.execute(query, params)
-                print(f"DEBUG: Filas afectadas: {cursor.rowcount}")  # Debug 8
-                
-                # Verificación adicional para PostgreSQL
-                if hasattr(connection, 'commit'):
-                    connection.commit()
-                    print("DEBUG: Commit ejecutado")  # Debug 9
+            # Guardar archivo
+            fs = FileSystemStorage(location=upload_dir)
+            nombre_guardado = fs.save(nombre_archivo, archivo)
             
-            messages.success(request, "¡Archivo guardado correctamente!")
-            return redirect('lista_oficios', depto=depto, year=year)
+            # Ruta relativa para la base de datos
+            ruta_relativa = os.path.join('oficios', depto, str(year), nombre_guardado)
+            
+            # Actualizar base de datos
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f"UPDATE oficios_{depto}_{year} SET archivo = %s WHERE id = %s",
+                        [ruta_relativa, id_oficio]
+                    )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Archivo cargado exitosamente',
+                'file_url': os.path.join(settings.MEDIA_URL, ruta_relativa)
+            })
             
         except Exception as e:
-            print(f"DEBUG: Error - {str(e)}")  # Debug 10
-            messages.error(request, f"Error al guardar: {str(e)}")
-            return redirect('lista_oficios', depto=depto, year=year)
+            logger.error(f"Error al cargar archivo: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': f'Error al cargar archivo: {str(e)}'
+            }, status=500)
     
-    return redirect('lista_oficios', depto=depto, year=year)
+    return JsonResponse({
+        'success': False,
+        'message': 'Método no permitido'
+    }, status=405)

@@ -10,10 +10,12 @@ urlpatterns = [
     path('list/', viewsDoc.list, name='list'),
     path('oficios/<str:depto>/<int:year>/', viewsDoc.lista_oficios, name='lista_oficios'),
     path('oficios/<str:depto>/<int:year>/crear/', viewsDoc.crear_oficio, name='crear_oficio'),
-    path('oficios/<str:depto>/<int:year>/<int:oficio_id>/cargar/', viewsDoc.cargar_archivo, name='cargar_archivo'),
+    path('oficios/subir/', viewsDoc.cargar_archivo, name='subir'),
     path('inicio/', viewsDoc.grafica, name='inicio'),
 ]
 if settings.DEBUG:
     from django.conf.urls.static import static 
     urlpatterns += static(settings.MEDIA_URL, 
                           document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, 
+                          document_root=settings.STATIC_ROOT)

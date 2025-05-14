@@ -44,17 +44,21 @@
                     <td>{{ oficio.asunto|default:"-" }}</td>
                     
                     <td>
-                        <button class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#modalCargarArchivo" data-depto="{{ depto }}" data-year="{{ year }}" data-oficio-id="{{ oficio.id }}">
-                        <i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i></button>
+                        {% if oficio.archivo %}
+                            <a href="/media/{{ oficio.archivo }}" target="_blank">Ver archivo</a>
+                        {% else %}
+                            <!-- Botón para abrir el modal -->
+                            <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
+                            data-depto="{{ depto }}" 
+                            data-year="{{ year }}" 
+                            data-id="{{ oficio.id }}">
+                            Cargar Archivo
+                            </button>
+                        {% endif %}
                     </td>
                     <td>
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-primary" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="modalCargarArchivo"
-                                    data-depto="{{depto}}" 
-                                    data-year="{{ year }}"
-                                    data-oficio-id="{{ oficio.id }}">
+                            <button class="btn btn-sm btn-primary">
                                 <i class="bi bi-pencil"></i>
                             </button>
                             <a href="#" class="btn btn-sm btn-danger">
@@ -124,31 +128,39 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="modalCargarArchivo" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form method="post" action="" enctype="multipart/form-data" id="formCargarArchivo">
-        {% csrf_token %}
-        <div class="modal-header">
-          <h5 class="modal-title">Cargar archivo PDF</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Modal para cargar archivo -->
+<div class="modal fade" id="cargarArchivoModal" tabindex="-1" aria-labelledby="cargarArchivoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cargarArchivoModalLabel">Cargar Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formCargarArchivo" action="{% url 'subir' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" id="modalDepto" name="depto">
+                <input type="hidden" id="modalYear" name="year">
+                <input type="hidden" id="modalIdOficio" name="id_oficio">
+                
+                <div class="modal-body">
+                    <div id="alertContainer"></div>
+                    <div class="mb-3">
+                        <label for="archivoInput" class="form-label">Seleccionar archivo:</label>
+                        <input class="form-control" type="file" id="archivoInput" name="archivo" required>
+                        <div class="form-text">Formatos permitidos: PDF, DOC, DOCX, JPG, PNG</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cargar</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body">
-          <input type="file" name="archivo_pdf" accept=".pdf" class="form-control" required>
-          <input type="hidden" name="oficio_id" id="modalOficioId">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Subir</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/documento.js' %}"></script>
+<script src="{% static 'plantilla/js/cargarArchivoModal.js' %}"></script>
 {% endblock %}
