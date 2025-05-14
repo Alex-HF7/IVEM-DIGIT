@@ -1,0 +1,31 @@
+{% extends "plantilla/base.html" %}
+{% load static %}
+{% block title %} Lista Pedientes {% endblock title %}
+{% block body_class %}body-documento{% endblock body_class %}
+{% block content %}
+<div class="container">
+    <h1 class= "text-center">Pendientes</h1>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha Recibido</th>
+                    <th>Fecha Oficio</th>
+                    <th>Procedendia</th>
+                    <th>Archivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oficio in oficios  %}
+                <tr>
+                    <td>{{oficio.id}}</td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

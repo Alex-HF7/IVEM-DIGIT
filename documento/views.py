@@ -59,6 +59,53 @@ def lista_oficios(request, depto, year):
         'depto': depto,
         'year': year
     })
+def lista_pendientes(request):
+    try:
+        with connection.cursor() as cursor:
+            # Obtener todas las tablas que coincidan con el patrón 'oficios_%'
+            cursor.execute("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\\_%\\_%'
+                AND table_schema = DATABASE()
+            """)
+            tablas = [row[0] for row in cursor.fetchall()]
+            
+            oficios_pendientes = []
+            
+            for tabla in tablas:
+                # Extraer el nombre del departamento y año de la tabla (asumiendo formato oficios_depto_year)
+                partes = tabla.split('_')
+                if len(partes) == 3:  # Asegurarnos que el formato es correcto
+                    depto = partes[1]
+                    year = partes[2]
+                    
+                    # Consultar solo los oficios pendientes de esta tabla
+                    cursor.execute(f"""
+                        SELECT *, %s AS depto, %s AS year 
+                        FROM {tabla} 
+                        WHERE pendiente = TRUE 
+                        ORDER BY id ASC
+                    """, [depto, year])
+                    
+                    columns = [col[0] for col in cursor.description]
+                    oficios = [dict(zip(columns, row)) for row in cursor.fetchall()]
+                    
+                    # Convertir los valores booleanos correctamente
+                    for oficio in oficios:
+                        if 'pendiente' in oficio:
+                            oficio['pendiente'] = bool(oficio['pendiente'])
+                        oficio['pendiente_value'] = str(not oficio.get('pendiente', False)).lower()
+                    
+                    oficios_pendientes.extend(oficios)
+                
+    except Exception as e:
+        oficios_pendientes = []
+        messages.error(request, f"Error al obtener oficios pendientes: {str(e)}")
+    
+    return render(request, 'documento/lista_pendientes.html', {
+        'oficios': oficios_pendientes
+    })
 
 def crear_oficio(request, depto, year):
     if request.method == 'POST':

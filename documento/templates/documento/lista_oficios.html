@@ -45,14 +45,14 @@
                     
                     <td>
                         {% if oficio.archivo %}
-                            <a href="/media/{{ oficio.archivo }}" target="_blank">Ver archivo</a>
+                            <a href="/media/{{ oficio.archivo }}" target="_blank"><i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i></a>
                         {% else %}
                             <!-- Botón para abrir el modal -->
                             <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
                             data-depto="{{ depto }}" 
                             data-year="{{ year }}" 
                             data-id="{{ oficio.id }}">
-                            Cargar Archivo
+                            <i class="bi bi-file-earmark-arrow-up" style="font-size: 1.5rem;"></i>
                             </button>
                         {% endif %}
                     </td>
