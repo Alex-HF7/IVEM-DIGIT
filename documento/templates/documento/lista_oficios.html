@@ -1,0 +1,180 @@
+{% extends "plantilla/base.html" %}
+{% load static %}
+{% block title %}Lista Documentos - {{ depto|upper }} {{ year }}{% endblock title %}
+{% block extra_js %}
+<script src="{% static 'plantilla/js/cargarArchivoModal.js' %}"></script>
+{% endblock %}
+{% block body_class %}body-documento{% endblock body_class %}
+{% block content %}
+<div class="wrapper">
+<div class="container-fluid">
+    <h1 class="text-center" style="padding: 30px;">Oficios {{ depto|upper }} {{ year }}</h1>
+    <div class="mb-3">
+        <button class="btn btn-secondary" onclick="location.reload()">Actualizar</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#formularioPopup">
+            Registrar Nuevo
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Folio</th>
+                    <th>Fecha Recibido</th>
+                    <th>Fecha Oficio</th>
+                    <th>Enviado por</th>
+                    <th>Procedencia</th>
+                    <th>Referencia</th>
+                    <th>Asunto</th>
+                    <th>Archivo</th>
+                    <th>Depto. asignado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oficio in oficios %}
+                <tr>
+                    <td>{{ oficio.id|default:"-"}}</td>
+                    <td>
+                        {% if oficio.pendiente %}
+                            <span class="badge bg-warning">Pendiente</span>
+                        {% else %}
+                            {{ oficio.folio }}
+                        {% endif %}
+                    </td>
+                    <td>{{ oficio.fecha_recibido|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ oficio.fecha_oficio|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ oficio.enviado_por|default:"-" }}</td>
+                    <td>{{ oficio.procedencia|default:"-" }}</td>
+                    <td>{{oficio.referencia|default:"-" }}</td>
+                    <td>{{ oficio.asunto|default:"-" }}</td>
+                    <td>
+                        {% if oficio.archivo %}
+                            <a href="/media/{{oficio.archivo}}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i>
+                            </a>
+                        {% else %}
+                            <!-- Botón para abrir el modal -->
+                            <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
+                            data-depto="{{ depto }}" 
+                            data-year="{{ year }}" 
+                            data-id="{{ oficio.id }}">
+                            <i class="bi bi-file-earmark-arrow-up"
+                            data-depto="{{ depto }}" 
+                            data-year="{{ year }}" 
+                            data-id="{{ oficio.id }}" 
+                            style="font-size: 1.5rem;"></i>
+                            </button>
+                        {% endif %}
+                    </td>
+                    <td>{{oficio.area|default:"-"}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                            <button class="btn tbn-sm btn-secondary">
+                                <i class="bi bi-printer"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No hay documentos registrados para este año</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formularioPopupLabel">Registrar Nuevo Oficio</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'crear_oficio' depto=depto year=year %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="departamento" value="{{ depto }}">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fecha_recibido" class="form-label">Fecha Recibido</label>
+                                <input type="date" class="form-control" name="fecha_recibido" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fecha_oficio" class="form-label">Fecha Oficio</label>
+                                <input type="date" class="form-control" name="fecha_oficio">
+                            </div>
+                            <div class="mb-3">
+                                <label for="referencia" class="form-label">Referencia</label>
+                                <input type="text" class="form-control" name="referencia">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="enviado_por" class="form-label">Enviado Por</label>
+                                <input type="text" class="form-control" name="enviado_por" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="procedencia" class="form-label">Procedencia</label>
+                                <input type="text" class="form-control" name="procedencia" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="asunto" class="form-label">Asunto</label>
+                                <input type="text" class="form-control" name="asunto" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cargar archivo -->
+<div class="modal fade" id="cargarArchivoModal" tabindex="-1" aria-labelledby="cargarArchivoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cargarArchivoModalLabel">Cargar Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formCargarArchivo" action="{% url 'subir' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" id="modalDepto" name="depto">
+                <input type="hidden" id="modalYear" name="year">
+                <input type="hidden" id="modalIdOficio" name="id_oficio">
+                
+                <div class="modal-body">
+                    <div id="alertContainer"></div>
+                    <div class="mb-3">
+                        <label for="archivoInput" class="form-label">Seleccionar archivo:</label>
+                        <input class="form-control" type="file" id="archivoInput" name="archivo" required>
+                        <div class="form-text">Formatos permitidos: PDF, DOC, DOCX, JPG, PNG</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cargar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

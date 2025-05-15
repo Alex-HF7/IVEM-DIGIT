@@ -1,29 +1,23 @@
-"""
-URL configuration for ivem_digit project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.conf import settings
-
+from documento import views as viewsDoc
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', auth_views.LoginView.as_view(template_name='login/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('list/', viewsDoc.list, name='list'),
+    path('oficios/<str:depto>/<int:year>/', viewsDoc.lista_oficios, name='lista_oficios'),
+    path('oficios/<str:depto>/<int:year>/crear/', viewsDoc.crear_oficio, name='crear_oficio'),
+    path('oficios/subir/', viewsDoc.cargar_archivo, name='subir'),
+    path('inicio/', viewsDoc.grafica, name='inicio'),
+    path('oficios/pendientes/', viewsDoc.lista_pendientes, name='lista_pendientes'),
+    path('pendientes/asignar-folio/', viewsDoc.asignar_folio, name='asignar_folio'),
 ]
 if settings.DEBUG:
     from django.conf.urls.static import static 
     urlpatterns += static(settings.MEDIA_URL, 
                           document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, 
+                          document_root=settings.STATIC_ROOT)
