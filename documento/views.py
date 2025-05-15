@@ -39,7 +39,7 @@ def lista_oficios(request, depto, year):
     tabla_nombre = f'oficios_{depto}_{year}'
     try:
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM {tabla_nombre} ORDER BY id ASC")
+            cursor.execute(f"SELECT * FROM {tabla_nombre} ORDER BY id DESC")
             columns = [col[0] for col in cursor.description]
             oficios = [dict(zip(columns, row)) for row in cursor.fetchall()]
             
@@ -156,33 +156,6 @@ def crear_oficio(request, depto, year):
         'depto': depto,
         'year': year
     })
-
-def actualizar_pendiente(request, depto, year, oficio_id):
-    if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                with connection.cursor() as cursor:
-                    cursor.execute(f"""
-                        UPDATE oficios_{depto}_{year}
-                        SET pendiente = FALSE, 
-                            folio = nextval('folio_seq_{depto}_{year}')
-                        WHERE id = %s AND pendiente = TRUE
-                        RETURNING folio;
-                        """, [oficio_id])
-                        
-                    if cursor.rowcount == 0:
-                        raise ValueError("No se pudo actualizar - ¿Ya tenía folio?")
-                            
-                    folio = cursor.fetchone()[0]
-                    messages.success(request, f"Folio {folio} asignado correctamente")
-                    
-        except Exception as e:
-            messages.error(request, f"Error al actualizar: {str(e)}")
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Error actualizar oficio {oficio_id}: {str(e)}", exc_info=True)
-    
-    return redirect('lista_oficios', depto=depto, year=year)
 
 def grafica(request):
     # Obtener el año actual y los últimos 3 años
@@ -349,3 +322,55 @@ def cargar_archivo(request):
         'success': False,
         'message': 'Método no permitido'
     }, status=405)
+
+def asignar_folio(request):
+    if request.method == 'POST':
+        try:
+            tabla_origen = request.POST.get('tabla_origen')
+            oficio_id = request.POST.get('oficio_id')
+            asunto_opciones = request.POST.get('asunto_opciones')
+            area = request.POST.get('area')
+
+            if not all([tabla_origen, oficio_id, asunto_opciones, area]):
+                raise ValueError("Todos los campos son obligatorios")
+
+            # Extraer departamento y año del nombre de la tabla
+            partes = tabla_origen.split('_')
+            if len(partes) != 3:
+                raise ValueError("Formato de tabla inválido")
+            
+            depto = partes[1]
+            year = partes[2]
+
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    # Verificar que el registro sigue siendo pendiente
+                    cursor.execute(f"""
+                        SELECT pendiente FROM {tabla_origen} 
+                        WHERE id = %s FOR UPDATE
+                    """, [oficio_id])
+                    
+                    resultado = cursor.fetchone()
+                    if not resultado or not resultado[0]:
+                        raise ValueError("El oficio ya no está pendiente")
+                    
+                    # Asignar folio y actualizar campos
+                    cursor.execute(f"""
+                        UPDATE {tabla_origen}
+                        SET 
+                            pendiente = FALSE,
+                            folio = nextval('folio_seq_{depto}_{year}'),
+                            asunto_opciones = %s,
+                            area = %s
+                        WHERE id = %s
+                        RETURNING folio;
+                    """, [asunto_opciones, area, oficio_id])
+                    
+                    folio = cursor.fetchone()[0]
+                    messages.success(request, f"Folio {folio} asignado correctamente al oficio {oficio_id}")
+
+        except Exception as e:
+            messages.error(request, f"Error al asignar folio: {str(e)}")
+            logger.error(f"Error asignando folio a {tabla_origen}/{oficio_id}: {str(e)}", exc_info=True)
+    
+    return redirect('lista_pendientes')

@@ -13,6 +13,7 @@ urlpatterns = [
     path('oficios/subir/', viewsDoc.cargar_archivo, name='subir'),
     path('inicio/', viewsDoc.grafica, name='inicio'),
     path('oficios/pendientes/', viewsDoc.lista_pendientes, name='lista_pendientes'),
+    path('pendientes/asignar-folio/', viewsDoc.asignar_folio, name='asignar_folio'),
 ]
 if settings.DEBUG:
     from django.conf.urls.static import static 

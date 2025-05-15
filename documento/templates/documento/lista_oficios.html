@@ -6,8 +6,9 @@
 {% endblock %}
 {% block body_class %}body-documento{% endblock body_class %}
 {% block content %}
-<div class="container">
-    <h1 class="text-center">Oficios {{ depto|upper }} {{ year }}</h1>
+<div class="wrapper">
+<div class="container-fluid">
+    <h1 class="text-center" style="padding: 30px;">Oficios {{ depto|upper }} {{ year }}</h1>
     <div class="mb-3">
         <button class="btn btn-secondary" onclick="location.reload()">Actualizar</button>
         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#formularioPopup">
@@ -24,8 +25,10 @@
                     <th>Fecha Oficio</th>
                     <th>Enviado por</th>
                     <th>Procedencia</th>
+                    <th>Referencia</th>
                     <th>Asunto</th>
                     <th>Archivo</th>
+                    <th>Depto. asignado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -44,10 +47,13 @@
                     <td>{{ oficio.fecha_oficio|date:"d/m/Y"|default:"-" }}</td>
                     <td>{{ oficio.enviado_por|default:"-" }}</td>
                     <td>{{ oficio.procedencia|default:"-" }}</td>
+                    <td>{{oficio.referencia|default:"-" }}</td>
                     <td>{{ oficio.asunto|default:"-" }}</td>
                     <td>
                         {% if oficio.archivo %}
-                            <a href="/media/{{ oficio.archivo }}" target="_blank"><i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i></a>
+                            <a href="/media/{{oficio.archivo}}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i>
+                            </a>
                         {% else %}
                             <!-- Botón para abrir el modal -->
                             <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
@@ -62,14 +68,18 @@
                             </button>
                         {% endif %}
                     </td>
+                    <td>{{oficio.area|default:"-"}}</td>
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-primary">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <a href="#" class="btn btn-sm btn-danger">
+                            <button class="btn btn-sm btn-danger">
                                 <i class="bi bi-trash3"></i>
-                            </a>
+                            </button>
+                            <button class="btn tbn-sm btn-secondary">
+                                <i class="bi bi-printer"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -81,6 +91,7 @@
             </tbody>
         </table>
     </div>
+</div>
 </div>
 <div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
