@@ -9,7 +9,7 @@ class ArchivoModal {
     initEvents() {
         // Botones para abrir modal
         document.querySelectorAll('.btn-cargar-archivo').forEach(btn => {
-            btn.addEventListener('click', (e) => this.setupModal(e.target));
+           btn.addEventListener('click', (e) => this.setupModal(e.target));
         });
         
         // Envío del formulario
@@ -19,14 +19,19 @@ class ArchivoModal {
         this.modal._element.addEventListener('hidden.bs.modal', () => this.resetForm());
     }
     
-    setupModal(button) {
+    setupModal(element) {
+        const button = element.closest('button');
+
         const depto = button.getAttribute('data-depto');
         const year = button.getAttribute('data-year');
         const idOficio = button.getAttribute('data-id');
         
+        console.log('Valores reales:', { depto, year, idOficio });
+
         document.getElementById('modalDepto').value = depto;
         document.getElementById('modalYear').value = year;
         document.getElementById('modalIdOficio').value = idOficio;
+
         document.getElementById('cargarArchivoModalLabel').textContent = 
             `Cargar Archivo - Oficio ${idOficio} (${depto} ${year})`;
         

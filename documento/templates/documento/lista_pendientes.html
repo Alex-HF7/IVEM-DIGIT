@@ -10,18 +10,28 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Fecha Recibido</th>
-                    <th>Fecha Oficio</th>
-                    <th>Procedendia</th>
-                    <th>Archivo</th>
-                    <th>Acciones</th>
+                    <th>Asunto</th>
+                    <th>Fecha</th>
+                    <th>Departamento</th>
+                    <th>Tabla de Origen</th>
+                    <th>Pendiente</th>
                 </tr>
             </thead>
             <tbody>
                 {% for oficio in oficios  %}
                 <tr>
-                    <td>{{oficio.id}}</td>
-                    
+                    <td>{{ oficio.id }}</td>
+                    <td>{{ oficio.asunto }}</td>
+                    <td>{{ oficio.fecha_oficio }}</td>
+                    <td>{{ oficio.departamento|default:"-" }}</td>
+                    <td>{{ oficio.tabla_origen }}</td>
+                    <td>
+                    {% if oficio.archivo %}
+                    <a href="/media/{{oficio.archivo}}" target="_blank"><i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i></a>
+                    {% else %}
+                    No hay archivo
+                    {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

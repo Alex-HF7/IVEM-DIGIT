@@ -1,6 +1,9 @@
 {% extends "plantilla/base.html" %}
 {% load static %}
 {% block title %}Lista Documentos - {{ depto|upper }} {{ year }}{% endblock title %}
+{% block extra_js %}
+<script src="{% static 'plantilla/js/cargarArchivoModal.js' %}"></script>
+{% endblock %}
 {% block body_class %}body-documento{% endblock body_class %}
 {% block content %}
 <div class="container">
@@ -42,7 +45,6 @@
                     <td>{{ oficio.enviado_por|default:"-" }}</td>
                     <td>{{ oficio.procedencia|default:"-" }}</td>
                     <td>{{ oficio.asunto|default:"-" }}</td>
-                    
                     <td>
                         {% if oficio.archivo %}
                             <a href="/media/{{ oficio.archivo }}" target="_blank"><i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i></a>
@@ -52,7 +54,11 @@
                             data-depto="{{ depto }}" 
                             data-year="{{ year }}" 
                             data-id="{{ oficio.id }}">
-                            <i class="bi bi-file-earmark-arrow-up" style="font-size: 1.5rem;"></i>
+                            <i class="bi bi-file-earmark-arrow-up"
+                            data-depto="{{ depto }}" 
+                            data-year="{{ year }}" 
+                            data-id="{{ oficio.id }}" 
+                            style="font-size: 1.5rem;"></i>
                             </button>
                         {% endif %}
                     </td>
@@ -161,6 +167,3 @@
 
 {% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'plantilla/js/cargarArchivoModal.js' %}"></script>
-{% endblock %}
