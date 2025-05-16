@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formato Oficio</title>
+    <style>
+        @media print {
+            @page {
+                size: letter portrait;
+                margin: 1cm;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin: 1cm;
+            height: 13.97cm;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .header {
+            background: red; /* Solo para ilustración */
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .main-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .column {
+            width: 48%;
+            padding: 4px;
+        }
+
+        .left-column {
+            background: yellow; /* ilustración */
+        }
+
+        .right-column {
+            background: limegreen; /* ilustración */
+        }
+
+        .field {
+            margin-bottom: 6px;
+        }
+
+        .label {
+            font-weight: bold;
+            display: block;
+        }
+
+        .value {
+            display: block;
+            min-height: 3.6em; /* espacio para 3 líneas */
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .asunto {
+            background: steelblue; /* ilustración */
+            color: white;
+            padding: 6px;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            background: lightcoral; /* ilustración */
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding: 10px 0;
+        }
+
+        .leyenda {
+            font-size: 10px;
+            align-self: flex-end;
+        }
+
+        .sello {
+            border: 1px dotted black;
+            width: 225px;
+            height: 150px;
+            text-align: center;
+            font-size: 10px;
+            padding-top: 40px;
+        }
+    </style>
+</head>
+<body onload="window.print(); setTimeout(() => window.close(), 500);">
+    <div class="container">
+        <!-- LOGOS -->
+        <div class="header">
+            <div>IVEM</div>
+            <div>GOBIERNO DE MICHOACÁN</div>
+        </div>
+
+        <!-- CAMPOS EN DOS COLUMNAS -->
+        <div class="main-row">
+            <div class="column left-column">
+                <div class="field"><span class="label">REFERENCIA:</span><span class="value">{{ data.referencia }}</span></div>
+                <div class="field"><span class="label">ÁREA IVEM:</span><span class="value">{{ data.area }}</span></div>
+                <div class="field"><span class="label">TIPO ASUNTO:</span><span class="value">{{ data.asunto_opciones }}</span></div>
+                <div class="asunto"><span class="label">ASUNTO:</span><span class="value">{{ data.asunto }}</span></div>
+            </div>
+
+            <div class="column right-column">
+                <div class="field"><span class="label">FECHA RECIBIDO:</span><span class="value">{{ data.fecha_recibido }}</span></div>
+                <div class="field"><span class="label">FECHA OFICIO:</span><span class="value">{{ data.fecha_oficio }}</span></div>
+                <div class="field"><span class="label">ENVIADO POR:</span><span class="value">{{ data.enviado_por }}</span></div>
+                <div class="field"><span class="label">PROCEDENCIA:</span><span class="value">{{ data.procedencia }}</span></div>
+            </div> 
+        </div>
+        
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="leyenda">UNIDAD DE CONTROL DE GESTIÓN</div>
+            <div class="sello">SELLO</div>
+        </div>
+    </div>
+</body>
+</html>
+
+

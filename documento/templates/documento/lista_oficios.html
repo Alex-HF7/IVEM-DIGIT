@@ -52,7 +52,7 @@
                     <td>
                         {% if oficio.archivo %}
                             <a href="/media/{{oficio.archivo}}" target="_blank" class="btn btn-sm btn-primary">
-                                <i class="bi bi-filetype-pdf" style="font-size: 1.5rem;"></i>
+                                <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
                             </a>
                         {% else %}
                             <!-- Botón para abrir el modal -->
@@ -77,15 +77,17 @@
                             <button class="btn btn-sm btn-danger">
                                 <i class="bi bi-trash3"></i>
                             </button>
-                            <button class="btn tbn-sm btn-secondary">
+                            {% if oficio.folio %}
+                            <a href="{% url 'imprimir_oficio' depto=depto year=year record_id=oficio.id %}" target="_blank" class="btn btn-sm btn-secondary">
                                 <i class="bi bi-printer"></i>
-                            </button>
+                            </a>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="text-center">No hay documentos registrados para este año</td>
+                    <td colspan="10" class="text-center">No hay documentos registrados para este año</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -11,6 +11,7 @@ from django.http import JsonResponse
 import plotly.express as px
 import pandas as pd;
 from django.core.files.storage import FileSystemStorage
+from django.http import Http404
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -374,3 +375,18 @@ def asignar_folio(request):
             logger.error(f"Error asignando folio a {tabla_origen}/{oficio_id}: {str(e)}", exc_info=True)
     
     return redirect('lista_pendientes')
+
+def imprimir_oficio(request, depto, year, record_id):
+    tabla = f'oficios_{depto}_{year}'
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM {tabla} WHERE id = %s", [record_id])
+            row = cursor.fetchone()
+            if not row:
+                raise Http404("Oficio no encontrado")
+            columnas = [col[0] for col in cursor.description]
+            data = dict(zip(columnas, row))
+    except Exception as e:
+        raise Http404(f"Error al acceder a la tabla: {e}")
+
+    return render(request, 'documento/formato_oficio.html', {'data': data})
