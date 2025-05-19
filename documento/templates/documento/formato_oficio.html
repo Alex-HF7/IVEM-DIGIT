@@ -40,17 +40,21 @@
       margin-bottom: 8px;
       box-sizing: border-box;
     }
-
-    .header-content {
+    .header {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .header-logos-only {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 15px;
+      margin-bottom: 6px;
     }
 
     .logo img {
       height: 40px;
-      max-width: 150px;
+      max-width: 120px;
       object-fit: contain;
     }
 
@@ -103,10 +107,12 @@
   <!-- Parte superior -->
   <div class="page-half">
     <div class="header">
-    <div class="header-content">
-      <div class="title">INSTITUTO DE VIVIENDA DEL ESTADO DE MICHOACÁN</div>
-        <div class="logo">
-          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo IVEM">
+      <div class="header-logos-only">
+        <div class="logo left">
+          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo izquierdo">
+        </div>
+        <div class="logo right">
+          <img src="{% static 'plantilla/img/Mich-Mejor.svg' %}" alt="Logo derecho">
         </div>
       </div>
     </div>
@@ -118,14 +124,15 @@
 
     <div class="section double">
       <div><span class="label">ENVIADO POR:</span> {{ data.enviado_por }}</div>
-      <div><span class="label">PROCEDENCIA:</span> {{ data.procedencia }}</div>
+      <div><span class="label">ÁREA IVEM:</span> {{ data.area }}</div>
+      
     </div>
 
     <div class="section"><span class="label">ASUNTO:</span> {{ data.asunto }}</div>
-    <div class="section"><span class="label">REFERENCIA:</span> {{ data.referencia }}</div>
+    <div class="section"><span class="label">PROCEDENCIA:</span>{{ data.procedencia }}</div>
 
     <div class="section double">
-      <div><span class="label">ÁREA IVEM:</span> {{ data.area }}</div>
+      <div><span class="label">REFERENCIA:</span> {{ data.referencia }}</div>
       <div><span class="label">ASUNTO:</span> {{ data.asunto_opciones }}</div>
     </div>
 
@@ -137,11 +144,13 @@
 
   <!-- Parte inferior (acuse) -->
   <div class="page-half">
-    <div class="header">
-    <div class="header-content">
-      <div class="title">INSTITUTO DE VIVIENDA DEL ESTADO DE MICHOACÁN</div>
-        <div class="logo">
-          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo IVEM">
+     <div class="header">
+      <div class="header-logos-only">
+        <div class="logo left">
+          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo izquierdo">
+        </div>
+        <div class="logo right">
+          <img src="{% static 'plantilla/img/Mich-Mejor.svg' %}" alt="Logo derecho">
         </div>
       </div>
     </div>
@@ -153,14 +162,14 @@
 
     <div class="section double">
       <div><span class="label">ENVIADO POR:</span> {{ data.enviado_por }}</div>
-      <div><span class="label">PROCEDENCIA:</span> {{ data.procedencia }}</div>
+      <div><span class="label">ÁREA IVEM:</span> {{ data.area }}</div>
     </div>
 
     <div class="section"><span class="label">ASUNTO:</span> {{ data.asunto }}</div>
-    <div class="section"><span class="label">REFERENCIA:</span> {{ data.referencia }}</div>
+    <div class="section"><span class="label">PROCEDENCIA:</span>{{ data.procedencia }}</div>
 
     <div class="section double">
-      <div><span class="label">ÁREA IVEM:</span> {{ data.area }}</div>
+      <div><span class="label">REFERENCIA:</span> {{ data.referencia }}</div>
       <div><span class="label">ASUNTO:</span> {{ data.asunto_opciones }}</div>
     </div>
 
