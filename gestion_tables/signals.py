@@ -34,8 +34,10 @@ def create_yearly_tables(year):
             procedencia VARCHAR(255) NOT NULL,
             asunto VARCHAR(255) NOT NULL,
             referencia VARCHAR(255),
+            nota VARCHAR(255),
             asunto_opciones VARCHAR(255),
             area VARCHAR(255),
+            activo BOOLEAN DEFAULT TRUE,
             pendiente BOOLEAN DEFAULT TRUE,
             archivo VARCHAR(255),
             departamento VARCHAR(20) DEFAULT '{depto}'

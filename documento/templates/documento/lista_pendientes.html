@@ -52,6 +52,52 @@
     </div>
 </div>
 </div>
+{% if oficios.paginator.num_pages > 1 %}
+<nav aria-label="Navegación de páginas">
+  <ul class="pagination justify-content-center mt-4">
+    {% if oficios.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ oficios.previous_page_number }}" aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </span>
+      </li>
+    {% endif %}
+
+    {% for num in oficios.paginator.page_range %}
+      {% if num == oficios.number %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% elif num >= oficios.number|add:'-2' and num <= oficios.number|add:'2' %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if oficios.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ oficios.next_page_number }}" aria-label="Siguiente">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-label="Siguiente">
+          <span aria-hidden="true">&raquo;</span>
+        </span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
 {% for oficio in oficios %}
 <div class="modal fade" id="asignarFolioModal{{ oficio.tabla_origen }}_{{ oficio.id }}" tabindex="-1" 
      aria-labelledby="asignarFolioModalLabel" aria-hidden="true">
@@ -97,6 +143,10 @@
                             <option value="comercializacion">Subdirección de Comercialización</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="nota" class="form-label">Nota:</label>
+                        <input type="text" name="nota" id="nota">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -125,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(e) {
             const asunto = this.querySelector('#asunto_opciones').value;
             const area = this.querySelector('#area').value;
-            
+            const nota = this.querySelector('#nota').value;            
             if (!asunto || !area) {
                 e.preventDefault();
                 alert('Por favor complete todos los campos requeridos');
