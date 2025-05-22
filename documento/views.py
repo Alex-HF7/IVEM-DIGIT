@@ -492,27 +492,90 @@ def editar_oficio(request, depto, year, id):
         'year': year
     })
 
-def editar_archivo(request, depto, year):
-    tabla = f'oficios_{depto}_{year}'
-
-    # Obtener datos del oficio
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT id, archivo FROM {tabla} WHERE id = %s", [id])
-            row = cursor.fetchone()
-        if not row:
-            messages.error(request, "Oficio no encontrado.")
-            return redirect('lista_oficios', depto=depto, year=year)
-        data = {
-            'id': row[0],
-            'archivo': row[1]
-        }
-    except Exception as e:
-        messages.error(request, f"Error al obtener oficio: {str(e)}")
-        return redirect('lista_oficios', depto=depto, year=year)
-
-    return render(request, 'documento/editar_archivo.html', {
-        'data': data,
-        'depto': depto,
-        'year': year
-    })
+def archivo(request):
+    if request.method == 'POST':
+        try:
+            # Validar parámetros comunes
+            depto = request.POST.get('depto')
+            year = request.POST.get('year')
+            id_oficio = request.POST.get('id_oficio')
+            action = request.POST.get('action', 'upload')  # 'upload' o 'edit'
+            
+            if not all([depto, year, id_oficio]):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Faltan parámetros requeridos (depto, year, id_oficio)'
+                }, status=400)
+            
+            # Validar archivo
+            if 'archivo' not in request.FILES:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No se ha seleccionado ningún archivo'
+                }, status=400)
+            
+            archivo = request.FILES['archivo']
+            
+            # Validar extensión
+            if not archivo.name.lower().endswith('.pdf'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Tipo de archivo no permitido. Solo se acepta PDF'
+                }, status=400)
+            
+            # Obtener ruta actual si es edición
+            ruta_actual = None
+            if action == 'edit':
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f"SELECT archivo FROM oficios_{depto}_{year} WHERE id = %s",
+                        [id_oficio]
+                    )
+                    resultado = cursor.fetchone()
+                    if resultado and resultado[0]:
+                        ruta_actual = resultado[0]
+            
+            # Crear directorio si no existe
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'oficios', depto, str(year))
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Generar nombre del archivo
+            nombre_archivo = f"{id_oficio}_{depto}_{year}.pdf"
+            ruta_completa = os.path.join(upload_dir, nombre_archivo)
+            
+            # Eliminar archivo anterior si es edición y existe
+            if action == 'edit' and ruta_actual and os.path.exists(os.path.join(settings.MEDIA_ROOT, ruta_actual)):
+                os.remove(os.path.join(settings.MEDIA_ROOT, ruta_actual))
+            
+            # Guardar archivo
+            fs = FileSystemStorage(location=upload_dir)
+            nombre_guardado = fs.save(nombre_archivo, archivo)
+            
+            # Ruta relativa para la base de datos
+            ruta_relativa = os.path.join('oficios', depto, str(year), nombre_guardado)
+            
+            # Actualizar base de datos
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f"UPDATE oficios_{depto}_{year} SET archivo = %s WHERE id = %s",
+                        [ruta_relativa, id_oficio]
+                    )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Archivo guardado exitosamente',
+                'file_url': os.path.join(settings.MEDIA_URL, ruta_relativa)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al {'editar' if action == 'edit' else 'cargar'} archivo: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': f'Error al procesar archivo: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Método no permitido'
+    }, status=405)

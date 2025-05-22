@@ -58,23 +58,29 @@
                     <td>{{oficio.referencia|default:"-" }}</td>
                     <td>{{ oficio.asunto|default:"-" }}</td>
                     <td>
-                        {% if oficio.archivo %}
-                            <a href="/media/{{oficio.archivo}}" target="_blank" class="btn btn-sm btn-primary">
-                                <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
-                            </a>
-                        {% else %}
-                            <!-- Botón para abrir el modal -->
-                            <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
+                      {% if oficio.archivo %}
+                        <!-- Botón para ver el archivo -->
+                        <a href="/media/{{ oficio.archivo }}" target="_blank" class="btn btn-sm btn-primary me-1">
+                            <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
+                        </a>
+                        <!-- Botón para editar el archivo -->
+                        <button type="button" class="btn btn-sm btn-warning btn-editar-archivo"
+                            data-depto="{{ depto }}"
+                            data-year="{{ year }}"
+                            data-id="{{ oficio.id }}"
+                            data-file-name="{{ oficio.archivo }}"
+                            data-file-url="/media/{{ oficio.archivo }}">
+                            <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
+                        </button>
+                      {% else %}
+                        <!-- Botón para cargar nuevo archivo -->
+                        <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
                             data-depto="{{ depto }}" 
                             data-year="{{ year }}" 
                             data-id="{{ oficio.id }}">
-                            <i class="bi bi-file-earmark-arrow-up"
-                            data-depto="{{ depto }}" 
-                            data-year="{{ year }}" 
-                            data-id="{{ oficio.id }}" 
-                            style="font-size: 1.5rem;"></i>
-                            </button>
-                        {% endif %}
+                            <i class="bi bi-file-earmark-arrow-up" style="font-size: 1.5rem;"></i>
+                        </button>
+                      {% endif %}
                     </td>
                     <td>{{oficio.area|default:"-"}}</td>
                     <td>
@@ -223,30 +229,37 @@
 </div>
 
 <!-- Modal para cargar archivo -->
-<div class="modal fade" id="cargarArchivoModal" tabindex="-1" aria-labelledby="cargarArchivoModalLabel" aria-hidden="true">
+<div class="modal fade" id="archivoModal" tabindex="-1" aria-labelledby="archivoModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cargarArchivoModalLabel">Cargar Archivo</h5>
+                <h5 class="modal-title" id="archivoModalLabel">Cargar Archivo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formCargarArchivo" action="{% url 'subir' %}" method="post" enctype="multipart/form-data">
+            <form id="formArchivo" action="{% url 'manejar_archivo' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" id="modalDepto" name="depto">
                 <input type="hidden" id="modalYear" name="year">
                 <input type="hidden" id="modalIdOficio" name="id_oficio">
+                <input type="hidden" id="modalAction" name="action" value="upload">
                 
                 <div class="modal-body">
                     <div id="alertContainer"></div>
                     <div class="mb-3">
                         <label for="archivoInput" class="form-label">Seleccionar archivo:</label>
-                        <input class="form-control" type="file" id="archivoInput" name="archivo" required>
-                        <div class="form-text">Formato permitido: PDF</div>
+                        <input class="form-control" type="file" id="archivoInput" name="archivo" accept=".pdf" required>
+                        <div class="form-text">Solo se aceptan archivos en formato PDF</div>
+                    </div>
+                    <div id="currentFileContainer" class="mt-3 d-none">
+                        <div class="alert alert-info">
+                            <strong>Archivo actual:</strong> <span id="currentFileName"></span>
+                            <a href="#" id="currentFileLink" target="_blank" class="float-end">Ver archivo</a>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Cargar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
         </div>
