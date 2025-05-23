@@ -25549,3 +25549,1281 @@ CREATE INDEX "django_session_expire_date_a5c62663" ON "django_session" ("expire_
 (0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:15:19.823047+00:00'::timestamptz AND "django_session"."session_key" = '6o3l36jb7qsbxp04j0l8vhgerxaahqbz') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 15, 19, 823047, tzinfo=datetime.timezone.utc), '6o3l36jb7qsbxp04j0l8vhgerxaahqbz'); alias=default
 (0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
 (0.001) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.003) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.021) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.003) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.012) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.001) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.008) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2025'
+                        );
+                    ; args=None; alias=default
+(0.003) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_ucg_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:17:06.313199+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 17, 6, 313199, tzinfo=datetime.timezone.utc)]; alias=default
+(0.003) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2025'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_delegacion_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:17:06.319233+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 17, 6, 319233, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2023'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2023'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:17:07.251494+00:00'::timestamptz AND "django_session"."session_key" = '8izz6ro9bq68238o5wre0zmzzzwsos6t') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 17, 7, 251494, tzinfo=datetime.timezone.utc), '8izz6ro9bq68238o5wre0zmzzzwsos6t'); alias=default
+(0.008) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2025'
+                        );
+                    ; args=None; alias=default
+(0.003) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_ucg_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:17:17.860441+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 17, 17, 860441, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2025'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_delegacion_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:17:17.867151+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 17, 17, 867151, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2023'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2023'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.004) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."username" = 'admin' LIMIT 21; args=('admin',); alias=default
+(0.003) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.004) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."username" = 'admin' LIMIT 21; args=('admin',); alias=default
+(0.001) SELECT 1 AS "a" FROM "django_session" WHERE "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr' LIMIT 1; args=(1, 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.001) INSERT INTO "django_session" ("session_key", "session_data", "expire_date") VALUES ('ydnhjs8paqqfjj21w5t9fbellqupn5yr', 'e30:1uIYq6:7JR0oWujIBrJrH8nbx5bqbwpETQQfkGqQIUzmoCF0m0', '2025-06-06T20:17:58.773458+00:00'::timestamptz); args=('ydnhjs8paqqfjj21w5t9fbellqupn5yr', 'e30:1uIYq6:7JR0oWujIBrJrH8nbx5bqbwpETQQfkGqQIUzmoCF0m0', datetime.datetime(2025, 6, 6, 20, 17, 58, 773458, tzinfo=datetime.timezone.utc)); alias=default
+(0.002) COMMIT; args=None; alias=default
+(0.002) UPDATE "auth_user" SET "last_login" = '2025-05-23T20:17:58.778131+00:00'::timestamptz WHERE "auth_user"."id" = 1; args=(datetime.datetime(2025, 5, 23, 20, 17, 58, 778131, tzinfo=datetime.timezone.utc), 1); alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.001) UPDATE "django_session" SET "session_data" = '.eJxVjMsOwiAQRf-FtSFAebp07zeQYRikaiAp7cr479qkC93ec859sQjbWuM2aIlzZmcm2el3S4APajvId2i3zrG3dZkT3xV-0MGvPdPzcrh_BxVG_dZFeOdssVpoKsHLQlMykqzKORh0xiDhpCYtJZG1CbwBp1FpGYBEAMveH9s2N7E:1uIYq6:1R7EYwyw47m93XiFPmPVpc7mz-wTyadj9CGyNdQN1B0', "expire_date" = '2025-06-06T20:17:58.781941+00:00'::timestamptz WHERE "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'; args=('.eJxVjMsOwiAQRf-FtSFAebp07zeQYRikaiAp7cr479qkC93ec859sQjbWuM2aIlzZmcm2el3S4APajvId2i3zrG3dZkT3xV-0MGvPdPzcrh_BxVG_dZFeOdssVpoKsHLQlMykqzKORh0xiDhpCYtJZG1CbwBp1FpGYBEAMveH9s2N7E:1uIYq6:1R7EYwyw47m93XiFPmPVpc7mz-wTyadj9CGyNdQN1B0', datetime.datetime(2025, 6, 6, 20, 17, 58, 781941, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.001) COMMIT; args=None; alias=default
+(0.008) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2025'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_ucg_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:17:59.025110+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 17, 59, 25110, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2025'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_delegacion_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:17:59.030900+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 17, 59, 30900, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2023'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2023'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:17:59.159857+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 17, 59, 159857, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.001) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.001) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.003) SELECT * FROM oficios_delegacion_2025 WHERE activo NOT IN ('false') ORDER BY id DESC; args=None; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:18:02.874481+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 18, 2, 874481, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.002) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.003) SELECT * FROM oficios_delegacion_2025 WHERE id = 3; args=[3]; alias=default
+(0.010) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:18:06.916151+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 18, 6, 916151, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.003) SELECT * FROM oficios_delegacion_2025 WHERE activo NOT IN ('false') ORDER BY id DESC; args=None; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:22:24.461844+00:00'::timestamptz AND "django_session"."session_key" = 's9auv3jz2yy6hefs8kpz05okuzdodk11') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 22, 24, 461844, tzinfo=datetime.timezone.utc), 's9auv3jz2yy6hefs8kpz05okuzdodk11'); alias=default
+(0.003) SELECT * FROM oficios_delegacion_2025 WHERE id = 4; args=[4]; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:27:38.733169+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 27, 38, 733169, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.001) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:28:06.264812+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 28, 6, 264812, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:28:47.405270+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 28, 47, 405270, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.009) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.005) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:29:01.335940+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 29, 1, 335940, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.004) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:29:08.306190+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 29, 8, 306190, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.009) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:29:30.741633+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 29, 30, 741633, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.009) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:29:42.819654+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 29, 42, 819654, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:29:48.343531+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 29, 48, 343531, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.003) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."username" = 'pnenenenee' LIMIT 21; args=('pnenenenee',); alias=default
+(0.003) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:30:02.827400+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 30, 2, 827400, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.001) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.002) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.003) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.006) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.003) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.005) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.001) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.006) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.014) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.005) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.010) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.005) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.010) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.005) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.005) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.005) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.011) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.005) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.011) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.006) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.010) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.018) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.010) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.007) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.002) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.005) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.016) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.008) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.021) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.005) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.004) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:35:28.578539+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 35, 28, 578539, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.003) SELECT * FROM oficios_delegacion_2025 WHERE activo NOT IN ('false') ORDER BY id DESC; args=None; alias=default
+(0.005) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.008) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.006) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.012) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.001) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.010) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.013) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.008) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.009) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.002) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.009) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.015) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.010) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.013) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.003) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.005) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.013) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.004) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.006) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.004) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.004) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:36:40.456926+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 36, 40, 456926, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.007) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2025'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_ucg_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:36:40.509177+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 36, 40, 509177, tzinfo=datetime.timezone.utc)]; alias=default
+(0.003) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2025'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_delegacion_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:36:40.514604+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 36, 40, 514604, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2023'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2023'
+                        );
+                    ; args=None; alias=default
+(0.004) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:36:58.675615+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 36, 58, 675615, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.007) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.009) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.004) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.010) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.003) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:37:33.702375+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 37, 33, 702375, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.001) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.010) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.004) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.007) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.015) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.007) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.006) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.008) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.009) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.004) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.010) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.003) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.009) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:38:12.872032+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 38, 12, 872032, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.004) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.008) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2025'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_ucg_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:38:23.702811+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 38, 23, 702811, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2025'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_delegacion_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:38:23.708722+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 38, 23, 708722, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2023'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2023'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:38:24.059237+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 38, 24, 59237, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.001) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.001) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.004) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:38:31.650618+00:00'::timestamptz AND "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 38, 31, 650618, tzinfo=datetime.timezone.utc), 'ydnhjs8paqqfjj21w5t9fbellqupn5yr'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE "django_session"."session_key" = 'ydnhjs8paqqfjj21w5t9fbellqupn5yr' LIMIT 21; args=('ydnhjs8paqqfjj21w5t9fbellqupn5yr',); alias=default
+(0.002) DELETE FROM "django_session" WHERE "django_session"."session_key" IN ('ydnhjs8paqqfjj21w5t9fbellqupn5yr'); args=('ydnhjs8paqqfjj21w5t9fbellqupn5yr',); alias=default
+(0.012) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.010) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2025'
+                        );
+                    ; args=None; alias=default
+(0.005) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_ucg_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:38:46.081824+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 38, 46, 81824, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2025'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+                            SELECT 
+                                fecha_recibido,
+                                pendiente,
+                                departamento
+                            FROM oficios_delegacion_2025
+                            WHERE fecha_recibido >= '2024-05-23T20:38:46.090011+00:00'::timestamptz
+                            ORDER BY fecha_recibido DESC
+                        ; args=[datetime.datetime(2024, 5, 23, 20, 38, 46, 90011, tzinfo=datetime.timezone.utc)]; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2024'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2024'
+                        );
+                    ; args=None; alias=default
+(0.002) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_ucg_2023'
+                        );
+                    ; args=None; alias=default
+(0.003) 
+                        SELECT EXISTS (
+                            SELECT FROM information_schema.tables 
+                            WHERE table_name = 'oficios_delegacion_2023'
+                        );
+                    ; args=None; alias=default
+(0.001) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT * FROM oficios_delegacion_2025 WHERE activo NOT IN ('false') ORDER BY id DESC; args=None; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT * FROM oficios_delegacion_2025 WHERE id = 5; args=[5]; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.009) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.004) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.011) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.004) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.010) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.005) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.008) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.005) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.007) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.004) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.013) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.008) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.003) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.003) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.006) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.003) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.004) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.006) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.009) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.004) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."username" = 'admin' LIMIT 21; args=('admin',); alias=default
+(0.001) SELECT 1 AS "a" FROM "django_session" WHERE "django_session"."session_key" = 'bmi0vmvsnintrlfhclw7w82wy4s459yd' LIMIT 1; args=(1, 'bmi0vmvsnintrlfhclw7w82wy4s459yd'); alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.001) INSERT INTO "django_session" ("session_key", "session_data", "expire_date") VALUES ('bmi0vmvsnintrlfhclw7w82wy4s459yd', 'e30:1uIZDQ:u-Y4x75obIyfS5T-cCm7HO9P44HJrSzysIkvcBsr2TE', '2025-06-06T20:42:04.980243+00:00'::timestamptz); args=('bmi0vmvsnintrlfhclw7w82wy4s459yd', 'e30:1uIZDQ:u-Y4x75obIyfS5T-cCm7HO9P44HJrSzysIkvcBsr2TE', datetime.datetime(2025, 6, 6, 20, 42, 4, 980243, tzinfo=datetime.timezone.utc)); alias=default
+(0.001) COMMIT; args=None; alias=default
+(0.002) UPDATE "auth_user" SET "last_login" = '2025-05-23T20:42:04.983460+00:00'::timestamptz WHERE "auth_user"."id" = 1; args=(datetime.datetime(2025, 5, 23, 20, 42, 4, 983460, tzinfo=datetime.timezone.utc), 1); alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.001) UPDATE "django_session" SET "session_data" = '.eJxVjMsOwiAQRf-FtSFAebp07zeQYRikaiAp7cr479qkC93ec859sQjbWuM2aIlzZmcm2el3S4APajvId2i3zrG3dZkT3xV-0MGvPdPzcrh_BxVG_dZFeOdssVpoKsHLQlMykqzKORh0xiDhpCYtJZG1CbwBp1FpGYBEAMveH9s2N7E:1uIZDQ:5U0LctH6451SidRE11Vni6FrLnpQ5RrNOU6wNicJ3i8', "expire_date" = '2025-06-06T20:42:04.986875+00:00'::timestamptz WHERE "django_session"."session_key" = 'bmi0vmvsnintrlfhclw7w82wy4s459yd'; args=('.eJxVjMsOwiAQRf-FtSFAebp07zeQYRikaiAp7cr479qkC93ec859sQjbWuM2aIlzZmcm2el3S4APajvId2i3zrG3dZkT3xV-0MGvPdPzcrh_BxVG_dZFeOdssVpoKsHLQlMykqzKORh0xiDhpCYtJZG1CbwBp1FpGYBEAMveH9s2N7E:1uIZDQ:5U0LctH6451SidRE11Vni6FrLnpQ5RrNOU6wNicJ3i8', datetime.datetime(2025, 6, 6, 20, 42, 4, 986875, tzinfo=datetime.timezone.utc), 'bmi0vmvsnintrlfhclw7w82wy4s459yd'); alias=default
+(0.001) COMMIT; args=None; alias=default
+(0.005) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:42:05.251012+00:00'::timestamptz AND "django_session"."session_key" = 'bmi0vmvsnintrlfhclw7w82wy4s459yd') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 42, 5, 251012, tzinfo=datetime.timezone.utc), 'bmi0vmvsnintrlfhclw7w82wy4s459yd'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.002) SELECT * FROM oficios_delegacion_2025 WHERE activo NOT IN ('false') ORDER BY id DESC; args=None; alias=default
+(0.008) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.003) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.006) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:42:16.850265+00:00'::timestamptz AND "django_session"."session_key" = 'bmi0vmvsnintrlfhclw7w82wy4s459yd') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 42, 16, 850265, tzinfo=datetime.timezone.utc), 'bmi0vmvsnintrlfhclw7w82wy4s459yd'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.002) SELECT * FROM oficios_delegacion_2024 WHERE activo NOT IN ('false') ORDER BY id DESC; args=None; alias=default
+(0.006) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.002) SELECT "auth_group"."name" FROM "auth_group" INNER JOIN "auth_user_groups" ON ("auth_group"."id" = "auth_user_groups"."group_id") WHERE "auth_user_groups"."user_id" = 1; args=(1,); alias=default
+(0.004) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE ("django_session"."expire_date" > '2025-05-23T20:42:23.988936+00:00'::timestamptz AND "django_session"."session_key" = 'bmi0vmvsnintrlfhclw7w82wy4s459yd') LIMIT 21; args=(datetime.datetime(2025, 5, 23, 20, 42, 23, 988936, tzinfo=datetime.timezone.utc), 'bmi0vmvsnintrlfhclw7w82wy4s459yd'); alias=default
+(0.002) SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21; args=(1,); alias=default
+(0.001) SELECT "django_session"."session_key", "django_session"."session_data", "django_session"."expire_date" FROM "django_session" WHERE "django_session"."session_key" = 'bmi0vmvsnintrlfhclw7w82wy4s459yd' LIMIT 21; args=('bmi0vmvsnintrlfhclw7w82wy4s459yd',); alias=default
+(0.004) DELETE FROM "django_session" WHERE "django_session"."session_key" IN ('bmi0vmvsnintrlfhclw7w82wy4s459yd'); args=('bmi0vmvsnintrlfhclw7w82wy4s459yd',); alias=default
+(0.003) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.012) 
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name LIKE 'oficios\_%\_%'
+        ; args=None; alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.009) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.005) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.008) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.003) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.005) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.003) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.005) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.008) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.007) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.008) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.002) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.004) 
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name LIKE 'oficios\_%\_%'
+                AND table_schema = 'public'
+            ; args=None; alias=default
+(0.007) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_delegacion_2025'
+            ; args=None; alias=default
+(0.004) 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'oficios_ucg_2025'
+            ; args=None; alias=default
+(0.008) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.002) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default

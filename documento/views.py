@@ -16,6 +16,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 logger = logging.getLogger(__name__)
 # Create your views here.
+
 def list(request):
     print("Configuración actual de DB:", connection.settings_dict)
     return render(request, 'documento/listDoc.html')
