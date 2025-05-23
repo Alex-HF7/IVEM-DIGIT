@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formato Oficio con Acuse</title>
+  <style>
+    @media print {
+      @page {
+        size: letter portrait;
+        margin: 1cm;
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1cm;
+      box-sizing: border-box;
+      height: 100vh;
+    }
+
+    .page-half {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-bottom: 1px dashed black;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+    .header {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .header-logos-only {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .logo img {
+      height: 40px;
+      max-width: 120px;
+      object-fit: contain;
+    }
+
+    .title {
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .section {
+      border-bottom: 1px solid black;
+      padding: 2px 0;
+      margin-bottom: 4px;
+    }
+
+    .double {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .label {
+      font-weight: bold;
+      min-width: 90px;
+      display: inline-block;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: auto;
+      padding-top: 4px;
+    }
+
+    .leyenda {
+      font-size: 10px;
+    }
+
+    .sello-espacio {
+      width: 6cm;
+      height: 4cm;
+      text-align: right;
+      font-size: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body onload="window.print(); setTimeout(() => window.close(), 500);">
+
+  <!-- Parte superior -->
+  <div class="page-half">
+    <div class="header">
+      <div class="header-logos-only">
+        <div class="logo left">
+          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo izquierdo">
+        </div>
+        <div class="logo right">
+          <img src="{% static 'plantilla/img/Mich-Mejor.svg' %}" alt="Logo derecho">
+        </div>
+      </div>
+    </div>
+
+    <div class="section double">
+      <div><span class="label">FECHA RECIBIDO:</span> {{ data.fecha_recibido }}</div>
+      <div><span class="label">FECHA OFICIO:</span> {{ data.fecha_oficio }}</div>
+    </div>
+
+    <div class="section double">
+      <div><span class="label">ENVIADO POR:</span> {{ data.enviado_por }}</div>
+      <div><span class="label">ÁREA IVEM:</span> {{ data.area }}</div>
+      
+    </div>
+
+    <div class="section"><span class="label">ASUNTO:</span> {{ data.asunto }}</div>
+    <div class="section"><span class="label">PROCEDENCIA:</span>{{ data.procedencia }}</div>
+
+    <div class="section double">
+      <div><span class="label">REFERENCIA:</span> {{ data.referencia }}</div>
+      <div><span class="label">ASUNTO:</span> {{ data.asunto_opciones }}</div>
+    </div>
+    <div class="section"><span class='label'>NOTA:</span>{{data.nota}}</div>
+
+    <div class="footer">
+      <div class="leyenda">UNIDAD DE CONTROL DE GESTIÓN</div>
+      <div class="leyenda">FOLIO:{{data.folio}}</div>
+      <div class="sello-espacio">SELLO</div>
+    </div>
+  </div>
+
+  <!-- Parte inferior (acuse) -->
+  <div class="page-half">
+     <div class="header">
+      <div class="header-logos-only">
+        <div class="logo left">
+          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo izquierdo">
+        </div>
+        <div class="logo right">
+          <img src="{% static 'plantilla/img/Mich-Mejor.svg' %}" alt="Logo derecho">
+        </div>
+      </div>
+    </div>
+
+    <div class="section double">
+      <div><span class="label">FECHA RECIBIDO:</span> {{ data.fecha_recibido }}</div>
+      <div><span class="label">FECHA OFICIO:</span> {{ data.fecha_oficio }}</div>
+    </div>
+
+    <div class="section double">
+      <div><span class="label">ENVIADO POR:</span> {{ data.enviado_por }}</div>
+      <div><span class="label">ÁREA IVEM:</span> {{ data.area }}</div>
+    </div>
+
+    <div class="section"><span class="label">ASUNTO:</span> {{ data.asunto }}</div>
+    <div class="section"><span class="label">PROCEDENCIA:</span>{{ data.procedencia }}</div>
+
+    <div class="section double">
+      <div><span class="label">REFERENCIA:</span> {{ data.referencia }}</div>
+      <div><span class="label">ASUNTO:</span> {{ data.asunto_opciones }}</div>
+    </div>
+    <div class="section"><span class="label">NOTA:</span> {{ data.nota }}</div>
+    <div class="footer">
+      <div class="leyenda">UNIDAD DE CONTROL DE GESTIÓN</div>
+      <div class="leyenda">FOLIO:{{data.folio}}</div>
+      <div class="sello-espacio">SELLO</div>
+    </div>
+  </div>
+
+</body>
+</html>
+
+
+
+
+

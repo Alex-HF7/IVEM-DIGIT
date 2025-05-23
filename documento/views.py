@@ -11,9 +11,12 @@ from django.http import JsonResponse
 import plotly.express as px
 import pandas as pd;
 from django.core.files.storage import FileSystemStorage
+from django.http import Http404
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 logger = logging.getLogger(__name__)
 # Create your views here.
+
 def list(request):
     print("Configuración actual de DB:", connection.settings_dict)
     return render(request, 'documento/listDoc.html')
@@ -39,29 +42,54 @@ def lista_oficios(request, depto, year):
     tabla_nombre = f'oficios_{depto}_{year}'
     try:
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM {tabla_nombre} ORDER BY id DESC")
+            cursor.execute(f"SELECT * FROM {tabla_nombre} WHERE activo NOT IN ('false') ORDER BY id DESC")
             columns = [col[0] for col in cursor.description]
-            oficios = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            oficios_raw = [dict(zip(columns, row)) for row in cursor.fetchall()]
             
             # Convertir los valores booleanos correctamente
-            for oficio in oficios:
+            for oficio in oficios_raw:
                 if 'pendiente' in oficio:
                     oficio['pendiente'] = bool(oficio['pendiente'])
                 
                 # Agregar el valor para el template
                 oficio['pendiente_value'] = str(not oficio.get('pendiente', False)).lower()
     except Exception as e:
-        oficios = []
+        oficios_raw = []
         messages.error(request, f"Error al obtener oficios: {str(e)}")
+    
+    # Obtener query de búsqueda
+    query = request.GET.get('q', '').strip().lower()
+
+    # Filtro en memoria
+    if query:
+        oficios_raw = [
+            o for o in oficios_raw
+            if query in str(o.get('folio', '')).lower()
+            or query in str(o.get('asunto', '')).lower()
+            or query in str(o.get('procedencia', '')).lower()
+            or query in str(o.get('referencia', '')).lower()
+            or query in str(o.get('depto_asignado', '')).lower()
+            or query in str(o.get('enviado_por', '')).lower()
+        ]
+    page = request.GET.get('page', 1)
+    paginator = Paginator(oficios_raw, 20)  # 20 registros por página
+
+    try:
+        oficios = paginator.page(page)
+    except PageNotAnInteger:
+        oficios = paginator.page(1)
+    except EmptyPage:
+        oficios = paginator.page(paginator.num_pages)
     
     return render(request, 'documento/lista_oficios.html', {
         'oficios': oficios,
         'depto': depto,
-        'year': year
+        'year': year,
+        'search_query': query
     })
 
 def lista_pendientes(request):
-    oficios_pendientes = []
+    oficios_pendientes_raw = []
     try:
         with connection.cursor() as cursor:
             # Obtener todas las tablas de oficios
@@ -87,7 +115,7 @@ def lista_pendientes(request):
                         cursor.execute(f"""
                             SELECT *, '{tabla}' AS tabla_origen
                             FROM {tabla}
-                            WHERE pendiente = TRUE
+                            WHERE pendiente = TRUE AND activo = TRUE
                             ORDER BY id ASC
                         """)
                         columns = [col[0] for col in cursor.description]
@@ -95,12 +123,21 @@ def lista_pendientes(request):
 
                         for oficio in resultados:
                             oficio['pendiente_value'] = 'false'  # ya está pendiente, false para el checkbox
-                        oficios_pendientes.extend(resultados)
+                        oficios_pendientes_raw.extend(resultados)
 
                 except Exception as e:
                     messages.warning(request, f"Error consultando {tabla}: {str(e)}")
     except Exception as e:
         messages.error(request, f"Error al obtener tablas de oficios: {str(e)}")
+    page = request.GET.get('page',1)
+    paginator = Paginator(oficios_pendientes_raw, 20)
+
+    try:
+        oficios_pendientes = paginator.page(page)
+    except PageNotAnInteger:
+        oficios_pendientes = paginator.page(1)
+    except EmptyPage:
+        oficios_pendientes =    paginator.page(paginator.num_pages)
 
     return render(request, 'documento/lista_pendientes.html', {
         'oficios': oficios_pendientes,
@@ -275,11 +312,11 @@ def cargar_archivo(request):
             archivo = request.FILES['archivo']
             
             # Validar extensión
-            extensiones_permitidas = ['.pdf', '.doc', '.docx', '.jpg', '.png', '.jpeg']
+            extensiones_permitidas = ['.pdf']
             if not any(archivo.name.lower().endswith(ext) for ext in extensiones_permitidas):
                 return JsonResponse({
                     'success': False,
-                    'message': 'Tipo de archivo no permitido. Use PDF, DOC, DOCX, JPG o PNG'
+                    'message': 'Tipo de archivo no permitido. Use PDF'
                 }, status=400)
             
             # Crear directorio si no existe
@@ -330,8 +367,9 @@ def asignar_folio(request):
             oficio_id = request.POST.get('oficio_id')
             asunto_opciones = request.POST.get('asunto_opciones')
             area = request.POST.get('area')
+            nota = request.POST.get('nota')
 
-            if not all([tabla_origen, oficio_id, asunto_opciones, area]):
+            if not all([tabla_origen, oficio_id, asunto_opciones, area, nota]):
                 raise ValueError("Todos los campos son obligatorios")
 
             # Extraer departamento y año del nombre de la tabla
@@ -361,10 +399,11 @@ def asignar_folio(request):
                             pendiente = FALSE,
                             folio = nextval('folio_seq_{depto}_{year}'),
                             asunto_opciones = %s,
-                            area = %s
+                            area = %s,
+                            nota = %s
                         WHERE id = %s
                         RETURNING folio;
-                    """, [asunto_opciones, area, oficio_id])
+                    """, [asunto_opciones, area, nota, oficio_id])
                     
                     folio = cursor.fetchone()[0]
                     messages.success(request, f"Folio {folio} asignado correctamente al oficio {oficio_id}")
@@ -374,3 +413,170 @@ def asignar_folio(request):
             logger.error(f"Error asignando folio a {tabla_origen}/{oficio_id}: {str(e)}", exc_info=True)
     
     return redirect('lista_pendientes')
+
+def imprimir_oficio(request, depto, year, record_id):
+    tabla = f'oficios_{depto}_{year}'
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM {tabla} WHERE id = %s", [record_id])
+            row = cursor.fetchone()
+            if not row:
+                raise Http404("Oficio no encontrado")
+            columnas = [col[0] for col in cursor.description]
+            data = dict(zip(columnas, row))
+    except Exception as e:
+        raise Http404(f"Error al acceder a la tabla: {e}")
+
+    return render(request, 'documento/formato_oficio.html', {'data': data})
+
+def eliminar_oficio(request, depto, year, id):
+    tabla = f'oficios_{depto}_{year}'
+    try:
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                cursor.execute(f"""
+                    UPDATE {tabla} SET activo = FALSE WHERE id = %s
+                """, [id])
+        messages.success(request, "El oficio fue eliminado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Error al eliminar oficio: {str(e)}")
+    return redirect('lista_oficios', depto=depto, year=year) 
+
+def editar_oficio(request, depto, year, id):
+    tabla = f'oficios_{depto}_{year}'
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM {tabla} WHERE id = %s", [id])
+            columns = [col[0] for col in cursor.description]
+            row = cursor.fetchone()
+        if not row:
+            messages.error(request, "Oficio no encontrado.")
+            return redirect('lista_oficios', depto=depto, year=year)
+        data = dict(zip(columns, row))
+    except Exception as e:
+        messages.error(request, f"Error al obtener oficio: {str(e)}")
+        return redirect('lista_oficios', depto=depto, year=year)
+
+    if request.method == 'POST':
+        try:
+            asunto = request.POST.get('asunto')
+            referencia = request.POST.get('referencia')
+            enviado_por = request.POST.get('enviado_por')
+            procedencia = request.POST.get('procedencia')
+
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    cursor.execute(f"""
+                        UPDATE {tabla}
+                        SET asunto = %s,
+                            referencia = %s,
+                            enviado_por = %s,
+                            procedencia = %s
+                        WHERE id = %s
+                    """, [
+                        asunto,
+                        referencia,
+                        enviado_por,
+                        procedencia,
+                        id
+                    ])
+            messages.success(request, "El oficio fue actualizado correctamente.")
+            return redirect('lista_oficios', depto=depto, year=year)
+        except Exception as e:
+            messages.error(request, f"Error al actualizar oficio: {str(e)}")
+            return redirect('editar_oficio', depto=depto, year=year, id=id)
+
+    return render(request, 'documento/editar_oficio.html', {
+        'data': data,
+        'depto': depto,
+        'year': year
+    })
+
+def archivo(request):
+    if request.method == 'POST':
+        try:
+            # Validar parámetros comunes
+            depto = request.POST.get('depto')
+            year = request.POST.get('year')
+            id_oficio = request.POST.get('id_oficio')
+            action = request.POST.get('action', 'upload')  # 'upload' o 'edit'
+            
+            if not all([depto, year, id_oficio]):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Faltan parámetros requeridos (depto, year, id_oficio)'
+                }, status=400)
+            
+            # Validar archivo
+            if 'archivo' not in request.FILES:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No se ha seleccionado ningún archivo'
+                }, status=400)
+            
+            archivo = request.FILES['archivo']
+            
+            # Validar extensión
+            if not archivo.name.lower().endswith('.pdf'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Tipo de archivo no permitido. Solo se acepta PDF'
+                }, status=400)
+            
+            # Obtener ruta actual si es edición
+            ruta_actual = None
+            if action == 'edit':
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f"SELECT archivo FROM oficios_{depto}_{year} WHERE id = %s",
+                        [id_oficio]
+                    )
+                    resultado = cursor.fetchone()
+                    if resultado and resultado[0]:
+                        ruta_actual = resultado[0]
+            
+            # Crear directorio si no existe
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'oficios', depto, str(year))
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Generar nombre del archivo
+            nombre_archivo = f"{id_oficio}_{depto}_{year}.pdf"
+            ruta_completa = os.path.join(upload_dir, nombre_archivo)
+            
+            # Eliminar archivo anterior si es edición y existe
+            if action == 'edit' and ruta_actual and os.path.exists(os.path.join(settings.MEDIA_ROOT, ruta_actual)):
+                os.remove(os.path.join(settings.MEDIA_ROOT, ruta_actual))
+            
+            # Guardar archivo
+            fs = FileSystemStorage(location=upload_dir)
+            nombre_guardado = fs.save(nombre_archivo, archivo)
+            
+            # Ruta relativa para la base de datos
+            ruta_relativa = os.path.join('oficios', depto, str(year), nombre_guardado)
+            
+            # Actualizar base de datos
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        f"UPDATE oficios_{depto}_{year} SET archivo = %s WHERE id = %s",
+                        [ruta_relativa, id_oficio]
+                    )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Archivo guardado exitosamente',
+                'file_url': os.path.join(settings.MEDIA_URL, ruta_relativa)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error al {'editar' if action == 'edit' else 'cargar'} archivo: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': f'Error al procesar archivo: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Método no permitido'
+    }, status=405)

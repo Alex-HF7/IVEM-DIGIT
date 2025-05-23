@@ -181,6 +181,10 @@
     display: block;
 }
 
+table td {
+    text-transform: uppercase;
+}
+
 .table th {
     background-color: rgb(104, 33, 69);
     color: white;
