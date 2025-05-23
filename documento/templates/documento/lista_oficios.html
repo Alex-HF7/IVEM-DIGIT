@@ -63,6 +63,7 @@
                         <a href="/media/{{ oficio.archivo }}" target="_blank" class="btn btn-sm btn-primary me-1">
                             <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
                         </a>
+                        {% if oficio.folio == null %}
                         <!-- Botón para editar el archivo -->
                         <button type="button" class="btn btn-sm btn-warning btn-editar-archivo"
                             data-depto="{{ depto }}"
@@ -72,6 +73,7 @@
                             data-file-url="/media/{{ oficio.archivo }}">
                             <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
                         </button>
+                        {% endif %}
                       {% else %}
                         <!-- Botón para cargar nuevo archivo -->
                         <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
@@ -85,6 +87,7 @@
                     <td>{{oficio.area|default:"-"}}</td>
                     <td>
                         <div class="btn-group">
+                          {% if oficio.folio == null%}
                             <button class="btn btn-sm btn-primary"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#editarOficioModal" 
@@ -95,6 +98,7 @@
                                 data-procedencia="{{ oficio.procedencia }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
+                            {% endif %}
                             {% if es_staff %}
                             <form action="{% url 'eliminar_oficio' depto=depto year=year id=oficio.id %}" style="display:inline;" method="post">
                                 {% csrf_token %}
