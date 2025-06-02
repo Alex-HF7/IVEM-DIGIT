@@ -6,12 +6,6 @@
 
 Este es un proyecto desarrollado con Django para **gestionar los oficios que ingresan al instituo de diferentes dependencias**.
 
-## Requisitos
-
-- Python 3.10 o superior  
-- Django 4.x o superior  
-- PostgreSQL/MySQL/SQLite (dependiendo de tu base de datos)
-
 ## Instalación
 
 1. Clona el repositorio:
