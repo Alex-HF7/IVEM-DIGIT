@@ -6,21 +6,14 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from datetime import datetime, timedelta
 from django.utils import timezone
-import json
 from django.http import JsonResponse
 import plotly.express as px
 import pandas as pd;
-from django.core.files.storage import FileSystemStorage
 from django.http import Http404
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .utils import getRegistros, saveArchivo, paginar
 
 logger = logging.getLogger(__name__)
 # Create your views here.
-
-def list(request):
-    print("Configuración actual de DB:", connection.settings_dict)
-    return render(request, 'documento/listDoc.html')
-
 def years_disponibles():
     years = set()
     with connection.cursor() as cursor:
@@ -41,46 +34,30 @@ def navbar_context(request):
 def lista_oficios(request, depto, year):
     tabla_nombre = f'oficios_{depto}_{year}'
     try:
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM {tabla_nombre} WHERE activo NOT IN ('false') ORDER BY id DESC")
-            columns = [col[0] for col in cursor.description]
-            oficios_raw = [dict(zip(columns, row)) for row in cursor.fetchall()]
-            
-            # Convertir los valores booleanos correctamente
-            for oficio in oficios_raw:
-                if 'pendiente' in oficio:
-                    oficio['pendiente'] = bool(oficio['pendiente'])
-                
-                # Agregar el valor para el template
-                oficio['pendiente_value'] = str(not oficio.get('pendiente', False)).lower()
+        oficios_raw = getRegistros(
+            tabla_nombre,
+            filtros={'activo': True},
+            order_by='id DESC'
+        )
+        # Convertir los valores booleanos correctamente
+        for oficio in oficios_raw:
+            if 'pendiente' in oficio:
+                oficio['pendiente'] = bool(oficio['pendiente'])
+            oficio['pendiente_value'] = str(not oficio.get('pendiente', False)).lower()
     except Exception as e:
         oficios_raw = []
         messages.error(request, f"Error al obtener oficios: {str(e)}")
     
-    # Obtener query de búsqueda
+    # Filtro búsqueda
     query = request.GET.get('q', '').strip().lower()
-
-    # Filtro en memoria
     if query:
         oficios_raw = [
             o for o in oficios_raw
-            if query in str(o.get('folio', '')).lower()
-            or query in str(o.get('asunto', '')).lower()
-            or query in str(o.get('procedencia', '')).lower()
-            or query in str(o.get('referencia', '')).lower()
-            or query in str(o.get('depto_asignado', '')).lower()
-            or query in str(o.get('enviado_por', '')).lower()
+            if any(query in str(o.get(field, '')).lower() for field in [
+                'folio', 'asunto', 'procedencia', 'referencia', 'depto_asignado', 'enviado_por'
+            ])
         ]
-    page = request.GET.get('page', 1)
-    paginator = Paginator(oficios_raw, 20)  # 20 registros por página
-
-    try:
-        oficios = paginator.page(page)
-    except PageNotAnInteger:
-        oficios = paginator.page(1)
-    except EmptyPage:
-        oficios = paginator.page(paginator.num_pages)
-    
+    oficios = paginar(request, oficios_raw)
     return render(request, 'documento/lista_oficios.html', {
         'oficios': oficios,
         'depto': depto,
@@ -89,7 +66,7 @@ def lista_oficios(request, depto, year):
     })
 
 def lista_pendientes(request):
-    oficios_pendientes_raw = []
+    oficios_pendientes_raw= []
     try:
         with connection.cursor() as cursor:
             # Obtener todas las tablas de oficios
@@ -129,16 +106,8 @@ def lista_pendientes(request):
                     messages.warning(request, f"Error consultando {tabla}: {str(e)}")
     except Exception as e:
         messages.error(request, f"Error al obtener tablas de oficios: {str(e)}")
-    page = request.GET.get('page',1)
-    paginator = Paginator(oficios_pendientes_raw, 20)
-
-    try:
-        oficios_pendientes = paginator.page(page)
-    except PageNotAnInteger:
-        oficios_pendientes = paginator.page(1)
-    except EmptyPage:
-        oficios_pendientes =    paginator.page(paginator.num_pages)
-
+    
+    oficios_pendientes = paginar(request, oficios_pendientes_raw)
     return render(request, 'documento/lista_pendientes.html', {
         'oficios': oficios_pendientes,
         'depto': 'todos',
@@ -291,74 +260,30 @@ def grafica(request):
 def cargar_archivo(request):
     if request.method == 'POST':
         try:
-            # Validar parámetros
             depto = request.POST.get('depto')
             year = request.POST.get('year')
             id_oficio = request.POST.get('id_oficio')
-            
             if not all([depto, year, id_oficio]):
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Faltan parámetros requeridos'
-                }, status=400)
-            
-            # Validar archivo
+                return JsonResponse({'success': False, 'message': 'Faltan parámetros requeridos'}, status=400)
+
             if 'archivo' not in request.FILES:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'No se ha seleccionado ningún archivo'
-                }, status=400)
-            
+                return JsonResponse({'success': False, 'message': 'No se ha seleccionado ningún archivo'}, status=400)
+
             archivo = request.FILES['archivo']
-            
-            # Validar extensión
-            extensiones_permitidas = ['.pdf']
-            if not any(archivo.name.lower().endswith(ext) for ext in extensiones_permitidas):
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Tipo de archivo no permitido. Use PDF'
-                }, status=400)
-            
-            # Crear directorio si no existe
-            upload_dir = os.path.join(settings.MEDIA_ROOT, 'oficios', depto, str(year))
-            os.makedirs(upload_dir, exist_ok=True)
-            
-            # Generar nombre del archivo
-            nombre_archivo = f"{id_oficio}_{depto}_{year}{os.path.splitext(archivo.name)[1]}"
-            ruta_completa = os.path.join(upload_dir, nombre_archivo)
-            
-            # Guardar archivo
-            fs = FileSystemStorage(location=upload_dir)
-            nombre_guardado = fs.save(nombre_archivo, archivo)
-            
-            # Ruta relativa para la base de datos
-            ruta_relativa = os.path.join('oficios', depto, str(year), nombre_guardado)
-            
-            # Actualizar base de datos
-            with transaction.atomic():
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        f"UPDATE oficios_{depto}_{year} SET archivo = %s WHERE id = %s",
-                        [ruta_relativa, id_oficio]
-                    )
-            
+            if not archivo.name.lower().endswith('.pdf'):
+                return JsonResponse({'success': False, 'message': 'Tipo de archivo no permitido. Use PDF'}, status=400)
+
+            ruta_relativa = saveArchivo(depto, year, id_oficio, archivo)
             return JsonResponse({
                 'success': True,
                 'message': 'Archivo cargado exitosamente',
                 'file_url': os.path.join(settings.MEDIA_URL, ruta_relativa)
             })
-            
+
         except Exception as e:
             logger.error(f"Error al cargar archivo: {str(e)}", exc_info=True)
-            return JsonResponse({
-                'success': False,
-                'message': f'Error al cargar archivo: {str(e)}'
-            }, status=500)
-    
-    return JsonResponse({
-        'success': False,
-        'message': 'Método no permitido'
-    }, status=405)
+            return JsonResponse({'success': False, 'message': f'Error al cargar archivo: {str(e)}'}, status=500)
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
 def asignar_folio(request):
     if request.method == 'POST':
@@ -496,36 +421,20 @@ def editar_oficio(request, depto, year, id):
 def archivo(request):
     if request.method == 'POST':
         try:
-            # Validar parámetros comunes
             depto = request.POST.get('depto')
             year = request.POST.get('year')
             id_oficio = request.POST.get('id_oficio')
-            action = request.POST.get('action', 'upload')  # 'upload' o 'edit'
-            
+            action = request.POST.get('action', 'upload')
             if not all([depto, year, id_oficio]):
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Faltan parámetros requeridos (depto, year, id_oficio)'
-                }, status=400)
-            
-            # Validar archivo
+                return JsonResponse({'success': False, 'message': 'Faltan parámetros requeridos'}, status=400)
+
             if 'archivo' not in request.FILES:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'No se ha seleccionado ningún archivo'
-                }, status=400)
-            
+                return JsonResponse({'success': False, 'message': 'No se ha seleccionado ningún archivo'}, status=400)
+
             archivo = request.FILES['archivo']
-            
-            # Validar extensión
             if not archivo.name.lower().endswith('.pdf'):
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Tipo de archivo no permitido. Solo se acepta PDF'
-                }, status=400)
-            
-            # Obtener ruta actual si es edición
-            ruta_actual = None
+                return JsonResponse({'success': False, 'message': 'Tipo de archivo no permitido. Solo PDF'}, status=400)
+
             if action == 'edit':
                 with connection.cursor() as cursor:
                     cursor.execute(
@@ -533,50 +442,18 @@ def archivo(request):
                         [id_oficio]
                     )
                     resultado = cursor.fetchone()
-                    if resultado and resultado[0]:
-                        ruta_actual = resultado[0]
-            
-            # Crear directorio si no existe
-            upload_dir = os.path.join(settings.MEDIA_ROOT, 'oficios', depto, str(year))
-            os.makedirs(upload_dir, exist_ok=True)
-            
-            # Generar nombre del archivo
-            nombre_archivo = f"{id_oficio}_{depto}_{year}.pdf"
-            ruta_completa = os.path.join(upload_dir, nombre_archivo)
-            
-            # Eliminar archivo anterior si es edición y existe
-            if action == 'edit' and ruta_actual and os.path.exists(os.path.join(settings.MEDIA_ROOT, ruta_actual)):
-                os.remove(os.path.join(settings.MEDIA_ROOT, ruta_actual))
-            
-            # Guardar archivo
-            fs = FileSystemStorage(location=upload_dir)
-            nombre_guardado = fs.save(nombre_archivo, archivo)
-            
-            # Ruta relativa para la base de datos
-            ruta_relativa = os.path.join('oficios', depto, str(year), nombre_guardado)
-            
-            # Actualizar base de datos
-            with transaction.atomic():
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        f"UPDATE oficios_{depto}_{year} SET archivo = %s WHERE id = %s",
-                        [ruta_relativa, id_oficio]
-                    )
-            
+                    ruta_actual = resultado[0] if resultado and resultado[0] else None
+            else:
+                ruta_actual = None
+
+            ruta_relativa = saveArchivo(depto, year, id_oficio, archivo, ruta_anterior=ruta_actual)
             return JsonResponse({
                 'success': True,
                 'message': 'Archivo guardado exitosamente',
                 'file_url': os.path.join(settings.MEDIA_URL, ruta_relativa)
             })
-            
+
         except Exception as e:
-            logger.error(f"Error al {'editar' if action == 'edit' else 'cargar'} archivo: {str(e)}", exc_info=True)
-            return JsonResponse({
-                'success': False,
-                'message': f'Error al procesar archivo: {str(e)}'
-            }, status=500)
-    
-    return JsonResponse({
-        'success': False,
-        'message': 'Método no permitido'
-    }, status=405)
+            logger.error(f"Error al procesar archivo: {str(e)}", exc_info=True)
+            return JsonResponse({'success': False, 'message': f'Error al procesar archivo: {str(e)}'}, status=500)
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
