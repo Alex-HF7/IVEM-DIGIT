@@ -1,0 +1,337 @@
+{% extends "plantilla/base.html" %}
+{% load static %}
+{% block title %}Lista Documentos - {{ depto|upper }} {{ year }}{% endblock title %}
+{% block extra_js %}
+<script src="{% static 'plantilla/js/cargarArchivoModal.js' %}"></script>
+<script src="{% static 'plantilla/js/editOficio.js' %}"></script>
+<script src="{% static 'plantilla/js/eliminar_modal.js' %}"></script>
+{% endblock %}
+{% block body_class %}body-documento{% endblock body_class %}
+{% block content %}
+<div class="wrapper">
+<div class="container-fluid">
+    <h1 class="text-center" style="padding: 30px;">Oficios {{ depto|upper }} {{ year }}</h1>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+    <div>
+        <button class="btn btn-secondary me-2" onclick="location.reload()">Actualizar</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#formularioPopup">
+            Registrar Nuevo
+        </button>
+    </div>
+    
+    <form method="get" class="d-flex" role="search">
+        <input type="search" name="q" class="form-control me-2" placeholder="Buscar oficio..." value="{{ search_query }}">
+        <button type="submit" class="btn btn-info"><i class="bi bi-search"></i></button>
+    </form>
+</div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Folio</th>
+                    <th>Fecha Recibido</th>
+                    <th>Fecha Oficio</th>
+                    <th>Enviado por</th>
+                    <th>Procedencia</th>
+                    <th>Referencia</th>
+                    <th>Asunto</th>
+                    <th>Archivo</th>
+                    <th>Depto. asignado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oficio in oficios %}
+                <tr>
+                    <td>{{ oficio.id|default:"-"}}</td>
+                    <td>
+                        {% if oficio.pendiente %}
+                            <span class="badge bg-warning">Pendiente</span>
+                        {% else %}
+                            {{ oficio.folio }}
+                        {% endif %}
+                    </td>
+                    <td>{{ oficio.fecha_recibido|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ oficio.fecha_oficio|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ oficio.enviado_por|default:"-" }}</td>
+                    <td>{{ oficio.procedencia|default:"-" }}</td>
+                    <td>{{oficio.referencia|default:"-" }}</td>
+                    <td>{{ oficio.asunto|default:"-" }}</td>
+                    <td>
+                      {% if oficio.archivo %}
+                        <!-- Botón para ver el archivo -->
+                        <a href="/media/{{ oficio.archivo }}" target="_blank" class="btn btn-sm btn-primary me-1">
+                            <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
+                        </a>
+                        {% if oficio.folio == null %}
+                        <!-- Botón para editar el archivo -->
+                        <button type="button" class="btn btn-sm btn-warning btn-editar-archivo"
+                            data-depto="{{ depto }}"
+                            data-year="{{ year }}"
+                            data-id="{{ oficio.id }}"
+                            data-file-name="{{ oficio.archivo }}"
+                            data-file-url="/media/{{ oficio.archivo }}">
+                            <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
+                        </button>
+                        {% endif %}
+                      {% else %}
+                        <!-- Botón para cargar nuevo archivo -->
+                        <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
+                            data-depto="{{ depto }}" 
+                            data-year="{{ year }}" 
+                            data-id="{{ oficio.id }}">
+                            <i class="bi bi-file-earmark-arrow-up" style="font-size: 1.5rem;"></i>
+                        </button>
+                      {% endif %}
+                    </td>
+                    <td>{{oficio.area|default:"-"}}</td>
+                    <td>
+                        <div class="btn-group">
+                          {% if oficio.folio == null%}
+                            <button class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editarOficioModal" 
+                                data-id="{{ oficio.id }}"
+                                data-asunto="{{ oficio.asunto }}"
+                                data-referencia="{{ oficio.referencia }}"
+                                data-enviado_por="{{ oficio.enviado_por }}"
+                                data-procedencia="{{ oficio.procedencia }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            {% endif %}
+                            {% if es_staff %}
+                            <button class="btn btn-sm btn-danger"
+                            data-bs-target="#modalEliminarGlobal"
+                            data-id="{{ oficio.id }}"
+                            data-folio="{{ oficio.folio }}"
+                            data-depto="{{ depto }}"
+                            data-bs-toggle="modal"
+                            data-year="{{ year }}">
+                              <i class="bi bi-trash3"></i>
+                            </button>
+                            {% endif %}
+                            {% if oficio.folio %}
+                            <a href="{% url 'imprimir_oficio' depto=depto year=year record_id=oficio.id %}" target="_blank" class="btn btn-sm btn-secondary">
+                                <i class="bi bi-printer"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">No hay documentos registrados para este año</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<!-- Paginacion -->
+{% if oficios.paginator.num_pages > 1 %}
+<nav aria-label="Navegación de páginas">
+  <ul class="pagination justify-content-center mt-4">
+    
+    {# Botón anterior #}
+    {% if oficios.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ search_query }}&page={{ oficios.previous_page_number }}" aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </span>
+      </li>
+    {% endif %}
+
+    {# Números de página #}
+    {% for num in oficios.paginator.page_range %}
+      {% if num == oficios.number %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% elif num >= oficios.number|add:'-2' and num <= oficios.number|add:'2' %}
+        <li class="page-item">
+          <a class="page-link" href="?q={{ search_query }}&page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {# Botón siguiente #}
+    {% if oficios.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ search_query }}&page={{ oficios.next_page_number }}" aria-label="Siguiente">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-label="Siguiente">
+          <span aria-hidden="true">&raquo;</span>
+        </span>
+      </li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}
+
+
+<!-- Modal Registrar Oficio-->
+<div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formularioPopupLabel">Registrar Nuevo Oficio</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'crear_oficio' depto=depto year=year %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="departamento" value="{{ depto }}">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fecha_recibido" class="form-label">Fecha Recibido</label>
+                                <input type="date" class="form-control" name="fecha_recibido" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fecha_oficio" class="form-label">Fecha Oficio</label>
+                                <input type="date" class="form-control" name="fecha_oficio">
+                            </div>
+                            <div class="mb-3">
+                                <label for="referencia" class="form-label">Referencia</label>
+                                <input type="text" class="form-control" name="referencia">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="enviado_por" class="form-label">Enviado Por</label>
+                                <input type="text" class="form-control" name="enviado_por" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="procedencia" class="form-label">Procedencia</label>
+                                <input type="text" class="form-control" name="procedencia" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="asunto" class="form-label">Asunto</label>
+                                <input type="text" class="form-control" name="asunto" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cargar archivo -->
+<div class="modal fade" id="archivoModal" tabindex="-1" aria-labelledby="archivoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="archivoModalLabel">Cargar Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formArchivo" action="{% url 'manejar_archivo' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" id="modalDepto" name="depto">
+                <input type="hidden" id="modalYear" name="year">
+                <input type="hidden" id="modalIdOficio" name="id_oficio">
+                <input type="hidden" id="modalAction" name="action" value="upload">
+                
+                <div class="modal-body">
+                    <div id="alertContainer"></div>
+                    <div class="mb-3">
+                        <label for="archivoInput" class="form-label">Seleccionar archivo:</label>
+                        <input class="form-control" type="file" id="archivoInput" name="archivo" accept=".pdf" required>
+                        <div class="form-text">Solo se aceptan archivos en formato PDF</div>
+                    </div>
+                    <div id="currentFileContainer" class="mt-3 d-none">
+                        <div class="alert alert-info">
+                            <strong>Archivo actual:</strong> <span id="currentFileName"></span>
+                            <a href="#" id="currentFileLink" target="_blank" class="float-end">Ver archivo</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Oficio -->
+<div class="modal fade" id="editarOficioModal" tabindex="-1" aria-labelledby="editarOficioLabel" aria-hidden="true" data-depto="{{ depto }}" data-year="{{ year }}">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" id="formEditarOficio">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editarOficioLabel">Editar Oficio</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" id="editar_id">
+          <div class="mb-3">
+            <label for="editar_enviado_por" class="form-label">Enviado Por</label>
+            <input type="text" class="form-control" name="enviado_por" id="editar_enviado_por" required>
+          </div>
+          <div class="mb-3">
+            <label for="editar_asunto" class="form-label">Asunto</label>
+            <input type="text" class="form-control" name="asunto" id="editar_asunto" required>
+          </div>
+          <div class="mb-3">
+            <label for="editar_referencia" class="form-label">Referencia</label>
+            <input type="text" class="form-control" name="referencia" id="editar_referencia">
+          </div>
+          <div class="mb-3">
+            <label for="editar_procedencia" class="form-label">Procedencia</label>
+            <input type="text" class="form-control" name="procedencia" id="editar_procedencia" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal global para eliminar -->
+<div class="modal fade" id="modalEliminarGlobal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formEliminarGlobal" method="post">
+        {% csrf_token %}
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Confirmar eliminación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          ¿Seguro que deseas eliminar el oficio <strong id="folioEliminar"></strong>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

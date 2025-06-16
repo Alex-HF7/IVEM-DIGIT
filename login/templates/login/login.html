@@ -1,0 +1,35 @@
+{% extends "plantilla/base.html" %}
+{% block title %}Inicio de Sesion{% endblock title %}
+{% block body_class %}body-login{% endblock body_class %}
+{% block navbar %}{% endblock  %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="login-card card">
+        <div class="login-logo">
+            <!-- Aquí puedes poner tu logo -->
+            {% load static %}
+            <img src="{% static 'plantilla/img/logo.png' %}" alt="Logo">
+        </div>
+        <h2 class="text-center mb-4">Oficialía de partes</h2>
+        <h5 class="text-center mb-4">Iniciar Sesión</h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+            {% if form.errors %}
+                <div class="alert alert-danger mt-3">
+                    Usuario o contraseña incorrectos.
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock content %}
+{% block footer %}{% endblock footer %}
