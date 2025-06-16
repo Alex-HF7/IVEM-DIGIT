@@ -4,6 +4,7 @@
 {% block extra_js %}
 <script src="{% static 'plantilla/js/cargarArchivoModal.js' %}"></script>
 <script src="{% static 'plantilla/js/editOficio.js' %}"></script>
+<script src="{% static 'plantilla/js/eliminar_modal.js' %}"></script>
 {% endblock %}
 {% block body_class %}body-documento{% endblock body_class %}
 {% block content %}
@@ -100,12 +101,15 @@
                             </button>
                             {% endif %}
                             {% if es_staff %}
-                            <form action="{% url 'eliminar_oficio' depto=depto year=year id=oficio.id %}" style="display:inline;" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar este oficio?')">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
-                            </form>
+                            <button class="btn btn-sm btn-danger"
+                            data-bs-target="#modalEliminarGlobal"
+                            data-id="{{ oficio.id }}"
+                            data-folio="{{ oficio.folio }}"
+                            data-depto="{{ depto }}"
+                            data-bs-toggle="modal"
+                            data-year="{{ year }}">
+                              <i class="bi bi-trash3"></i>
+                            </button>
                             {% endif %}
                             {% if oficio.folio %}
                             <a href="{% url 'imprimir_oficio' depto=depto year=year record_id=oficio.id %}" target="_blank" class="btn btn-sm btn-secondary">
@@ -272,7 +276,7 @@
 
 <!-- Modal Editar Oficio -->
 <div class="modal fade" id="editarOficioModal" tabindex="-1" aria-labelledby="editarOficioLabel" aria-hidden="true" data-depto="{{ depto }}" data-year="{{ year }}">
-<div class="modal-dialog">
+  <div class="modal-dialog">
     <div class="modal-content">
       <form method="POST" id="formEditarOficio">
         {% csrf_token %}
@@ -302,6 +306,28 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal global para eliminar -->
+<div class="modal fade" id="modalEliminarGlobal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formEliminarGlobal" method="post">
+        {% csrf_token %}
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Confirmar eliminación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          ¿Seguro que deseas eliminar el oficio <strong id="folioEliminar"></strong>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
         </div>
       </form>
     </div>
