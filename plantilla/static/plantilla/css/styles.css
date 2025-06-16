@@ -356,6 +356,7 @@ table td {
 }
 
 footer{
+    /* URL PARA LA IMAGEN DE PIDE DE PAGINA EN CASO DE CONTAR CON UNA*/
     background-image: url('../img/pleca.svg');
     background-size: cover;
     width: 100%;
