@@ -214,6 +214,13 @@ def grafica(request):
         df['fecha_recibido'] = pd.to_datetime(df['fecha_recibido'])
         df['mes'] = df['fecha_recibido'].dt.strftime('%Y-%m')
         
+        # Filtrar por el mes actual
+        mes_actual = timezone.now().strftime('%B %Y')  # Ej: "Julio 2025"
+        df_mes = df[df['fecha_recibido'].dt.month == timezone.now().month]
+        
+        total_mes = len(df_mes)
+        pendientes_mes = len(df_mes[df_mes['pendiente']])
+
         # Gráfico 1: Oficios por mes (nuevos registros)
         oficios_por_mes = df.groupby(['mes', 'departamento']).size().reset_index(name='count')
         
@@ -247,6 +254,9 @@ def grafica(request):
             'plot_pendientes': plot_pendientes,
             'total_oficios': len(df),
             'pendientes_total': len(df[df['pendiente']]),
+            'total_mes': total_mes,
+            'pendientes_mes': pendientes_mes,
+            'current_month': mes_actual,
             'no_data': False
         }
         
