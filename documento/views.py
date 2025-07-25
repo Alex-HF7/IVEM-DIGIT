@@ -294,7 +294,7 @@ def asignar_folio(request):
             area = request.POST.get('area')
             nota = request.POST.get('nota')
 
-            if not all([tabla_origen, oficio_id, asunto_opciones, area, nota]):
+            if not all([tabla_origen, oficio_id, asunto_opciones, area]):
                 raise ValueError("Todos los campos son obligatorios")
 
             # Extraer departamento y año del nombre de la tabla
