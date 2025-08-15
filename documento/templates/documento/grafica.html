@@ -4,64 +4,82 @@
 {% block body_class %}dashboard-page{% endblock body_class %}
 {% block content %}
 <div class="dashboard-graphs">
-    <div class="container">
-        <div class="graph-header">
-            <h1><i class="bi bi-bar-chart-line"></i> Panel de Oficios</h1>
+    <div class="container my-5">
+         <h1 class="text-center mb-4">📊 Estadísticas de Oficios</h1>
+
+    {% if no_data %}
+        <div class="alert alert-warning text-center">
+            No se encontraron datos para mostrar las gráficas.
         </div>
-        
-        {% if no_data %}
-        <div class="no-data-message">
-            <div class="no-data-icon">
-                <i class="bi bi-database-exclamation"></i>
-            </div>
-            <h3>No se encontraron registros</h3>
-            <p class="text-muted">No hay datos disponibles para mostrar las gráficas.</p>
-        </div>
-        {% else %}
-        <!-- Stats Cards -->
-        <div class="row stats-container">
-            <div class="col-md-6">
-                <div class="stat-card total">
-                    <div class="stat-icon">
-                        <i class="bi bi-file-earmark-text text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <div class="stat-value text-primary">{{ total_oficios }}</div>
-                    <div class="stat-label">Total de Oficios</div>
+    {% else %}
+
+        <!-- Métricas del mes actual -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3 fade-in">
+                <div class="card metric-card p-4">
+                    <i class="bi bi-folder2-open metric-icon"></i>
+                    <h5>Oficios de {{ current_month }}</h5>
+                    <h2 id="contador-total" data-count="{{ total_mes }}"></h2>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="stat-card pending">
-                    <div class="stat-icon">
-                        <i class="bi bi-clock-history text-warning"style="font-size: 3rem;"></i>
-                    </div>
-                    <div class="stat-value text-warning">{{ pendientes_total }}</div>
-                    <div class="stat-label">Pendientes</div>
+            <div class="col-md-6 mb-3 fade-in">
+                <div class="card metric-card red p-4">
+                    <i class="bi bi-clock-history metric-icon"></i>
+                    <h5>Pendientes de {{ current_month }}</h5>
+                    <h2 id="contador-pendientes" data-count="{{ pendientes_mes }}"></h2>
                 </div>
             </div>
         </div>
-        
-        <!-- Gráfica de nuevos oficios -->
-        <div class="graph-card">
-            <div class="graph-card-header">
-                <h3><i class="bi bi-calendar-event"></i> Nuevos Oficios por Mes</h3>
+
+        <!-- Distribución en 2 columnas para las gráficas -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        Nuevos Oficios Recibidos por Mes
+                    </div>
+                    <div class="card-body chart-container">
+                        {{ plot_nuevos|safe }}
+                    </div>
+                </div>
             </div>
-            <div class="graph-card-body">
-                {{ plot_nuevos|safe }}
+
+            {% if plot_pendientes %}
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        Oficios Pendientes por Departamento
+                    </div>
+                    <div class="card-body chart-container">
+                        {{ plot_pendientes|safe }}
+                    </div>
+                </div>
             </div>
+            {% endif %}
         </div>
-        
-        <!-- Gráfica de pendientes -->
-        {% if plot_pendientes %}
-        <div class="graph-card">
-            <div class="graph-card-header bg-warning">
-                <h3><i class="bi bi-exclamation-triangle"></i> Oficios Pendientes</h3>
-            </div>
-            <div class="graph-card-body">
-                {{ plot_pendientes|safe }}
-            </div>
-        </div>
-        {% endif %}
-        {% endif %}
+    {% endif %}
     </div>
 </div>
+
+<script>
+    // Animación de los contadores
+    function animateCounter(id) {
+        const element = document.getElementById(id);
+        const target = parseInt(element.getAttribute("data-count")) || 0;
+        let count = 0;
+        const speed = Math.ceil(target / 100); // velocidad del incremento
+
+        const interval = setInterval(() => {
+            count += speed;
+            if (count >= target) {
+                count = target;
+                clearInterval(interval);
+            }
+            element.innerText = count;
+        }, 20);
+    }
+
+    animateCounter("contador-total");
+    animateCounter("contador-pendientes");
+</script>
 {% endblock %}

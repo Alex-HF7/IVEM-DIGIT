@@ -1,3 +1,8 @@
+@font-face {
+  font-family: Gibson;
+  src: url(https://michoacan.gob.mx/cdn/fonts/gibson-regular-webfont.woff);
+  font-weight: normal;
+}
 
 .body-login {
     margin: 0;
@@ -5,19 +10,25 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: rgb(104, 33, 69)
+    background-color: rgb(104, 33, 69);
+    font-family: 'Gibson', sans-serif;
 }
 
 .body-documento{
-    background-color: rgb(217, 217, 217);
+    background-color: #d9d9d9;
     padding: 0;
     min-height: 100vh;
     height: 100%;
     margin: 0;
     display: flex;
     flex-direction: column;
+    font-family: 'Gibson', sans-serif;
 }
 
+.dashboard-page{
+    background-color: #d9d9d9;
+    font-family: 'Gibson', sans-serif;
+}
 /* LOGIN */
 .login-card {
     width: 100%;
@@ -29,6 +40,7 @@
     box-shadow: 0 4px 6px rgba(163, 135, 135, 0.1);
     background-color: rgb(252, 247, 247); /* Fondo blanco para la tarjeta */
     margin: auto; /* Centra el login en la pantalla */
+    
 }
 .login-logo {
     text-align: center;
@@ -232,128 +244,48 @@ table td {
 }
 
 /* Graficas */
-
-.dashboard-graphs {
-    padding: 2rem 0;
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
-
-.graph-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
+.chart-container {
+    overflow-x: auto;
+    padding: 10px;
 }
-
-.dashboard-graphs .graph-header h1 {
-    color: #333333;
-    font-weight: 600;
-}
-
-/* Cards específicas para gráficas */
-.graph-card {
-    border: none;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    margin-bottom: 2rem;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.graph-card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    transform: translateY(-0.25rem);
-}
-
-.graph-card-header {
-    background-color: var(--bs-primary);
+.metric-card {
+    
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
     color: white;
-    padding: 1rem 1.5rem;
-    border-bottom: none;
-}
-
-.graph-card-header h3 {
-    margin-bottom: 0;
-    font-weight: 500;
-}
-
-.graph-card-body {
-    padding: 1.5rem;
-    background-color: #fff;
-}
-
-/* Stats cards específicas */
-.stats-container {
-    margin-bottom: 3rem;
-}
-
-.stat-card {
-    border-radius: 0.5rem;
-    padding: 1.5rem;
+    border: none;
     text-align: center;
-    margin-bottom: 1.5rem;
-    background: white;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border-top: 4px solid transparent;
 }
-
-.stat-card.total {
-    border-top-color: var(--bs-primary);
+.metric-card.red {
+    background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
 }
-
-.stat-card.pending {
-    border-top-color: var(--bs-warning);
+.metric-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
 }
-
-.stat-value {
+.metric-card h2 {
     font-size: 2.5rem;
-    font-weight: 700;
-    line-height: 1;
-    margin: 0.5rem 0;
+    margin: 0;
+}
+.metric-card h5 {
+    margin-bottom: 0.5rem;
+}
+.card-header {
+    background-color: #4A001F; /* vino oscuro */
+    color: white;
+    font-weight: bold;
+}
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
-.stat-label {
-    color: var(--bs-secondary);
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* No data message */
-.no-data-message {
-    text-align: center;
-    padding: 3rem;
-    background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.no-data-icon {
-    font-size: 3rem;
-    color: var(--bs-danger);
-    margin-bottom: 1.5rem;
-}
-
-/* Ajustes para plotly */
-.js-plotly-plot {
-    width: 100%;
-    min-height: 400px;
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-    .graph-card-body,
-    .stat-card,
-    .no-data-message {
-        background-color: var(--bs-dark-bg-subtle);
-        color: var(--bs-light);
-    }
-    
-    .stat-label {
-        color: var(--bs-secondary-text-emphasis);
-    }
-    
-    .graph-card-header {
-        background-color: var(--bs-primary-text-emphasis);
-    }
-}
 
 footer{
     /* URL PARA LA IMAGEN DE PIDE DE PAGINA EN CASO DE CONTAR CON UNA*/
