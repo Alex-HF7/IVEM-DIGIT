@@ -70,5 +70,5 @@ sudo systemctl restart nombre_del_proyecto
 
 ## Autor
 
-- **Nombre**: [Tu nombre o nombre del equipo]  
-- **Email**: [Tu correo electrónico]
+- **Nombre**: Ing. Alexander Hueramo Fulgencio
+- **Email**: hf.alex00@gmail.com
