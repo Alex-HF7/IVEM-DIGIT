@@ -20,7 +20,9 @@ urlpatterns = [
     path('oficios/<str:depto>/<int:year>/', login_required(viewsDoc.lista_oficios), name='lista_oficios'),
     path('oficios/<str:depto>/<int:year>/crear/', login_required(viewsDoc.crear_oficio), name='crear_oficio'),
     path('oficios/imprimir/<str:depto>/<int:year>/<int:record_id>/', login_required(viewsDoc.imprimir_oficio), name='imprimir_oficio'),
-    path('oficio/<str:depto>/<int:year>/<int:id>/editar',login_required(viewsDoc.editar_oficio), name='editar_oficio'),
+    path('oficios/<str:depto>/<int:year>/<int:id>/editar/', login_required(viewsDoc.editar_oficio), name='editar_oficio'),
+    # Compatibilidad con formularios y enlaces anteriores, incluidos los POST.
+    path('oficio/<str:depto>/<int:year>/<int:id>/editar', login_required(viewsDoc.editar_oficio), name='editar_oficio_legacy'),
     path('oficios/<str:depto>/<int:year>/<int:id>/eliminar/', login_required(viewsDoc.eliminar_oficio), name='eliminar_oficio'),
     
     #Pendientes

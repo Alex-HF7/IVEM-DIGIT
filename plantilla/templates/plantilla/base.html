@@ -80,7 +80,7 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         {% if user.is_staff %}
                         <li>
-                            <a class="dropdown-item" href="/admin/auth/user/" target="_blank">
+                            <a class="dropdown-item" href="{% url 'admin:auth_user_changelist' %}" target="_blank">
                                 <i class="bi bi-people-fill me-2"></i>Gestión de Usuarios
                             </a>
                         </li>

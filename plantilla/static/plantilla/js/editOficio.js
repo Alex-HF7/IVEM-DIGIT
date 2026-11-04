@@ -14,9 +14,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const enviado_por = button.getAttribute('data-enviado_por');
         const procedencia = button.getAttribute('data-procedencia');
 
-        const depto = modal.getAttribute('data-depto');
-        const year = modal.getAttribute('data-year');
-
         // Asignar valores a los campos del modal
         document.getElementById('editar_id').value = id;
         document.getElementById('editar_asunto').value = asunto;
@@ -26,6 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Definir la acción del formulario
         const form = document.getElementById('formEditarOficio');
-        form.action = `/oficio/${depto}/${year}/${id}/editar`;
+        form.action = button.getAttribute('data-url');
     });
 });

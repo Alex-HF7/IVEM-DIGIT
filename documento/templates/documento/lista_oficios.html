@@ -8,6 +8,7 @@
 {% endblock %}
 {% block body_class %}body-documento{% endblock body_class %}
 {% block content %}
+{% get_media_prefix as media_prefix %}
 <div class="wrapper">
 <div class="container-fluid">
     <h1 class="text-center" style="padding: 30px;">Oficios {{ depto|upper }} {{ year }}</h1>
@@ -61,7 +62,7 @@
                     <td>
                       {% if oficio.archivo %}
                         <!-- Botón para ver el archivo -->
-                        <a href="/media/{{ oficio.archivo }}" target="_blank" class="btn btn-sm btn-primary me-1">
+                        <a href="{{ media_prefix }}{{ oficio.archivo }}" target="_blank" class="btn btn-sm btn-primary me-1">
                             <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
                         </a>
                         {% if oficio.folio == null %}
@@ -71,7 +72,7 @@
                             data-year="{{ year }}"
                             data-id="{{ oficio.id }}"
                             data-file-name="{{ oficio.archivo }}"
-                            data-file-url="/media/{{ oficio.archivo }}">
+                            data-file-url="{{ media_prefix }}{{ oficio.archivo }}">
                             <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
                         </button>
                         {% endif %}
@@ -91,7 +92,8 @@
                           {% if oficio.folio == null%}
                             <button class="btn btn-sm btn-primary"
                                 data-bs-toggle="modal" 
-                                data-bs-target="#editarOficioModal" 
+                                data-bs-target="#editarOficioModal"
+                                data-url="{% url 'editar_oficio' depto=depto year=year id=oficio.id %}"
                                 data-id="{{ oficio.id }}"
                                 data-asunto="{{ oficio.asunto }}"
                                 data-referencia="{{ oficio.referencia }}"
@@ -103,6 +105,7 @@
                             {% if es_staff %}
                             <button class="btn btn-sm btn-danger"
                             data-bs-target="#modalEliminarGlobal"
+                            data-url="{% url 'eliminar_oficio' depto=depto year=year id=oficio.id %}"
                             data-id="{{ oficio.id }}"
                             data-folio="{{ oficio.folio }}"
                             data-depto="{{ depto }}"

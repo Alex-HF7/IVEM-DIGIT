@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.apps import apps
-from django.db import connection, models
+from django.db import connection, models, DatabaseError
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ModeloDinamicoAdmin(admin.ModelAdmin):
     def __init__(self, model, admin_site):
@@ -27,8 +30,7 @@ class LazyModelRegistry:
     @classmethod
     def register_all(cls):
         if not cls._registered and apps.ready:
-            cls._registered=True
-            registrar_modelo_dinamico()
+            cls._registered = registrar_modelo_dinamico()
 
 def registrar_modelo_dinamico():
     try:
@@ -48,7 +50,10 @@ def registrar_modelo_dinamico():
                 depto, year = parts[1], parts[2]
                 model_name = f'Oficios{depto.capitalize()}{year}'
 
-                if model_name in apps.all_models.get('documento',{}):
+                model = apps.all_models.get('documento', {}).get(model_name.lower())
+                if model is not None:
+                    if not admin.site.is_registered(model):
+                        admin.site.register(model, ModeloDinamicoAdmin)
                     continue
 
                 attrs = {
@@ -64,17 +69,21 @@ def registrar_modelo_dinamico():
                 model = type(model_name, (models.Model,), attrs)
                 admin.site.register(model, ModeloDinamicoAdmin)
 
-    except Exception as e:
-        print(f"Error registrando modelos: {e}")
+    except DatabaseError:
+        logger.exception("No se pudieron registrar los modelos dinámicos del administrador")
+        return False
+    return True
 
-if not hasattr(admin.site.__class__, '_original_admin_view'):
-    admin.site.__class__._original_admin_view = admin.site.__class__.admin_view
-    
-    def patched_admin_view(self, view, cacheable=False):
+# Registrar antes de que Django recorra el registro para construir sus rutas.
+# admin_view se invoca dentro de ese recorrido y no debe modificarlo.
+if not hasattr(admin.site.__class__, '_original_get_urls'):
+    admin.site.__class__._original_get_urls = admin.site.__class__.get_urls
+
+    def patched_get_urls(self):
         LazyModelRegistry.register_all()
-        return self._original_admin_view(view, cacheable)
-    
-    admin.site.__class__.admin_view = patched_admin_view
+        return self._original_get_urls()
+
+    admin.site.__class__.get_urls = patched_get_urls
 
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver

@@ -3,6 +3,7 @@
 {% block title %} Lista Pedientes {% endblock title %}
 {% block body_class %}body-documento{% endblock body_class %}
 {% block content %}
+{% get_media_prefix as media_prefix %}
 <div class="wrapper">
 <div class="container-fluid">
     <h1 class= "text-center" style="padding: 30px;">Pendientes</h1>
@@ -29,7 +30,7 @@
                     <td>{{ oficio.area|default:"-" }}</td>
                     <td>
                     {% if oficio.archivo %}
-                    <a href="/media/{{oficio.archivo}}" target="_blank" class="btn btn-sm btn-primary">
+                    <a href="{{ media_prefix }}{{oficio.archivo}}" target="_blank" class="btn btn-sm btn-primary">
                         <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
                     </a>
                     {% else %}
