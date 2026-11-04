@@ -10,7 +10,7 @@ Este es un proyecto desarrollado con Django para **gestionar los oficios que ing
 
 1. Clona el repositorio:
     ```bash
-    git clone https://github.com/Chawder7/IVEM-DIGIT.git
+    git clone https://github.com/Alex-HF7/IVEM-DIGIT.git
     ```
 
 2. Crea y activa un entorno virtual:
@@ -70,5 +70,5 @@ sudo systemctl restart nombre_del_proyecto
 
 ## Autor
 
-- **Nombre**: [Tu nombre o nombre del equipo]  
-- **Email**: [Tu correo electrónico]
+- **Nombre**: Ing. Alexander Hueramo Fulgencio
+- **Email**: hf.alex00@gmail.com
