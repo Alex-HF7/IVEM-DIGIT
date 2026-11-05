@@ -24,15 +24,16 @@
                 <p>{{ oficios.paginator.count|default:0 }} registro{{ oficios.paginator.count|pluralize }}{% if search_query %} para «{{ search_query }}»{% endif %}</p></div>
             </div>
             <div class="document-tools">
-                <button type="button" class="btn btn-primary document-new-button" data-bs-toggle="modal" data-bs-target="#formularioPopup">
-                    <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Registrar nuevo oficio
-                </button>
+
                 <form method="get" class="document-search" role="search">
                     <label for="oficio-search" class="visually-hidden">Buscar oficio</label>
                     <input id="oficio-search" type="search" name="q" class="form-control" placeholder="Buscar por asunto, remitente…" value="{{ search_query }}">
                     <button type="submit" class="btn btn-primary" title="Buscar" aria-label="Buscar"><i class="bi bi-search" aria-hidden="true"></i></button>
                 </form>
                 <button type="button" class="btn btn-outline-secondary document-refresh" onclick="location.reload()" title="Actualizar listado" aria-label="Actualizar listado"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
+                <button type="button" class="btn btn-primary document-new-button" data-bs-toggle="modal" data-bs-target="#formularioPopup" aria-label="Registrar nuevo oficio">
+                    <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Nuevo oficio
+                </button>
                 {% if search_query %}<a class="document-clear" href="{% url 'lista_oficios' depto=depto year=year %}">Limpiar</a>{% endif %}
             </div>
         </div>

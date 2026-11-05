@@ -441,8 +441,8 @@ body.body-login, body.body-documento, body.dashboard-page { min-height: 100vh; d
 .pending-assign { white-space: nowrap; }
 @media (max-width: 767px) {
     .document-tools .document-new-button { width: auto; }
-    .document-tools .document-search { flex-basis: 100%; order: 2; }
-    .document-tools .document-refresh { margin-left: auto; }
+    .document-tools .document-search { flex-basis: 100%; }
+    .document-tools .document-new-button { margin-left: auto; }
     .account-label { max-width: 90px; }
     .account-label small { display: none; }
 }

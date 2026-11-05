@@ -4,7 +4,7 @@
 {% block content %}
 <section class="container dashboard-overview">
     <header class="dashboard-heading">
-        <div><p class="dashboard-eyebrow">OFICIALÍA DE PARTES</p><h1>Estadísticas de oficios</h1>
+        <div><h1>Estadísticas de oficios</h1>
         <p class="text-muted mb-0">Seguimiento de documentos recibidos y pendientes.</p></div>
         {% if current_month %}<span class="dashboard-period"><i class="bi bi-calendar3 me-2"></i>{{ current_month|capfirst }}</span>{% endif %}
     </header>
@@ -32,6 +32,10 @@
                 <header><h2>Pendientes por departamento</h2><p>Documentos que requieren seguimiento</p></header>
                 {% if plot_pendientes %}<div class="dashboard-plot">{{ plot_pendientes|safe }}</div>
                 {% else %}<div class="dashboard-empty dashboard-clear"><i class="bi bi-check-circle"></i><h3>Sin pendientes</h3><p>Todos los oficios del periodo tienen folio asignado.</p></div>{% endif %}
+            </article></div>
+            <div class="col-12"><article class="dashboard-chart">
+                <header><h2>Oficios por departamento asignado</h2><p>Distribución por área de destino en los últimos 365 días; incluye oficios sin área asignada.</p></header>
+                <div class="dashboard-plot">{{ plot_areas|safe }}</div>
             </article></div>
         </div>
     {% endif %}

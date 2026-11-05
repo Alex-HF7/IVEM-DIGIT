@@ -49,7 +49,27 @@ def dashboard_statistics(data, today):
                                     tickformat='d', rangemode='tozero', gridcolor='#edf0f4')
         pending_figure.update_traces(hovertemplate='%{y}<br>%{x} pendientes<extra></extra>')
 
-    for figure in [new, pending_figure]:
+    # El área de destino es distinta del departamento de origen (UCG/Delegación).
+    area_names = {
+        'Dir. General': 'Dirección General', 'direccion': 'Dirección General',
+        'Del. Administración': 'Delegación Administrativa', 'delegacion': 'Delegación Administrativa',
+        'ucg': 'UCG', 'Sub. Jurídica': 'Subdirección Jurídica', 'juridica': 'Subdirección Jurídica',
+        'Sub. planeacion': 'Subdirección de Planeación', 'planeacion': 'Subdirección de Planeación',
+        'Sub. Técnica': 'Subdirección Técnica', 'tecnia': 'Subdirección Técnica',
+        'Sub. Comercialización': 'Subdirección de Comercialización', 'comercializacion': 'Subdirección de Comercialización',
+    }
+    areas = df.get('area', pd.Series(index=df.index, dtype='object'))
+    df['area'] = areas.fillna('').astype(str).str.strip().replace('', 'Sin área asignada').replace(area_names)
+    assigned = df.groupby('area').size().reset_index(name='count').sort_values(['count', 'area'])
+    assigned_figure = px.bar(assigned, x='count', y='area', orientation='h', text='count',
+                             color_discrete_sequence=['#682145'],
+                             labels={'count': 'Número de oficios', 'area': ''})
+    assigned_figure.update_xaxes(dtick=max(1, ceil(assigned['count'].max() / 5)),
+                                tickformat='d', rangemode='tozero', gridcolor='#edf0f4')
+    assigned_figure.update_yaxes(type='category', automargin=True)
+    assigned_figure.update_traces(hovertemplate='%{y}<br>%{x} oficios<extra></extra>')
+
+    for figure in [new, pending_figure, assigned_figure]:
         if figure is None:
             continue
         figure.update_layout(template='plotly_white', height=380, autosize=True,
@@ -57,7 +77,8 @@ def dashboard_statistics(data, today):
                               margin={'l': 30, 'r': 25, 't': 45, 'b': 60},
                               legend={'orientation': 'h', 'y': 1.15, 'x': 0}, bargap=0.35)
         figure.update_traces(textposition='outside', cliponaxis=False)
+    assigned_figure.update_layout(height=max(320, len(assigned) * 48 + 100))
     context.update(total_mes=len(current), pendientes_mes=int(current['pendiente'].sum()),
                    pendientes_total=int(df['pendiente'].sum()),
-                   fig_nuevos=new, fig_pendientes=pending_figure)
+                   fig_nuevos=new, fig_pendientes=pending_figure, fig_areas=assigned_figure)
     return context

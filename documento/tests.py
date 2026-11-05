@@ -217,3 +217,24 @@ class FileNotificationTests(SimpleTestCase):
         self.assertEqual(len(parser.notes), 2)
         self.assertTrue(all('required' not in note for note in parser.notes))
         self.assertIn('id="appToastContainer"', html)
+
+
+class AssignedDepartmentChartTests(SimpleTestCase):
+    def test_groups_by_assigned_area_instead_of_origin_department(self):
+        from datetime import date
+        from .dashboard import dashboard_statistics
+        records = [
+            {'departamento': 'ucg', 'area': 'Sub. Jurídica'},
+            {'departamento': 'delegacion', 'area': 'Sub. Jurídica'},
+            {'departamento': 'delegacion', 'area': 'UCG'},
+            {'departamento': 'ucg', 'area': None},
+            {'departamento': 'ucg', 'area': '  '},
+        ]
+        for record in records:
+            record.update(fecha_recibido=date(2026, 11, 5), pendiente=False)
+        result = dashboard_statistics(records, date(2026, 11, 5))
+        chart = result['fig_areas']
+        counts = {area: int(count) for trace in chart.data for area, count in zip(trace.y, trace.x)}
+        self.assertEqual(counts, {'Subdirección Jurídica': 2, 'UCG': 1, 'Sin área asignada': 2})
+        self.assertEqual(sum(counts.values()), result['total_oficios'])
+        self.assertEqual(chart.layout.xaxis.tickformat, 'd')

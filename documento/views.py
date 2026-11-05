@@ -191,7 +191,8 @@ def grafica(request):
                             SELECT 
                                 fecha_recibido,
                                 pendiente,
-                                departamento
+                                departamento,
+                                area
                             FROM {table_name}
                             WHERE fecha_recibido >= %s
                             ORDER BY fecha_recibido DESC
@@ -213,6 +214,8 @@ def grafica(request):
             pending = context.pop('fig_pendientes')
             context['plot_pendientes'] = pending.to_html(
                 full_html=False, include_plotlyjs=False, config=config) if pending else None
+            context['plot_areas'] = context.pop('fig_areas').to_html(
+                full_html=False, include_plotlyjs=False, config=config)
 
     except Exception as e:
         # En caso de cualquier error, mostrar mensaje de no datos
