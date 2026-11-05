@@ -12,8 +12,7 @@
 <section class="wrapper document-list-page">
 <div class="container-fluid document-list-shell">
     <header class="document-list-heading">
-        <div>
-            <p class="document-eyebrow">GESTIÓN DOCUMENTAL</p>
+        <div class="document-list-title">
             <h1>Listado de oficios</h1>
             <p class="document-list-subtitle">{% if depto == 'ucg' %}Unidad de Control de Gestión{% else %}Delegación Administrativa{% endif %} <span aria-hidden="true">·</span> {{ year }}</p>
         </div>
@@ -23,7 +22,7 @@
     </header>
     <div class="document-list-card">
         <div class="document-toolbar">
-            <div class="document-results"><span class="document-folder-icon"><i class="bi bi-folder2-open" aria-hidden="true"></i></span>
+            <div class="document-results"><span class="document-file-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
                 <div><h2>{% if search_query %}Resultados de búsqueda{% else %}Oficios registrados{% endif %}</h2>
                 <p>{{ oficios.paginator.count|default:0 }} registro{{ oficios.paginator.count|pluralize }}{% if search_query %} para «{{ search_query }}»{% endif %}</p></div>
             </div>
