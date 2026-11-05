@@ -60,13 +60,16 @@ Este es un proyecto desarrollado con Django para **gestionar los oficios que ing
 | requirements.txt     | Archivo de dependencias                        |
 
 
-### Reiniciar el sistema tras crear tablas dinámicas
+### Creación automática de tablas por año
 
-Cuando se crean nuevas tablas dinámicas cada año (por ejemplo, `oficios_ucg_2025`), es **necesario reiniciar el servidor** para que Django detecte y cargue las nuevas tablas. Para reiniciar el servicio Gunicorn:
+El personal crea el año desde **Administrador → Configuración de tablas**.
+El sistema prepara las tablas, secuencias y triggers de ambos departamentos.
+No es necesario ejecutar SQL ni reiniciar el servicio para consultar el año nuevo.
 
-```bash
-sudo systemctl restart nombre_del_proyecto
-```
+La acción **Comprobar y completar las tablas de los años seleccionados** permite
+repetir la comprobación sin borrar registros ni reiniciar secuencias existentes.
+Consulta [la guía de operación y despliegue](docs/tablas-anuales.md).
+
 
 ## Autor
 

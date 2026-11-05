@@ -2,8 +2,10 @@
 
 Esta entrega conserva las tablas anuales, folios, secuencias y rutas de PDF existentes.
 No incluye migraciones de Django ni cambios de restricciones, índices o tablas.
-No ejecutar `makemigrations` para desplegar esta entrega: la revisión del
-administrador dinámico y su relación con las migraciones queda para otra fase.
+No es necesario ejecutar `makemigrations` para desplegar esta entrega.
+El administrador dinámico usa modelos de consulta separados del esquema de
+migraciones. La creación automática por año se detalla en
+[la guía de tablas anuales](tablas-anuales.md).
 
 ## Acceso aplicado en Django
 
