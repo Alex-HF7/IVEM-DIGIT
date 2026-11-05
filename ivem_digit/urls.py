@@ -6,13 +6,14 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from documento import views as viewsDoc
 from django.contrib.auth.decorators import login_required
+from login.views import SecureLoginView
 
 
 urlpatterns = [
 
     #Admin y Autenticacion
     path('admin/', admin.site.urls),
-    path('', auth_views.LoginView.as_view(template_name='login/login.html'), name='login'),
+    path('', SecureLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     #Dashboard / Inicio

@@ -16,13 +16,14 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1$r#ryr-(e4zjmiv%)n_p@*l-h-web=gm-iwy5$qd@*e6dx+ze'
+SECRET_KEY = os.getenv('IVEM_SECRET_KEY') or 'django-insecure-1$r#ryr-(e4zjmiv%)n_p@*l-h-web=gm-iwy5$qd@*e6dx+ze'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('IVEM_DEBUG', 'false').strip().lower() in {'1', 'true', 'yes'}
@@ -85,7 +86,6 @@ WSGI_APPLICATION = 'ivem_digit.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE'),
@@ -171,3 +171,20 @@ LOGIN_URL = 'login'
 PDF_MAX_MB = int(os.getenv('IVEM_PDF_MAX_MB', '20'))
 
 CSRF_FAILURE_VIEW = 'ivem_digit.errors.csrf_failure'
+
+# Protección del login compartida por todos los procesos de Django.
+AUTHENTICATION_BACKENDS = ['login.backends.LimitedModelBackend']
+LOGIN_REDIS_URL = os.getenv('IVEM_LOGIN_REDIS_URL', 'redis://127.0.0.1:6379/0')
+LOGIN_RATE_PREFIX = 'ivem:login:v1:'
+LOGIN_RATE_SECONDS = 15 * 60
+LOGIN_PAIR_LIMIT = 5
+LOGIN_ACCOUNT_LIMIT = 10
+LOGIN_IP_LIMIT = 50
+LOGIN_TRUSTED_PROXIES = os.getenv('IVEM_TRUSTED_PROXIES', '').split(',')
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 8 * 60 * 60
+
+SESSION_COOKIE_SECURE = os.getenv('IVEM_COOKIE_SECURE', 'false').strip().lower() in {'1', 'true', 'yes'}
+CSRF_COOKIE_SECURE = SESSION_COOKIE_SECURE

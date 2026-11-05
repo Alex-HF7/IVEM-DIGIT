@@ -135,3 +135,12 @@ Ambos listados buscan por ID, folio, asunto, remitente, procedencia, referencia,
 área, departamento y fechas en formato `dd/mm/aaaa`. Se pueden combinar palabras
 sin distinguir mayúsculas ni acentos. El filtrado, conteo y paginación se realizan
 en PostgreSQL; se devuelven 20 registros por página y se conserva el filtro al navegar.
+
+### Acceso y protección de intentos
+
+La pantalla de acceso y el administrador comparten el límite de intentos mediante
+Redis. Docker Compose incorpora el servicio `login-cache` automáticamente sin
+publicar su puerto ni modificar el esquema de PostgreSQL. Para ejecutar Django
+fuera de Compose, proporcionar un Redis privado mediante `IVEM_LOGIN_REDIS_URL`.
+Antes de desplegar en producción, revisar [la guía del login](docs/login.md),
+que incluye Redis, proxies, HTTPS, clave secreta y cookies.
