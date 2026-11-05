@@ -33,7 +33,7 @@ services:
     command:
       - sh
       - -c
-      - python manage.py migrate --noinput && python docker/init_dev.py && exec python manage.py runserver 0.0.0.0:8000 --noreload
+      - python manage.py migrate --noinput && python docker/init_dev.py && exec python manage.py runserver 0.0.0.0:8000 --noreload --insecure
 volumes:
   postgres_data:
   media_data:

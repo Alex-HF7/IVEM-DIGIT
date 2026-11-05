@@ -1,7 +1,6 @@
 """Configuración exclusiva para desarrollo local con Docker Compose."""
 from .settings import *
 
-DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'testserver']
 # Evita modificar el archivo SQL versionado; Docker captura la salida.
 LOGGING = {

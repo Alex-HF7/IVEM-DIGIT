@@ -40,3 +40,8 @@ if settings.DEBUG:
     from django.conf.urls.static import static 
     urlpatterns += static(settings.STATIC_URL, 
                           document_root=settings.STATIC_ROOT)
+
+handler400 = 'ivem_digit.errors.bad_request'
+handler403 = 'ivem_digit.errors.permission_denied'
+handler404 = 'ivem_digit.errors.page_not_found'
+handler500 = 'ivem_digit.errors.server_error'

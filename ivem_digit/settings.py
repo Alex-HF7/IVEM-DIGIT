@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-1$r#ryr-(e4zjmiv%)n_p@*l-h-web=gm-iwy5$qd@*e6dx+ze'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('IVEM_DEBUG', 'false').strip().lower() in {'1', 'true', 'yes'}
 
 ALLOWED_HOSTS = [
     "192.178.1.183",
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'ivem_digit.middleware.FriendlyErrorMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +64,7 @@ ROOT_URLCONF = 'ivem_digit.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'ivem_digit' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -168,3 +169,5 @@ LOGIN_URL = 'login'
 
 # Límite por PDF (MB de 1024 × 1024 bytes), aplicable a carga y reemplazo.
 PDF_MAX_MB = int(os.getenv('IVEM_PDF_MAX_MB', '20'))
+
+CSRF_FAILURE_VIEW = 'ivem_digit.errors.csrf_failure'
