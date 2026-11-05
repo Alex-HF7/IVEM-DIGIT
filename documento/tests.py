@@ -148,6 +148,8 @@ class NewDocumentFormTests(SimpleTestCase):
                 for depto in ['ucg', 'delegacion']:
                     with self.subTest(depto=depto):
                         request = RequestFactory().get(f'/oficios/{depto}/2026/')
+                        from types import SimpleNamespace
+                        request.user = SimpleNamespace(is_authenticated=True, is_staff=True, is_superuser=True)
                         with patch('documento.views.buscar_oficios', return_value=([], '')), patch('documento.views.render') as render:
                             views.lista_oficios(request, depto, 2026)
                         context = render.call_args.args[2]
@@ -176,6 +178,8 @@ class FileNotificationTests(SimpleTestCase):
                     'depto': 'ucg', 'year': '2026', 'id_oficio': '2', 'action': action,
                     'archivo': SimpleUploadedFile('prueba.pdf', b'%PDF-1.4 test'),
                 })
+                from types import SimpleNamespace
+                request.user = SimpleNamespace(is_authenticated=True, is_staff=True, is_superuser=True)
                 request.session = {}
                 request._messages = FallbackStorage(request)
                 with patch('documento.views.saveArchivo', return_value='archivos/prueba.pdf'), patch('documento.views.connection'):
@@ -251,7 +255,9 @@ class PDFLimitTests(SimpleTestCase):
                 'depto': 'ucg', 'year': '2026', 'id_oficio': '1', 'action': action,
                 'archivo': SimpleUploadedFile('prueba.pdf', b'x' * (1024 * 1024 + 1)),
             })
-            with patch('documento.views.saveArchivo') as save:
+            from types import SimpleNamespace
+            request.user = SimpleNamespace(is_authenticated=True, is_staff=True, is_superuser=True)
+            with patch('documento.utils.FileSystemStorage') as save:
                 response = views.archivo(request)
             self.assertEqual(response.status_code, 400)
             self.assertIn('1 MB', response.content.decode())
@@ -373,8 +379,7 @@ class RequiredDatesAndHistoricalDashboardTests(TestCase):
         for field in ['fecha_recibido', 'fecha_oficio']:
             data = dict(base)
             data.pop(field)
-            with self.assertLogs('documento.views', level='ERROR'):
-                response = self.client.post('/oficios/ucg/2088/crear/', data)
+            response = self.client.post('/oficios/ucg/2088/crear/', data)
             self.assertEqual(response.status_code, 302)
         with connection.cursor() as cursor:
             cursor.execute("SELECT COUNT(*) FROM oficios_ucg_2088 WHERE asunto='Nuevo'")

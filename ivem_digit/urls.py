@@ -1,5 +1,7 @@
+import re
+from urllib.parse import urlsplit
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from documento import views as viewsDoc
@@ -31,11 +33,10 @@ urlpatterns = [
     
     #Archivos
     path('manejar-archivo/', login_required(viewsDoc.archivo), name="manejar_archivo"),
+    re_path(r'^' + re.escape(urlsplit(settings.MEDIA_URL).path.lstrip('/')) + r'(?P<path>.*)$', login_required(viewsDoc.media_archivo), name='archivo_media'),
     
 ]
 if settings.DEBUG:
     from django.conf.urls.static import static 
-    urlpatterns += static(settings.MEDIA_URL, 
-                          document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, 
                           document_root=settings.STATIC_ROOT)
