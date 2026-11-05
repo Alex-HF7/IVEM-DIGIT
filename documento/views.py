@@ -7,8 +7,6 @@ from django.contrib import messages
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.http import JsonResponse
-import plotly.express as px
-import pandas as pd;
 from django.http import Http404
 from .utils import getRegistros, saveArchivo, paginar
 
@@ -204,62 +202,17 @@ def grafica(request):
                         for row in rows:
                             data.append(dict(zip(columns, row)))
         
-        if not data:
-            return render(request, 'documento/grafica.html', {'no_data': True})
-        
-        # Convertir a DataFrame para facilitar el análisis
-        df = pd.DataFrame(data)
-        
-        # Convertir fecha a datetime y extraer año-mes
-        df['fecha_recibido'] = pd.to_datetime(df['fecha_recibido'])
-        df['mes'] = df['fecha_recibido'].dt.strftime('%Y-%m')
-        
-        # Filtrar por el mes actual
-        mes_actual = timezone.now().strftime('%B %Y')  # Ej: "Julio 2025"
-        df_mes = df[df['fecha_recibido'].dt.month == timezone.now().month]
-        
-        total_mes = len(df_mes)
-        pendientes_mes = len(df_mes[df_mes['pendiente']])
+        from .dashboard import dashboard_statistics
 
-        # Gráfico 1: Oficios por mes (nuevos registros)
-        oficios_por_mes = df.groupby(['mes', 'departamento']).size().reset_index(name='count')
-        
-        fig_nuevos = px.bar(
-            oficios_por_mes,
-            x='mes',
-            y='count',
-            color='departamento',
-            title='Nuevos oficios recibidos por mes',
-            labels={'count': 'Número de oficios', 'mes': 'Mes'},
-            category_orders={"mes": sorted(df['mes'].unique())}
-        )
-        
-        # Gráfico 2: Oficios pendientes
-        pendientes = df[df['pendiente']].groupby('departamento').size().reset_index(name='count')
-        
-        if not pendientes.empty:
-            fig_pendientes = px.bar(
-                pendientes,
-                x='departamento',
-                y='count',
-                title='Oficios pendientes por departamento',
-                labels={'count': 'Número de oficios', 'departamento': 'Departamento'}
-            )
-            plot_pendientes = fig_pendientes.to_html(full_html=False, include_plotlyjs='cdn')
-        else:
-            plot_pendientes = None
-        
-        context = {
-            'plot_nuevos': fig_nuevos.to_html(full_html=False, include_plotlyjs='cdn'),
-            'plot_pendientes': plot_pendientes,
-            'total_oficios': len(df),
-            'pendientes_total': len(df[df['pendiente']]),
-            'total_mes': total_mes,
-            'pendientes_mes': pendientes_mes,
-            'current_month': mes_actual,
-            'no_data': False
-        }
-        
+        context = dashboard_statistics(data, timezone.localdate())
+        if not context['no_data']:
+            config = {'responsive': True, 'displayModeBar': False, 'scrollZoom': False}
+            context['plot_nuevos'] = context.pop('fig_nuevos').to_html(
+                full_html=False, include_plotlyjs='cdn', config=config)
+            pending = context.pop('fig_pendientes')
+            context['plot_pendientes'] = pending.to_html(
+                full_html=False, include_plotlyjs=False, config=config) if pending else None
+
     except Exception as e:
         # En caso de cualquier error, mostrar mensaje de no datos
         print(f"Error al generar gráficas: {e}")

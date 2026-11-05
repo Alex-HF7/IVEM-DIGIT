@@ -81,3 +81,44 @@ class DynamicAdminTests(SimpleTestCase):
                 LazyModelRegistry.register_all()
                 self.assertTrue(LazyModelRegistry._registered)
                 self.assertEqual(register.call_count, 2)
+
+
+class DashboardTests(SimpleTestCase):
+    def test_spanish_months_chronology_and_integer_axes(self):
+        from datetime import date
+        from .dashboard import dashboard_statistics
+        result = dashboard_statistics([
+            {'fecha_recibido': date(2026, 1, 10), 'pendiente': True, 'departamento': 'ucg'},
+            {'fecha_recibido': date(2025, 12, 20), 'pendiente': False, 'departamento': 'delegacion'},
+        ], date(2026, 1, 15))
+        self.assertEqual(result['current_month'], 'enero de 2026')
+        self.assertEqual(result['total_mes'], 1)
+        self.assertEqual(result['pendientes_mes'], 1)
+        figure = result['fig_nuevos']
+        self.assertEqual(figure.layout.xaxis.type, 'category')
+        self.assertEqual(list(figure.layout.xaxis.categoryarray), ['diciembre 2025', 'enero 2026'])
+        self.assertEqual(figure.layout.yaxis.dtick, 1)
+        self.assertEqual({trace.name for trace in figure.data}, {'UCG', 'Delegación'})
+
+    def test_current_month_excludes_same_month_in_previous_year(self):
+        from datetime import date
+        from .dashboard import dashboard_statistics
+        result = dashboard_statistics([
+            {'fecha_recibido': date(2025, 11, 6), 'pendiente': True, 'departamento': 'ucg'},
+            {'fecha_recibido': date(2026, 11, 5), 'pendiente': False, 'departamento': 'delegacion'},
+        ], date(2026, 11, 5))
+        self.assertEqual(result['total_mes'], 1)
+        self.assertEqual(result['pendientes_mes'], 0)
+
+    def test_zero_pending_and_empty_dashboard_render(self):
+        from datetime import date
+        from .dashboard import dashboard_statistics
+        result = dashboard_statistics([
+            {'fecha_recibido': date(2026, 11, 5), 'pendiente': False, 'departamento': 'ucg'},
+        ], date(2026, 11, 5))
+        self.assertIsNone(result['fig_pendientes'])
+        html = render_to_string('documento/grafica.html', result)
+        self.assertIn('Sin pendientes', html)
+        empty = dashboard_statistics([], date(2026, 11, 5))
+        self.assertTrue(empty['no_data'])
+        self.assertIn('Aún no hay oficios', render_to_string('documento/grafica.html', empty))
