@@ -63,7 +63,7 @@
                         </ul>
                     </li>
                     {% if user.is_staff %}
-                    <li calss="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link pendientes-badge" href="{% url "lista_pendientes" %}">Pendientes</a>
                     </li>
                     {% endif %}
@@ -71,12 +71,14 @@
             </div>
             <div class="d-flex align-items-center">
                 {% if user.is_authenticated %}
-                <div class="dropdown">
+                <div class="dropdown account-dropdown">
                     <a class="nav-link dropdown-toggle user-menu" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle me-1"></i>
-                        <span class="d-none d-md-inline">{{ user.username }}</span>
+                        <span class="account-avatar"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+                        <span class="account-label"><strong>{{ user.username }}</strong><small>{% if user.is_staff %}Administración{% else %}Mi cuenta{% endif %}</small></span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end account-menu" aria-labelledby="userDropdown">
+                        <li class="account-menu-heading"><span>Sesión iniciada como</span><strong>{{ user.username }}</strong></li>
+                        <li><hr class="dropdown-divider"></li>
                         {% if user.is_staff %}
                         <li>
                             <a class="dropdown-item" href="{% url 'admin:auth_user_changelist' %}" target="_blank">

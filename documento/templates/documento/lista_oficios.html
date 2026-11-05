@@ -16,9 +16,6 @@
             <h1>Listado de oficios</h1>
             <p class="document-list-subtitle">{% if depto == 'ucg' %}Unidad de Control de Gestión{% else %}Delegación Administrativa{% endif %} <span aria-hidden="true">·</span> {{ year }}</p>
         </div>
-        <button type="button" class="btn btn-primary document-new-button" data-bs-toggle="modal" data-bs-target="#formularioPopup">
-            <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Registrar nuevo oficio
-        </button>
     </header>
     <div class="document-list-card">
         <div class="document-toolbar">
@@ -27,6 +24,9 @@
                 <p>{{ oficios.paginator.count|default:0 }} registro{{ oficios.paginator.count|pluralize }}{% if search_query %} para «{{ search_query }}»{% endif %}</p></div>
             </div>
             <div class="document-tools">
+                <button type="button" class="btn btn-primary document-new-button" data-bs-toggle="modal" data-bs-target="#formularioPopup">
+                    <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Registrar nuevo oficio
+                </button>
                 <form method="get" class="document-search" role="search">
                     <label for="oficio-search" class="visually-hidden">Buscar oficio</label>
                     <input id="oficio-search" type="search" name="q" class="form-control" placeholder="Buscar por asunto, remitente…" value="{{ search_query }}">
