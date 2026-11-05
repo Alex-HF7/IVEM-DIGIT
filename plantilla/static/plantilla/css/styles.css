@@ -114,10 +114,6 @@
     color: #1e40af;
 }
 
-.dropdown-submenu .dropdown-menu {
-    margin-left: 0.5rem;
-    margin-top: -0.5rem;
-}
 
 /* Estilo para el mensaje de usuario */
 /* Estilos para el menú de usuario */
@@ -186,11 +182,18 @@
 .dropdown-submenu .dropdown-menu {
     top: 0;
     left: 100%;
-    margin-top: -1px;
+    margin: 0;
 }
 
-.dropdown-submenu:hover .dropdown-menu {
-    display: block;
+.registro-dropdown > .dropdown-menu {
+    margin-top: 0;
+}
+
+/* Sin huecos entre carpetas: el cursor puede pasar al listado de años. */
+@media (hover: hover) and (pointer: fine) {
+    .registro-dropdown .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
 }
 
 table td {
