@@ -161,9 +161,15 @@
     })
   });
 </script>
-</body>
 {% block footer %}
-<footer>
+<footer class="site-footer">
+    <div class="site-footer-content">
+        <div class="site-footer-brand"><img src="{% static 'plantilla/img/Ivem_64px.svg' %}" alt="IVEM" width="36" height="36">
+            <div><strong>IVEM · Gestión documental</strong><span>Oficialía de partes</span></div>
+        </div>
+        <div class="site-footer-detail"><span>Instituto de Vivienda del Estado de Michoacán</span><small>© {% now 'Y' %} IVEM</small></div>
+    </div>
 </footer>
 {% endblock footer %}
+</body>
 </html>

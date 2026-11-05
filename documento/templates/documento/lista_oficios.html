@@ -9,88 +9,101 @@
 {% block body_class %}body-documento{% endblock body_class %}
 {% block content %}
 {% get_media_prefix as media_prefix %}
-<div class="wrapper">
-<div class="container-fluid">
-    <h1 class="text-center" style="padding: 30px;">Oficios {{ depto|upper }} {{ year }}</h1>
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-    <div>
-        <button class="btn btn-secondary me-2" onclick="location.reload()">Actualizar</button>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#formularioPopup">
-            Registrar Nuevo
+<section class="wrapper document-list-page">
+<div class="container-fluid document-list-shell">
+    <header class="document-list-heading">
+        <div>
+            <p class="document-eyebrow">GESTIÓN DOCUMENTAL</p>
+            <h1>Listado de oficios</h1>
+            <p class="document-list-subtitle">{% if depto == 'ucg' %}Unidad de Control de Gestión{% else %}Delegación Administrativa{% endif %} <span aria-hidden="true">·</span> {{ year }}</p>
+        </div>
+        <button type="button" class="btn btn-primary document-new-button" data-bs-toggle="modal" data-bs-target="#formularioPopup">
+            <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Registrar nuevo oficio
         </button>
-    </div>
-    
-    <form method="get" class="d-flex" role="search">
-        <input type="search" name="q" class="form-control me-2" placeholder="Buscar oficio..." value="{{ search_query }}">
-        <button type="submit" class="btn btn-info"><i class="bi bi-search"></i></button>
-    </form>
-</div>
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover table-striped">
-            <thead class="table-dark">
+    </header>
+    <div class="document-list-card">
+        <div class="document-toolbar">
+            <div class="document-results"><span class="document-folder-icon"><i class="bi bi-folder2-open" aria-hidden="true"></i></span>
+                <div><h2>{% if search_query %}Resultados de búsqueda{% else %}Oficios registrados{% endif %}</h2>
+                <p>{{ oficios.paginator.count|default:0 }} registro{{ oficios.paginator.count|pluralize }}{% if search_query %} para «{{ search_query }}»{% endif %}</p></div>
+            </div>
+            <div class="document-tools">
+                <form method="get" class="document-search" role="search">
+                    <label for="oficio-search" class="visually-hidden">Buscar oficio</label>
+                    <input id="oficio-search" type="search" name="q" class="form-control" placeholder="Buscar por asunto, remitente…" value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary" title="Buscar" aria-label="Buscar"><i class="bi bi-search" aria-hidden="true"></i></button>
+                </form>
+                <button type="button" class="btn btn-outline-secondary document-refresh" onclick="location.reload()" title="Actualizar listado" aria-label="Actualizar listado"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
+                {% if search_query %}<a class="document-clear" href="{% url 'lista_oficios' depto=depto year=year %}">Limpiar</a>{% endif %}
+            </div>
+        </div>
+        <div class="table-responsive document-table-scroll" role="region" aria-label="Oficios registrados; desplaza horizontalmente para ver todas las columnas" tabindex="0">
+        <table class="table table-hover document-table">
+            <caption class="visually-hidden">Oficios de {{ depto|upper }} del año {{ year }}</caption>
+            <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Folio</th>
-                    <th>Fecha Recibido</th>
-                    <th>Fecha Oficio</th>
-                    <th>Enviado por</th>
-                    <th>Procedencia</th>
-                    <th>Referencia</th>
-                    <th>Asunto</th>
-                    <th>Archivo</th>
-                    <th>Depto. asignado</th>
-                    <th>Acciones</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Folio</th>
+                    <th scope="col">Fecha Recibido</th>
+                    <th scope="col">Fecha Oficio</th>
+                    <th scope="col">Enviado por</th>
+                    <th scope="col">Procedencia</th>
+                    <th scope="col">Referencia</th>
+                    <th scope="col">Asunto</th>
+                    <th scope="col">Archivo</th>
+                    <th scope="col">Depto. asignado</th>
+                    <th scope="col">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for oficio in oficios %}
                 <tr>
-                    <td>{{ oficio.id|default:"-"}}</td>
+                    <td class="document-id">#{{ oficio.id|default:"-"}}</td>
                     <td>
                         {% if oficio.pendiente %}
-                            <span class="badge bg-warning">Pendiente</span>
+                            <span class="document-status document-status-pending"><span aria-hidden="true">●</span> Pendiente</span>
                         {% else %}
-                            {{ oficio.folio }}
+                            <span class="document-status document-status-assigned">Folio {{ oficio.folio|default:"—" }}</span>
                         {% endif %}
                     </td>
-                    <td>{{ oficio.fecha_recibido|date:"d/m/Y"|default:"-" }}</td>
-                    <td>{{ oficio.fecha_oficio|date:"d/m/Y"|default:"-" }}</td>
+                    <td class="document-date">{{ oficio.fecha_recibido|date:"d/m/Y"|default:"-" }}</td>
+                    <td class="document-date">{{ oficio.fecha_oficio|date:"d/m/Y"|default:"-" }}</td>
                     <td>{{ oficio.enviado_por|default:"-" }}</td>
                     <td>{{ oficio.procedencia|default:"-" }}</td>
                     <td>{{oficio.referencia|default:"-" }}</td>
-                    <td>{{ oficio.asunto|default:"-" }}</td>
+                    <td class="document-subject">{{ oficio.asunto|default:"-" }}</td>
                     <td>
                       {% if oficio.archivo %}
                         <!-- Botón para ver el archivo -->
-                        <a href="{{ media_prefix }}{{ oficio.archivo }}" target="_blank" class="btn btn-sm btn-primary me-1">
-                            <i class="bi bi-file-earmark-pdf-fill" style="font-size: 1.5rem;"></i>
+                        <a href="{{ media_prefix }}{{ oficio.archivo }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Ver PDF" aria-label="Ver archivo PDF">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
                         </a>
                         {% if oficio.folio == null %}
                         <!-- Botón para editar el archivo -->
-                        <button type="button" class="btn btn-sm btn-warning btn-editar-archivo"
+                        <button type="button" class="btn btn-sm btn-outline-secondary btn-editar-archivo" title="Reemplazar PDF" aria-label="Reemplazar archivo PDF"
                             data-depto="{{ depto }}"
                             data-year="{{ year }}"
                             data-id="{{ oficio.id }}"
                             data-file-name="{{ oficio.archivo }}"
                             data-file-url="{{ media_prefix }}{{ oficio.archivo }}">
-                            <i class="bi bi-pencil-square" style="font-size: 1.5rem;"></i>
+                            <i class="bi bi-pencil-square"></i>
                         </button>
                         {% endif %}
                       {% else %}
                         <!-- Botón para cargar nuevo archivo -->
-                        <button type="button" class="btn btn-sm btn-primary btn-cargar-archivo" 
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-cargar-archivo" title="Cargar PDF" aria-label="Cargar archivo PDF"
                             data-depto="{{ depto }}" 
                             data-year="{{ year }}" 
                             data-id="{{ oficio.id }}">
-                            <i class="bi bi-file-earmark-arrow-up" style="font-size: 1.5rem;"></i>
+                            <i class="bi bi-file-earmark-arrow-up"></i>
                         </button>
                       {% endif %}
                     </td>
                     <td>{{oficio.area|default:"-"}}</td>
                     <td>
-                        <div class="btn-group">
+                        <div class="document-row-actions">
                           {% if oficio.folio == null%}
-                            <button class="btn btn-sm btn-primary"
+                            <button class="btn btn-sm btn-outline-primary" title="Editar oficio" aria-label="Editar oficio"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#editarOficioModal"
                                 data-url="{% url 'editar_oficio' depto=depto year=year id=oficio.id %}"
@@ -103,7 +116,7 @@
                             </button>
                             {% endif %}
                             {% if es_staff %}
-                            <button class="btn btn-sm btn-danger"
+                            <button class="btn btn-sm btn-outline-danger" title="Eliminar oficio" aria-label="Eliminar oficio"
                             data-bs-target="#modalEliminarGlobal"
                             data-url="{% url 'eliminar_oficio' depto=depto year=year id=oficio.id %}"
                             data-id="{{ oficio.id }}"
@@ -115,7 +128,7 @@
                             </button>
                             {% endif %}
                             {% if oficio.folio %}
-                            <a href="{% url 'imprimir_oficio' depto=depto year=year record_id=oficio.id %}" target="_blank" class="btn btn-sm btn-secondary">
+                            <a href="{% url 'imprimir_oficio' depto=depto year=year record_id=oficio.id %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir oficio" aria-label="Imprimir oficio">
                                 <i class="bi bi-printer"></i>
                             </a>
                             {% endif %}
@@ -124,24 +137,26 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="10" class="text-center">No hay documentos registrados para este año</td>
+                    <td colspan="11" class="document-empty"><i class="bi bi-inbox" aria-hidden="true"></i>
+                        {% if search_query %}<strong>No se encontraron coincidencias</strong><p>Prueba con otra búsqueda o limpia el filtro.</p>
+                        {% else %}<strong>Aún no hay oficios registrados</strong><p>Registra el primer oficio para comenzar el listado de {{ year }}.</p>{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-</div>
-</div>
+    <div class="document-list-bottom">
+        <span>{% if oficios.paginator.count %}Mostrando {{ oficios.start_index }}–{{ oficios.end_index }} de {{ oficios.paginator.count }}{% else %}0 registros{% endif %}</span>
 
 <!-- Paginacion -->
 {% if oficios.paginator.num_pages > 1 %}
 <nav aria-label="Navegación de páginas">
-  <ul class="pagination justify-content-center mt-4">
+  <ul class="pagination mb-0">
     
     {# Botón anterior #}
     {% if oficios.has_previous %}
       <li class="page-item">
-        <a class="page-link" href="?q={{ search_query }}&page={{ oficios.previous_page_number }}" aria-label="Anterior">
+        <a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ oficios.previous_page_number }}" aria-label="Anterior">
           <span aria-hidden="true">&laquo;</span>
         </a>
       </li>
@@ -161,7 +176,7 @@
         </li>
       {% elif num >= oficios.number|add:'-2' and num <= oficios.number|add:'2' %}
         <li class="page-item">
-          <a class="page-link" href="?q={{ search_query }}&page={{ num }}">{{ num }}</a>
+          <a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ num }}">{{ num }}</a>
         </li>
       {% endif %}
     {% endfor %}
@@ -169,7 +184,7 @@
     {# Botón siguiente #}
     {% if oficios.has_next %}
       <li class="page-item">
-        <a class="page-link" href="?q={{ search_query }}&page={{ oficios.next_page_number }}" aria-label="Siguiente">
+        <a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ oficios.next_page_number }}" aria-label="Siguiente">
           <span aria-hidden="true">&raquo;</span>
         </a>
       </li>
@@ -184,7 +199,10 @@
   </ul>
 </nav>
 {% endif %}
-
+    </div>
+    </div>
+</div>
+</section>
 
 <!-- Modal Registrar Oficio -->
 <div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
