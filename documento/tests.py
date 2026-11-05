@@ -1,5 +1,5 @@
 from django.template.loader import render_to_string
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import resolve, reverse, set_script_prefix
 
 from . import views
@@ -148,7 +148,7 @@ class NewDocumentFormTests(SimpleTestCase):
                 for depto in ['ucg', 'delegacion']:
                     with self.subTest(depto=depto):
                         request = RequestFactory().get(f'/oficios/{depto}/2026/')
-                        with patch('documento.views.getRegistros', return_value=[]), patch('documento.views.render') as render:
+                        with patch('documento.views.buscar_oficios', return_value=([], '')), patch('documento.views.render') as render:
                             views.lista_oficios(request, depto, 2026)
                         context = render.call_args.args[2]
                         html = render_to_string('documento/lista_oficios.html', context)
@@ -238,3 +238,77 @@ class AssignedDepartmentChartTests(SimpleTestCase):
         self.assertEqual(counts, {'Subdirección Jurídica': 2, 'UCG': 1, 'Sin área asignada': 2})
         self.assertEqual(sum(counts.values()), result['total_oficios'])
         self.assertEqual(chart.layout.xaxis.tickformat, 'd')
+
+
+class PDFLimitTests(SimpleTestCase):
+    @override_settings(PDF_MAX_MB=1)
+    def test_oversized_pdf_is_rejected_before_replacing_existing_file(self):
+        from unittest.mock import patch
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.test import RequestFactory
+        for action in ['upload', 'edit']:
+            request = RequestFactory().post('/manejar-archivo/', {
+                'depto': 'ucg', 'year': '2026', 'id_oficio': '1', 'action': action,
+                'archivo': SimpleUploadedFile('prueba.pdf', b'x' * (1024 * 1024 + 1)),
+            })
+            with patch('documento.views.saveArchivo') as save:
+                response = views.archivo(request)
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('1 MB', response.content.decode())
+            save.assert_not_called()
+
+
+class DatabaseSearchTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        from django.db import connection
+        from gestion_tables.models import ConfiguracionTable
+        ConfiguracionTable.objects.create(anno=2090)
+        cls.tables = ['oficios_ucg_2090', 'oficios_delegacion_2090']
+        with connection.cursor() as cursor:
+            for index, table in enumerate(cls.tables):
+                cursor.execute(f'INSERT INTO {table} (fecha_recibido, enviado_por, procedencia, asunto, area, pendiente) VALUES (%s,%s,%s,%s,%s,%s)',
+                               ['2090-01-05', 'María', 'DIRECCIÓN', 'Informe jurídico', 'Sub. Jurídica', index == 0])
+            cursor.executemany('INSERT INTO oficios_ucg_2090 (fecha_recibido,enviado_por,procedencia,asunto) VALUES (%s,%s,%s,%s)',
+                               [('2090-01-05', 'Ana', 'Local', f'Seguimiento {i}') for i in range(45)])
+            for subject in ['100%_final', '100AXfinal']:
+                cursor.execute('INSERT INTO oficios_ucg_2090 (fecha_recibido,enviado_por,procedencia,asunto) VALUES (%s,%s,%s,%s)',
+                               ['2090-01-05', 'Ana', 'Local', subject])
+            cursor.execute("INSERT INTO oficios_ucg_2090 (fecha_recibido,enviado_por,procedencia,asunto,activo) VALUES ('2090-01-05','Ana','Local','Informe jurídico',FALSE)")
+
+    def test_search_combines_words_ignoring_case_and_accents_across_tables(self):
+        from django.test import RequestFactory
+        from .utils import buscar_oficios
+        request = RequestFactory().get('/', {'q': 'INFORME juridico direccion'})
+        page, query = buscar_oficios(request, self.tables)
+        self.assertEqual(page.paginator.count, 2)
+        self.assertEqual({row['tabla_origen'] for row in page}, set(self.tables))
+        pending, _ = buscar_oficios(request, self.tables, pendientes=True)
+        self.assertEqual(pending.paginator.count, 1)
+        self.assertTrue(pending[0]['pendiente'])
+
+    def test_literal_wildcards_and_invalid_identifiers(self):
+        from django.test import RequestFactory
+        from .utils import buscar_oficios
+        request = RequestFactory().get('/', {'q': '100%_final'})
+        page, _ = buscar_oficios(request, self.tables)
+        self.assertEqual(page.paginator.count, 1)
+        self.assertEqual(page[0]['asunto'], '100%_final')
+        with self.assertRaises(ValueError):
+            buscar_oficios(request, ['oficios_ucg_2090; DROP TABLE auth_user'])
+
+    def test_database_pagination_uses_two_queries_and_keeps_search_in_links(self):
+        from django.test import RequestFactory
+        from .utils import buscar_oficios
+        request = RequestFactory().get('/', {'q': 'seguimiento', 'page': 2})
+        with self.assertNumQueries(2):
+            page, query = buscar_oficios(request, self.tables)
+        self.assertEqual(page.paginator.count, 45)
+        self.assertEqual(len(page), 20)
+        self.assertEqual(page.start_index(), 21)
+        html = render_to_string('documento/includes/pagination.html', {'page': page, 'search_query': query})
+        self.assertIn('aria-current="page"', html)
+        self.assertIn('?q=seguimiento&amp;page=3', html)
+        following, _ = buscar_oficios(RequestFactory().get('/', {'q':'seguimiento', 'page':3}), self.tables)
+        self.assertEqual(len(following), 5)
+        self.assertFalse({row['id'] for row in page} & {row['id'] for row in following})

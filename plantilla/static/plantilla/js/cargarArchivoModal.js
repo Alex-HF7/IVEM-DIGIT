@@ -76,6 +76,11 @@ class ArchivoModal {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
         
+        const fileInput = document.getElementById('archivoInput');
+        const file = fileInput.files[0];
+        if (file && file.size > Number(fileInput.dataset.maxBytes)) {
+            throw new Error(`El PDF no puede superar ${fileInput.dataset.maxMb} MB.`);
+        }
         const formData = new FormData(this.form);
         const actionUrl = this.form.getAttribute('action'); // Obtiene la URL correcta
         

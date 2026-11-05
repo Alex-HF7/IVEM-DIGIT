@@ -27,7 +27,7 @@
 
                 <form method="get" class="document-search" role="search">
                     <label for="oficio-search" class="visually-hidden">Buscar oficio</label>
-                    <input id="oficio-search" type="search" name="q" class="form-control" placeholder="Buscar por asunto, remitente…" value="{{ search_query }}">
+                    <input id="oficio-search" type="search" name="q" class="form-control" maxlength="200" placeholder="Buscar por asunto, remitente…" value="{{ search_query }}">
                     <button type="submit" class="btn btn-primary" title="Buscar" aria-label="Buscar"><i class="bi bi-search" aria-hidden="true"></i></button>
                 </form>
                 <button type="button" class="btn btn-outline-secondary document-refresh" onclick="location.reload()" title="Actualizar listado" aria-label="Actualizar listado"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
@@ -149,56 +149,7 @@
         <span>{% if oficios.paginator.count %}Mostrando {{ oficios.start_index }}–{{ oficios.end_index }} de {{ oficios.paginator.count }}{% else %}0 registros{% endif %}</span>
 
 <!-- Paginacion -->
-{% if oficios.paginator.num_pages > 1 %}
-<nav aria-label="Navegación de páginas">
-  <ul class="pagination mb-0">
-    
-    {# Botón anterior #}
-    {% if oficios.has_previous %}
-      <li class="page-item">
-        <a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ oficios.previous_page_number }}" aria-label="Anterior">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled">
-        <span class="page-link" aria-label="Anterior">
-          <span aria-hidden="true">&laquo;</span>
-        </span>
-      </li>
-    {% endif %}
-
-    {# Números de página #}
-    {% for num in oficios.paginator.page_range %}
-      {% if num == oficios.number %}
-        <li class="page-item active">
-          <span class="page-link">{{ num }}</span>
-        </li>
-      {% elif num >= oficios.number|add:'-2' and num <= oficios.number|add:'2' %}
-        <li class="page-item">
-          <a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ num }}">{{ num }}</a>
-        </li>
-      {% endif %}
-    {% endfor %}
-
-    {# Botón siguiente #}
-    {% if oficios.has_next %}
-      <li class="page-item">
-        <a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ oficios.next_page_number }}" aria-label="Siguiente">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled">
-        <span class="page-link" aria-label="Siguiente">
-          <span aria-hidden="true">&raquo;</span>
-        </span>
-      </li>
-    {% endif %}
-
-  </ul>
-</nav>
-{% endif %}
+{% include 'documento/includes/pagination.html' with page=oficios %}
     </div>
     </div>
 </div>
@@ -219,7 +170,6 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p class="oficio-required-note">Los campos con <span aria-hidden="true">*</span> son obligatorios.</p>
                 <fieldset class="oficio-create-section">
                     <legend><i class="bi bi-calendar3 me-2" aria-hidden="true"></i>Fechas del documento</legend>
                     <div class="row g-3">
@@ -257,6 +207,7 @@
                 </fieldset>
             </div>
             <div class="modal-footer">
+                {% include 'documento/includes/required_note.html' %}
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-2" aria-hidden="true"></i>Guardar oficio</button>
             </div>
@@ -281,9 +232,9 @@
                 
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="archivoInput" class="form-label">Seleccionar archivo:</label>
-                        <input class="form-control" type="file" id="archivoInput" name="archivo" accept=".pdf" required>
-                        <div class="form-text">Solo se aceptan archivos en formato PDF</div>
+                        <label for="archivoInput" class="form-label">Seleccionar archivo *</label>
+                        <input class="form-control" type="file" id="archivoInput" name="archivo" accept=".pdf" data-max-bytes="{{ pdf_max_bytes }}" data-max-mb="{{ pdf_max_mb }}" aria-describedby="pdf-size-help" required>
+                        <div id="pdf-size-help" class="form-text">Solo archivos PDF. Tamaño máximo: {{ pdf_max_mb }} MB por archivo.</div>
                     </div>
                     <div id="currentFileContainer" class="mt-3 d-none">
                         <div class="alert alert-info">
@@ -293,6 +244,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                {% include 'documento/includes/required_note.html' %}
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -314,11 +266,11 @@
         <div class="modal-body">
           <input type="hidden" name="id" id="editar_id">
           <div class="mb-3">
-            <label for="editar_enviado_por" class="form-label">Enviado Por</label>
+            <label for="editar_enviado_por" class="form-label">Enviado Por *</label>
             <input type="text" class="form-control" name="enviado_por" id="editar_enviado_por" required>
           </div>
           <div class="mb-3">
-            <label for="editar_asunto" class="form-label">Asunto</label>
+            <label for="editar_asunto" class="form-label">Asunto *</label>
             <input type="text" class="form-control" name="asunto" id="editar_asunto" required>
           </div>
           <div class="mb-3">
@@ -326,11 +278,12 @@
             <input type="text" class="form-control" name="referencia" id="editar_referencia">
           </div>
           <div class="mb-3">
-            <label for="editar_procedencia" class="form-label">Procedencia</label>
+            <label for="editar_procedencia" class="form-label">Procedencia *</label>
             <input type="text" class="form-control" name="procedencia" id="editar_procedencia" required>
           </div>
         </div>
         <div class="modal-footer">
+                {% include 'documento/includes/required_note.html' %}
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </div>

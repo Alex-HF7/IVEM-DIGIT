@@ -13,9 +13,17 @@
     <div class="document-list-card">
         <div class="document-toolbar">
             <div class="document-results"><span class="document-file-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
-                <div><h2>Oficios pendientes</h2><p>{{ oficios.paginator.count|default:0 }} registro{{ oficios.paginator.count|pluralize }} por atender</p></div>
+                <div><h2>{% if search_query %}Resultados de búsqueda{% else %}Oficios pendientes{% endif %}</h2><p>{{ oficios.paginator.count|default:0 }} registro{{ oficios.paginator.count|pluralize }} por atender</p></div>
             </div>
-            <button type="button" class="btn btn-outline-secondary document-refresh" onclick="location.reload()"><i class="bi bi-arrow-clockwise me-2" aria-hidden="true"></i>Actualizar</button>
+            <div class="document-tools">
+                <form method="get" class="document-search" role="search">
+                    <label for="pending-search" class="visually-hidden">Buscar pendientes</label>
+                    <input id="pending-search" type="search" name="q" class="form-control" maxlength="200" placeholder="Buscar por asunto, remitente, área…" value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary" aria-label="Buscar pendientes"><i class="bi bi-search" aria-hidden="true"></i></button>
+                </form>
+                <button type="button" class="btn btn-outline-secondary document-refresh" onclick="location.reload()" aria-label="Actualizar listado"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
+                {% if search_query %}<a class="document-clear" href="{% url 'lista_pendientes' %}">Limpiar</a>{% endif %}
+            </div>
         </div>
         <div class="table-responsive document-table-scroll" role="region" aria-label="Oficios pendientes; desplaza horizontalmente para ver todas las columnas" tabindex="0">
             <table class="table table-hover document-table pending-table">
@@ -39,58 +47,14 @@
                         <td><button type="button" class="btn btn-sm btn-outline-primary pending-assign" data-bs-toggle="modal" data-bs-target="#asignarFolioModal{{ oficio.tabla_origen }}_{{ oficio.id }}"><i class="bi bi-bookmark-check me-1" aria-hidden="true"></i>Asignar folio</button></td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="7" class="document-empty"><i class="bi bi-check-circle" aria-hidden="true"></i><strong>No hay oficios pendientes</strong><p>Todos los oficios activos tienen su folio asignado.</p></td></tr>
+                    <tr><td colspan="7" class="document-empty"><i class="bi bi-check-circle" aria-hidden="true"></i>{% if search_query %}<strong>No se encontraron coincidencias</strong><p>Prueba con otra búsqueda o limpia el filtro.</p>{% else %}<strong>No hay oficios pendientes</strong><p>Todos los oficios activos tienen su folio asignado.</p>{% endif %}</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
         <div class="document-list-bottom">
             <span>{% if oficios.paginator.count %}Mostrando {{ oficios.start_index }}–{{ oficios.end_index }} de {{ oficios.paginator.count }}{% else %}0 registros{% endif %}</span>
-{% if oficios.paginator.num_pages > 1 %}
-<nav aria-label="Navegación de páginas">
-  <ul class="pagination mb-0">
-    {% if oficios.has_previous %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ oficios.previous_page_number }}" aria-label="Anterior">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled">
-        <span class="page-link" aria-label="Anterior">
-          <span aria-hidden="true">&laquo;</span>
-        </span>
-      </li>
-    {% endif %}
-
-    {% for num in oficios.paginator.page_range %}
-      {% if num == oficios.number %}
-        <li class="page-item active">
-          <span class="page-link">{{ num }}</span>
-        </li>
-      {% elif num >= oficios.number|add:'-2' and num <= oficios.number|add:'2' %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-        </li>
-      {% endif %}
-    {% endfor %}
-
-    {% if oficios.has_next %}
-      <li class="page-item">
-        <a class="page-link" href="?page={{ oficios.next_page_number }}" aria-label="Siguiente">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled">
-        <span class="page-link" aria-label="Siguiente">
-          <span aria-hidden="true">&raquo;</span>
-        </span>
-      </li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+{% include 'documento/includes/pagination.html' with page=oficios %}
 
         </div>
     </div>
@@ -116,7 +80,6 @@
                 <div class="modal-body">
                     <p class="folio-description">Completa la clasificación y el área de destino para asignar el folio.</p>
                     <div class="folio-summary"><span>Asunto del oficio</span><strong>{{ oficio.asunto }}</strong></div>
-                    <p class="folio-required">Los campos con * son obligatorios.</p>
                     <div class="mb-3">
                         <label for="asunto_opciones_{{ oficio.tabla_origen }}_{{ oficio.id }}" class="form-label">Tipo de asunto *</label>
                         <select class="form-select" id="asunto_opciones_{{ oficio.tabla_origen }}_{{ oficio.id }}" name="asunto_opciones" required>
@@ -151,6 +114,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    {% include 'documento/includes/required_note.html' %}
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-2" aria-hidden="true"></i>Asignar folio</button>
                 </div>

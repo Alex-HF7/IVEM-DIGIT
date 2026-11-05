@@ -119,3 +119,16 @@ Los datos se conservan en volúmenes de Docker. `docker compose down -v` los
 elimina. Si el puerto 8000 está ocupado, ejecuta `$env:IVEM_PORT="8001"` antes
 de iniciar y accede por http://localhost:8001/. Para una conexión fallida,
 consulta `docker compose ps` y `docker compose logs web db`.
+
+### Archivos PDF y búsquedas
+
+La carga y el reemplazo de PDF tienen un máximo de **20 MB por archivo**
+(20 × 1024 × 1024 bytes), validado en navegador y servidor. La variable
+`IVEM_PDF_MAX_MB` permite configurar otro límite en el proceso de Django.
+Si se utiliza Nginx, su límite de petición debe permitir también el archivo
+y los datos del formulario; este repositorio no modifica el Nginx de producción.
+
+Ambos listados buscan por ID, folio, asunto, remitente, procedencia, referencia,
+área, departamento y fechas en formato `dd/mm/aaaa`. Se pueden combinar palabras
+sin distinguir mayúsculas ni acentos. El filtrado, conteo y paginación se realizan
+en PostgreSQL; se devuelven 20 registros por página y se conserva el filtro al navegar.

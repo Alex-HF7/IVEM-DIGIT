@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.http import JsonResponse
 from django.http import Http404
-from .utils import getRegistros, saveArchivo, paginar
+from .utils import saveArchivo, buscar_oficios
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -30,88 +30,39 @@ def navbar_context(request):
     return {'years_disponibles': years_disponibles()}
 
 def lista_oficios(request, depto, year):
-    tabla_nombre = f'oficios_{depto}_{year}'
     try:
-        oficios_raw = getRegistros(
-            tabla_nombre,
-            filtros={'activo': True},
-            order_by='id DESC'
-        )
-        # Convertir los valores booleanos correctamente
-        for oficio in oficios_raw:
-            if 'pendiente' in oficio:
-                oficio['pendiente'] = bool(oficio['pendiente'])
-            oficio['pendiente_value'] = str(not oficio.get('pendiente', False)).lower()
-    except Exception as e:
-        oficios_raw = []
-        messages.error(request, f"Error al obtener oficios: {str(e)}")
-    
-    # Filtro búsqueda
-    query = request.GET.get('q', '').strip().lower()
-    if query:
-        oficios_raw = [
-            o for o in oficios_raw
-            if any(query in str(o.get(field, '')).lower() for field in [
-                'folio', 'asunto', 'procedencia', 'referencia', 'depto_asignado', 'enviado_por'
-            ])
-        ]
-    oficios = paginar(request, oficios_raw)
+        oficios, query = buscar_oficios(request, [f'oficios_{depto}_{year}'])
+    except Exception:
+        logger.exception('Error al consultar el listado de oficios')
+        oficios, query = buscar_oficios(request, [])
+        messages.error(request, 'No se pudo cargar el listado de oficios.')
     return render(request, 'documento/lista_oficios.html', {
-        'oficios': oficios,
-        'depto': depto,
-        'year': year,
-        'search_query': query,
-        'fecha_recibido_default': timezone.localdate(),
+        'oficios': oficios, 'depto': depto, 'year': year,
+        'search_query': query, 'fecha_recibido_default': timezone.localdate(),
+        'pdf_max_mb': settings.PDF_MAX_MB,
+        'pdf_max_bytes': settings.PDF_MAX_MB * 1024 * 1024,
     })
+
 
 def lista_pendientes(request):
-    oficios_pendientes_raw= []
     try:
         with connection.cursor() as cursor:
-            # Obtener todas las tablas de oficios
             cursor.execute("""
-                SELECT table_name 
-                FROM information_schema.tables
-                WHERE table_name LIKE 'oficios\\_%\\_%'
-                AND table_schema = 'public'
+                SELECT table_name FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name ~ '^oficios_(ucg|delegacion)_[0-9]{4}$'
+                ORDER BY table_name
             """)
-            
             tablas = [row[0] for row in cursor.fetchall()]
-
-            for tabla in tablas:
-                try:
-                    # Verificar si la tabla tiene la columna 'pendiente'
-                    cursor.execute(f"""
-                        SELECT column_name
-                        FROM information_schema.columns
-                        WHERE table_name = %s AND column_name = 'pendiente'
-                    """, [tabla])
-                    if cursor.fetchone():
-                        # Obtener los registros pendientes
-                        cursor.execute(f"""
-                            SELECT *, '{tabla}' AS tabla_origen
-                            FROM {tabla}
-                            WHERE pendiente = TRUE AND activo = TRUE
-                            ORDER BY id ASC
-                        """)
-                        columns = [col[0] for col in cursor.description]
-                        resultados = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-                        for oficio in resultados:
-                            oficio['pendiente_value'] = 'false'  # ya está pendiente, false para el checkbox
-                        oficios_pendientes_raw.extend(resultados)
-
-                except Exception as e:
-                    messages.warning(request, f"Error consultando {tabla}: {str(e)}")
-    except Exception as e:
-        messages.error(request, f"Error al obtener tablas de oficios: {str(e)}")
-    
-    oficios_pendientes = paginar(request, oficios_pendientes_raw)
+        oficios, query = buscar_oficios(request, tablas, pendientes=True)
+    except Exception:
+        logger.exception('Error al consultar oficios pendientes')
+        oficios, query = buscar_oficios(request, [])
+        messages.error(request, 'No se pudo cargar el listado de pendientes.')
     return render(request, 'documento/lista_pendientes.html', {
-        'oficios': oficios_pendientes,
-        'depto': 'todos',
-        'year': 'todos'
+        'oficios': oficios, 'depto': 'todos', 'year': 'todos', 'search_query': query,
     })
+
 
 def crear_oficio(request, depto, year):
     if request.method == 'POST':
@@ -237,6 +188,8 @@ def cargar_archivo(request):
                 return JsonResponse({'success': False, 'message': 'No se ha seleccionado ningún archivo'}, status=400)
 
             archivo = request.FILES['archivo']
+            if archivo.size > settings.PDF_MAX_MB * 1024 * 1024:
+                return JsonResponse({'success': False, 'message': f'El PDF no puede superar {settings.PDF_MAX_MB} MB.'}, status=400)
             if not archivo.name.lower().endswith('.pdf'):
                 return JsonResponse({'success': False, 'message': 'Tipo de archivo no permitido. Use PDF'}, status=400)
 
@@ -399,6 +352,8 @@ def archivo(request):
                 return JsonResponse({'success': False, 'message': 'No se ha seleccionado ningún archivo'}, status=400)
 
             archivo = request.FILES['archivo']
+            if archivo.size > settings.PDF_MAX_MB * 1024 * 1024:
+                return JsonResponse({'success': False, 'message': f'El PDF no puede superar {settings.PDF_MAX_MB} MB.'}, status=400)
             if not archivo.name.lower().endswith('.pdf'):
                 return JsonResponse({'success': False, 'message': 'Tipo de archivo no permitido. Solo PDF'}, status=400)
 

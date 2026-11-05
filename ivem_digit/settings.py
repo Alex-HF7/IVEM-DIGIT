@@ -165,3 +165,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 LOGIN_REDIRECT_URL = 'inicio'
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login'
+
+# Límite por PDF (MB de 1024 × 1024 bytes), aplicable a carga y reemplazo.
+PDF_MAX_MB = int(os.getenv('IVEM_PDF_MAX_MB', '20'))

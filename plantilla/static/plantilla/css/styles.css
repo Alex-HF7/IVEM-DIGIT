@@ -446,3 +446,23 @@ body.body-login, body.body-documento, body.dashboard-page { min-height: 100vh; d
     .account-label { max-width: 90px; }
     .account-label small { display: none; }
 }
+
+/* Avisos obligatorios y navegación de listados. */
+.modal-footer .form-required-note, .form-required-note { margin-right: auto; color: #64748b; font-size: .78rem; text-align: left; }
+.form-required-note span { color: #682145; }
+.login-actions { display: flex; align-items: center; gap: 16px; margin-top: 22px; }
+.login-actions .btn { flex-shrink: 0; }
+.list-pagination { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.pagination-summary { font-size: .8rem; color: #64748b; }
+.list-pagination .pagination { gap: 5px; }
+.list-pagination .page-link { border-radius: 9px !important; border: 1px solid #e5e7eb; min-width: 36px; min-height: 36px; display: grid; place-items: center; font-weight: 500; }
+.list-pagination .page-link:hover { background: #faf0f5; border-color: #c99bb1; }
+.list-pagination .active > .page-link { box-shadow: 0 3px 8px #68214525; }
+.list-pagination .active > .page-link:hover { background: #682145; }
+.list-pagination .pagination-ellipsis { background: transparent; border-color: transparent; min-width: 20px; }
+@media (max-width: 575px) {
+    .modal-footer .form-required-note { flex-basis: 100%; margin-bottom: 8px !important; }
+    .login-actions { flex-wrap: wrap; }
+    .list-pagination { gap: 8px; }
+    .pagination-summary { flex-basis: 100%; }
+}
