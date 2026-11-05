@@ -72,3 +72,50 @@ sudo systemctl restart nombre_del_proyecto
 
 - **Nombre**: Ing. Alexander Hueramo Fulgencio
 - **Email**: hf.alex00@gmail.com
+
+## Desarrollo local en Windows con Docker Desktop
+
+Abre Docker Desktop y espera a que el motor esté activo. Usa PowerShell desde
+una carpeta de proyectos, por ejemplo `$HOME\Documents`, no desde System32.
+Requiere Git para Windows.
+
+```powershell
+cd "$HOME\Documents"
+git clone --branch dev https://github.com/Alex-HF7/IVEM-DIGIT.git
+cd IVEM-DIGIT
+docker compose up --build -d
+docker compose logs -f web
+```
+
+Cuando aparezca `Starting development server`, abre **http://localhost:8000/**
+en el navegador de tu computadora. Ctrl+C cierra la vista de registros y deja
+los contenedores activos. Crea tu propia cuenta local:
+
+```powershell
+docker compose exec web python manage.py createsuperuser
+```
+
+Inicia sesión con esa cuenta. El arranque aplica las migraciones y prepara los
+grupos UCG y Delegacion y las tablas del año actual. No incluye datos ni cuentas
+de producción. Las credenciales anteriores del entorno en la nube no se copian.
+La contraseña de PostgreSQL en Compose es exclusiva para esta base local y el
+puerto de la base no se publica. Este archivo no es una configuración de producción.
+
+Comandos útiles:
+
+```powershell
+# Detener conservando la base y los archivos adjuntos
+docker compose down
+# Volver a iniciar
+docker compose up -d
+# Actualizar código y reconstruir
+git pull --ff-only origin dev
+docker compose up --build -d
+# Ejecutar las pruebas
+docker compose exec web python manage.py test
+```
+
+Los datos se conservan en volúmenes de Docker. `docker compose down -v` los
+elimina. Si el puerto 8000 está ocupado, ejecuta `$env:IVEM_PORT="8001"` antes
+de iniciar y accede por http://localhost:8001/. Para una conexión fallida,
+consulta `docker compose ps` y `docker compose logs web db`.
