@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import connection, transaction
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.utils import timezone
 from django.http import JsonResponse
 from django.http import Http404
@@ -67,12 +67,12 @@ def lista_pendientes(request):
 def crear_oficio(request, depto, year):
     if request.method == 'POST':
         try:
-            required_fields = ['fecha_recibido', 'enviado_por', 'procedencia', 'asunto']
+            required_fields = ['fecha_recibido', 'fecha_oficio', 'enviado_por', 'procedencia', 'asunto']
             if not all(request.POST.get(field) for field in required_fields):
                 raise ValueError("Faltan campos obligatorios")
             data = {
                 'fecha_recibido': datetime.strptime(request.POST['fecha_recibido'], '%Y-%m-%d').date(),
-                'fecha_oficio': datetime.strptime(request.POST['fecha_oficio'], '%Y-%m-%d').date() if request.POST.get('fecha_oficio') else None,
+                'fecha_oficio': datetime.strptime(request.POST['fecha_oficio'], '%Y-%m-%d').date(),
                 'enviado_por': request.POST['enviado_por'],
                 'procedencia': request.POST['procedencia'],
                 'asunto': request.POST['asunto'],
@@ -114,66 +114,46 @@ def crear_oficio(request, depto, year):
     })
 
 def grafica(request):
-    # Obtener el año actual y los últimos 3 años
-    current_year = timezone.now().year
-    years = [current_year - i for i in range(3)]
-    
-    data = []
-    
-    try:
-        # Consulta para obtener datos de todas las tablas relevantes
-        for year in years:
-            for depto in ['ucg', 'delegacion']:
-                table_name = f'oficios_{depto}_{year}'
-                
-                # Verificar si la tabla existe
-                with connection.cursor() as cursor:
-                    cursor.execute(f"""
-                        SELECT EXISTS (
-                            SELECT FROM information_schema.tables 
-                            WHERE table_name = '{table_name}'
-                        );
-                    """)
-                    table_exists = cursor.fetchone()[0]
-                    
-                    if table_exists:
-                        # Consultar datos de la tabla
-                        cursor.execute(f"""
-                            SELECT 
-                                fecha_recibido,
-                                pendiente,
-                                departamento,
-                                area
-                            FROM {table_name}
-                            WHERE fecha_recibido >= %s
-                            ORDER BY fecha_recibido DESC
-                        """, [timezone.now() - timedelta(days=365)])
-                        
-                        columns = [col[0] for col in cursor.description]
-                        rows = cursor.fetchall()
-                        
-                        for row in rows:
-                            data.append(dict(zip(columns, row)))
-        
-        from .dashboard import dashboard_statistics
+    from .dashboard import dashboard_period, dashboard_statistics
 
-        context = dashboard_statistics(data, timezone.localdate())
+    period = dashboard_period(request.GET.get('mes'), timezone.localdate())
+    if period['invalid_month']:
+        messages.warning(request, 'El mes indicado no es válido. Se muestra el mes actual.')
+    data = []
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT table_name FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name ~ '^oficios_(ucg|delegacion)_[0-9]{4}$'
+                ORDER BY table_name
+            """)
+            tables = [row[0] for row in cursor.fetchall()]
+            for table in tables:
+                cursor.execute(f"""
+                    SELECT fecha_recibido, pendiente, departamento, area
+                    FROM {connection.ops.quote_name(table)}
+                    WHERE fecha_recibido >= %s AND fecha_recibido < %s
+                    ORDER BY fecha_recibido DESC
+                """, [period['period_start'], period['period_end']])
+                columns = [column[0] for column in cursor.description]
+                data.extend(dict(zip(columns, row)) for row in cursor.fetchall())
+        context = dashboard_statistics(data, period['selected_date'])
         if not context['no_data']:
             config = {'responsive': True, 'displayModeBar': False, 'scrollZoom': False}
             context['plot_nuevos'] = context.pop('fig_nuevos').to_html(
                 full_html=False, include_plotlyjs='cdn', config=config)
-            pending = context.pop('fig_pendientes')
-            context['plot_pendientes'] = pending.to_html(
-                full_html=False, include_plotlyjs=False, config=config) if pending else None
-            context['plot_areas'] = context.pop('fig_areas').to_html(
-                full_html=False, include_plotlyjs=False, config=config)
-
-    except Exception as e:
-        # En caso de cualquier error, mostrar mensaje de no datos
-        print(f"Error al generar gráficas: {e}")
-        return render(request, 'documento/grafica.html', {'no_data': True})
-    
+            for figure_name, html_name in [('fig_pendientes', 'plot_pendientes'), ('fig_areas', 'plot_areas')]:
+                figure = context.pop(figure_name)
+                context[html_name] = figure.to_html(
+                    full_html=False, include_plotlyjs=False, config=config) if figure is not None else None
+    except Exception:
+        logger.exception('No se pudieron generar las estadísticas de oficios')
+        context = dashboard_statistics([], period['selected_date'])
+        messages.error(request, 'No se pudieron cargar las estadísticas. Intenta nuevamente.')
+    context.update(period)
     return render(request, 'documento/grafica.html', context)
+
 
 def cargar_archivo(request):
     if request.method == 'POST':

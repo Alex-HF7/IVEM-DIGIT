@@ -6,36 +6,48 @@
     <header class="dashboard-heading">
         <div><h1>Estadísticas de oficios</h1>
         <p class="text-muted mb-0">Seguimiento de documentos recibidos y pendientes.</p></div>
-        {% if current_month %}<span class="dashboard-period"><i class="bi bi-calendar3 me-2"></i>{{ current_month|capfirst }}</span>{% endif %}
+        <div class="dashboard-month-nav" aria-label="Periodo de estadísticas">
+            {% if previous_month %}<a class="month-arrow" href="?mes={{ previous_month }}" aria-label="Mes anterior"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>{% endif %}
+            <div class="dropdown">
+                <button class="dashboard-period dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Elegir mes y año"><i class="bi bi-calendar3 me-2" aria-hidden="true"></i>{{ current_month|capfirst }}</button>
+                <form class="dropdown-menu dropdown-menu-end month-picker p-3" method="get">
+                    <label class="form-label" for="dashboard-month">Ir a un mes y año</label>
+                    <input class="form-control mb-3" id="dashboard-month" name="mes" type="month" value="{{ selected_month }}" min="1900-01" max="9998-12" required>
+                    <button class="btn btn-primary w-100" type="submit">Ver estadísticas</button>
+                    <a class="month-today" href="{% url 'inicio' %}">Volver al mes actual</a>
+                </form>
+            </div>
+            {% if next_month %}<a class="month-arrow" href="?mes={{ next_month }}" aria-label="Mes siguiente"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>{% endif %}
+        </div>
     </header>
     <div class="row g-3 mb-4">
         <div class="col-md-6"><article class="dashboard-metric">
             <span class="dashboard-metric-icon"><i class="bi bi-folder2-open"></i></span>
-            <div><p>Oficios recibidos este mes</p><strong>{{ total_mes|default:0 }}</strong></div>
+            <div><p>Oficios recibidos en el mes</p><strong>{{ total_mes|default:0 }}</strong></div>
         </article></div>
         <div class="col-md-6"><article class="dashboard-metric dashboard-metric-pending">
             <span class="dashboard-metric-icon"><i class="bi bi-clock-history"></i></span>
-            <div><p>Pendientes de este mes</p><strong>{{ pendientes_mes|default:0 }}</strong></div>
+            <div><p>Pendientes del mes</p><strong>{{ pendientes_mes|default:0 }}</strong></div>
         </article></div>
     </div>
     {% if no_data %}
         <div class="dashboard-empty"><i class="bi bi-bar-chart"></i><h2>Aún no hay oficios para mostrar</h2>
-        <p>Las estadísticas aparecerán al registrar documentos.</p></div>
+        <p>No hay registros en los doce meses hasta el periodo seleccionado. Puedes consultar otro mes.</p></div>
     {% else %}
-        <p class="dashboard-caption">Gráficas de los últimos 365 días · {{ total_oficios }} oficios recibidos · {{ pendientes_total }} pendientes</p>
+        <p class="dashboard-caption">{{ current_month|capfirst }} · {{ total_mes }} oficios recibidos · {{ pendientes_mes }} pendientes</p>
         <div class="row g-4">
             <div class="col-xl-8"><article class="dashboard-chart">
-                <header><h2>Oficios recibidos por mes</h2><p>Distribución por departamento</p></header>
+                <header><h2>Oficios recibidos por mes</h2><p>Comparación por departamento · {{ history_label }}</p></header>
                 <div class="dashboard-plot">{{ plot_nuevos|safe }}</div>
             </article></div>
             <div class="col-xl-4"><article class="dashboard-chart">
-                <header><h2>Pendientes por departamento</h2><p>Documentos que requieren seguimiento</p></header>
+                <header><h2>Pendientes por departamento</h2><p>Oficios recibidos en el mes seleccionado</p></header>
                 {% if plot_pendientes %}<div class="dashboard-plot">{{ plot_pendientes|safe }}</div>
-                {% else %}<div class="dashboard-empty dashboard-clear"><i class="bi bi-check-circle"></i><h3>Sin pendientes</h3><p>Todos los oficios del periodo tienen folio asignado.</p></div>{% endif %}
+                {% else %}<div class="dashboard-empty dashboard-clear"><i class="bi bi-check-circle"></i><h3>Sin pendientes</h3><p>No hay oficios recibidos en este mes que sigan pendientes.</p></div>{% endif %}
             </article></div>
             <div class="col-12"><article class="dashboard-chart">
-                <header><h2>Oficios por departamento asignado</h2><p>Distribución por área de destino en los últimos 365 días; incluye oficios sin área asignada.</p></header>
-                <div class="dashboard-plot">{{ plot_areas|safe }}</div>
+                <header><h2>Oficios por departamento asignado</h2><p>Oficios recibidos en el mes seleccionado; incluye oficios sin área asignada.</p></header>
+                {% if plot_areas %}<div class="dashboard-plot">{{ plot_areas|safe }}</div>{% else %}<div class="dashboard-empty"><i class="bi bi-inbox" aria-hidden="true"></i><h3>Sin oficios en este mes</h3><p>Elige otro periodo para consultar la distribución.</p></div>{% endif %}
             </article></div>
         </div>
     {% endif %}

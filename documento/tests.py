@@ -312,3 +312,103 @@ class DatabaseSearchTests(TestCase):
         following, _ = buscar_oficios(RequestFactory().get('/', {'q':'seguimiento', 'page':3}), self.tables)
         self.assertEqual(len(following), 5)
         self.assertFalse({row['id'] for row in page} & {row['id'] for row in following})
+
+
+class DashboardMonthNavigationTests(SimpleTestCase):
+    def test_month_navigation_crosses_year_boundaries_and_rejects_invalid_values(self):
+        from datetime import date
+        from .dashboard import dashboard_period
+        today = date(2026, 11, 5)
+        january = dashboard_period('2026-01', today)
+        self.assertEqual(january['previous_month'], '2025-12')
+        self.assertEqual(january['next_month'], '2026-02')
+        self.assertEqual(january['period_start'], date(2025, 2, 1))
+        self.assertEqual(january['period_end'], date(2026, 2, 1))
+        self.assertEqual(dashboard_period('2026-12', today)['next_month'], '2027-01')
+        for invalid in ['2026-13', '2026-00', 'texto', '2026-1', '0000-01']:
+            result = dashboard_period(invalid, today)
+            self.assertTrue(result['invalid_month'])
+            self.assertEqual(result['selected_month'], '2026-11')
+
+    def test_only_selected_month_is_used_for_pending_and_assigned_charts(self):
+        from datetime import date
+        from .dashboard import dashboard_statistics
+        result = dashboard_statistics([
+            {'fecha_recibido': date(2026, 10, 2), 'pendiente': True, 'departamento':'ucg', 'area':'UCG'},
+            {'fecha_recibido': date(2026, 11, 2), 'pendiente': False, 'departamento':'delegacion', 'area':'Sub. Jurídica'},
+        ], date(2026, 11, 1))
+        self.assertEqual(result['total_mes'], 1)
+        self.assertEqual(result['pendientes_mes'], 0)
+        self.assertIsNone(result['fig_pendientes'])
+        self.assertEqual(list(result['fig_areas'].data[0].y), ['Subdirección Jurídica'])
+        empty = dashboard_statistics([
+            {'fecha_recibido': date(2026, 10, 2), 'pendiente': True, 'departamento':'ucg', 'area':'UCG'},
+        ], date(2026, 11, 1))
+        self.assertEqual(empty['total_mes'], 0)
+        self.assertIsNone(empty['fig_areas'])
+        self.assertIsNotNone(empty['fig_nuevos'])
+
+
+class RequiredDatesAndHistoricalDashboardTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        from django.contrib.auth import get_user_model
+        from django.db import connection
+        from gestion_tables.models import ConfiguracionTable
+        cls.user = get_user_model().objects.create_superuser(username='date_test', email='', password=None)
+        ConfiguracionTable.objects.create(anno=2088)
+        with connection.cursor() as cursor:
+            cursor.execute("""INSERT INTO oficios_ucg_2088 (fecha_recibido, fecha_oficio, enviado_por, procedencia, asunto, pendiente, area)
+                              VALUES ('2088-12-05','2088-12-01','Ana','Local','Diciembre',TRUE,'UCG') RETURNING id""")
+            cls.record_id = cursor.fetchone()[0]
+            cursor.execute("""INSERT INTO oficios_delegacion_2088 (fecha_recibido, fecha_oficio, enviado_por, procedencia, asunto, pendiente, area)
+                              VALUES ('2089-01-05','2089-01-01','Ana','Local','Enero',FALSE,'Sub. Jurídica')""")
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def test_both_dates_are_required_on_server(self):
+        from django.db import connection
+        base = {'fecha_recibido':'2088-12-06', 'fecha_oficio':'2088-12-02', 'enviado_por':'Ana', 'procedencia':'Local', 'asunto':'Nuevo'}
+        for field in ['fecha_recibido', 'fecha_oficio']:
+            data = dict(base)
+            data.pop(field)
+            with self.assertLogs('documento.views', level='ERROR'):
+                response = self.client.post('/oficios/ucg/2088/crear/', data)
+            self.assertEqual(response.status_code, 302)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM oficios_ucg_2088 WHERE asunto='Nuevo'")
+            self.assertEqual(cursor.fetchone()[0], 0)
+        response = self.client.post('/oficios/ucg/2088/crear/', base)
+        self.assertEqual(response.status_code, 302)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM oficios_ucg_2088 WHERE asunto='Nuevo'")
+            self.assertEqual(cursor.fetchone()[0], 1)
+
+    def test_edit_cannot_change_dates_even_if_posted(self):
+        from datetime import date
+        from django.db import connection
+        response = self.client.post(f'/oficios/ucg/2088/{self.record_id}/editar/', {
+            'asunto':'Editado','referencia':'','enviado_por':'Ana','procedencia':'Local',
+            'fecha_recibido':'2088-10-01','fecha_oficio':'2088-10-01',
+        })
+        self.assertEqual(response.status_code, 302)
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT fecha_recibido, fecha_oficio, asunto FROM oficios_ucg_2088 WHERE id=%s', [self.record_id])
+            self.assertEqual(cursor.fetchone(), (date(2088,12,5), date(2088,12,1), 'Editado'))
+
+    def test_selected_historical_months_and_empty_period(self):
+        for month, label, pending in [('2088-12','diciembre de 2088',1), ('2089-01','enero de 2089',0)]:
+            response = self.client.get('/inicio/', {'mes': month})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context['current_month'], label)
+            self.assertEqual(response.context['total_mes'], 1)
+            self.assertEqual(response.context['pendientes_mes'], pending)
+            self.assertIn(f'value="{month}"', response.content.decode())
+        response = self.client.get('/inicio/', {'mes':'2089-02'})
+        self.assertEqual(response.context['total_mes'], 0)
+        self.assertIsNone(response.context['plot_areas'])
+        self.assertIsNotNone(response.context['plot_nuevos'])
+        empty = self.client.get('/inicio/', {'mes':'2087-01'})
+        self.assertTrue(empty.context['no_data'])
+        self.assertContains(empty, 'Mes siguiente')

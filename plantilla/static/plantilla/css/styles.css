@@ -466,3 +466,17 @@ body.body-login, body.body-documento, body.dashboard-page { min-height: 100vh; d
     .list-pagination { gap: 8px; }
     .pagination-summary { flex-basis: 100%; }
 }
+
+/* Navegación mensual del inicio. */
+.dashboard-month-nav { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.dashboard-month-nav .dashboard-period { font: inherit; cursor: pointer; }
+.month-arrow { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #e2e6ed; border-radius: 50%; background: #fff; color: #682145; text-decoration: none; }
+.month-arrow:hover, .month-arrow:focus { background: #faf0f5; border-color: #9d5378; }
+.month-picker { min-width: 280px; border: 1px solid #eadde3; border-radius: 12px; box-shadow: 0 8px 24px #36122620; }
+.month-picker .form-label { font-size: .85rem; color: #682145; }
+.month-today { display: block; text-align: center; color: #682145; font-size: .8rem; margin-top: 12px; }
+@media (max-width: 575px) {
+    .dashboard-month-nav { gap: 4px; }
+    .dashboard-month-nav .dashboard-period { padding: 10px; font-size: .85rem; }
+    .month-picker { min-width: 250px; }
+}
