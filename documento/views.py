@@ -60,7 +60,8 @@ def lista_oficios(request, depto, year):
         'oficios': oficios,
         'depto': depto,
         'year': year,
-        'search_query': query
+        'search_query': query,
+        'fecha_recibido_default': timezone.localdate(),
     })
 
 def lista_pendientes(request):

@@ -186,56 +186,63 @@
 {% endif %}
 
 
-<!-- Modal Registrar Oficio-->
+<!-- Modal Registrar Oficio -->
 <div class="modal fade" id="formularioPopup" tabindex="-1" data-bs-backdrop="static" aria-labelledby="formularioPopupLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <form class="modal-content oficio-create" method="POST" action="{% url 'crear_oficio' depto=depto year=year %}">
+            {% csrf_token %}
+            <input type="hidden" name="departamento" value="{{ depto }}">
             <div class="modal-header">
-                <h5 class="modal-title" id="formularioPopupLabel">Registrar Nuevo Oficio</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="oficio-create-icon"><i class="bi bi-file-earmark-plus" aria-hidden="true"></i></span>
+                    <div><h5 class="modal-title" id="formularioPopupLabel">Registrar nuevo oficio</h5>
+                    <p class="mb-0 oficio-create-subtitle">{% if depto == 'ucg' %}Unidad de Control de Gestión{% else %}Delegación Administrativa{% endif %} · {{ year }}</p></div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'crear_oficio' depto=depto year=year %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" name="departamento" value="{{ depto }}">
-                    
-                    <div class="row">
+                <p class="oficio-required-note">Los campos con <span aria-hidden="true">*</span> son obligatorios.</p>
+                <fieldset class="oficio-create-section">
+                    <legend><i class="bi bi-calendar3 me-2" aria-hidden="true"></i>Fechas del documento</legend>
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="fecha_recibido" class="form-label">Fecha Recibido</label>
-                                <input type="date" class="form-control" name="fecha_recibido" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="fecha_oficio" class="form-label">Fecha Oficio</label>
-                                <input type="date" class="form-control" name="fecha_oficio">
-                            </div>
-                            <div class="mb-3">
-                                <label for="referencia" class="form-label">Referencia</label>
-                                <input type="text" class="form-control" name="referencia">
-                            </div>
+                            <label for="fecha_recibido" class="form-label">Fecha recibido <span aria-hidden="true">*</span></label>
+                            <input type="date" id="fecha_recibido" class="form-control" name="fecha_recibido" value="{{ fecha_recibido_default|date:'Y-m-d' }}" aria-describedby="fecha-recibido-ayuda" required>
+                            <div id="fecha-recibido-ayuda" class="form-text">Se propone la fecha de hoy; puedes cambiarla.</div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="enviado_por" class="form-label">Enviado Por</label>
-                                <input type="text" class="form-control" name="enviado_por" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="procedencia" class="form-label">Procedencia</label>
-                                <input type="text" class="form-control" name="procedencia" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="asunto" class="form-label">Asunto</label>
-                                <input type="text" class="form-control" name="asunto" required>
-                            </div>
+                            <label for="fecha_oficio" class="form-label">Fecha del oficio</label>
+                            <input type="date" id="fecha_oficio" class="form-control" name="fecha_oficio">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                </fieldset>
+                <fieldset class="oficio-create-section mb-0">
+                    <legend><i class="bi bi-envelope-paper me-2" aria-hidden="true"></i>Datos del oficio</legend>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="enviado_por" class="form-label">Enviado por <span aria-hidden="true">*</span></label>
+                            <input type="text" id="enviado_por" class="form-control" name="enviado_por" maxlength="255" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="procedencia" class="form-label">Procedencia <span aria-hidden="true">*</span></label>
+                            <input type="text" id="procedencia" class="form-control" name="procedencia" maxlength="255" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="referencia" class="form-label">Referencia <small class="text-muted fw-normal">(opcional)</small></label>
+                            <input type="text" id="referencia" class="form-control" name="referencia" maxlength="255">
+                        </div>
+                        <div class="col-12">
+                            <label for="asunto" class="form-label">Asunto <span aria-hidden="true">*</span></label>
+                            <textarea id="asunto" class="form-control" name="asunto" rows="3" maxlength="255" required></textarea>
+                        </div>
                     </div>
-                </form>
+                </fieldset>
             </div>
-        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-2" aria-hidden="true"></i>Guardar oficio</button>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -163,7 +163,7 @@
 }
 
 #formularioPopup .modal-header {
-    background-color: #007bff;
+    background-color: #682145;
     color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -326,4 +326,25 @@ footer{
 @media (max-width: 767px) {
     .dashboard-heading { align-items: flex-start; flex-direction: column; }
     .dashboard-chart { padding-left: 4px; padding-right: 4px; }
+}
+
+/* Formulario de registro: conserva la paleta vino, azul y gris. */
+#formularioPopup .modal-content { border: 0; border-radius: 16px; overflow: hidden; }
+#formularioPopup .modal-header { padding: 22px 26px; border: 0; border-radius: 0; }
+#formularioPopup .modal-title { font-size: 1.2rem; font-weight: 600; }
+#formularioPopup .oficio-create-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #ffffff1f; font-size: 1.5rem; flex-shrink: 0; }
+#formularioPopup .oficio-create-subtitle { color: #f1dde7; font-size: .85rem; margin-top: 4px; }
+#formularioPopup .modal-body { padding: 24px 26px; }
+#formularioPopup .oficio-required-note { color: #64748b; font-size: .85rem; margin-bottom: 22px; }
+#formularioPopup .oficio-create-section { border: 0; padding: 0; margin-bottom: 26px; min-width: 0; }
+#formularioPopup legend { font-size: .95rem; font-weight: 600; color: #682145; border-bottom: 1px solid #ece2e7; padding-bottom: 10px; margin-bottom: 16px; float: none; width: 100%; }
+#formularioPopup .form-label { color: #334155; font-size: .9rem; font-weight: 500; }
+#formularioPopup .form-label > span, #formularioPopup .oficio-required-note > span { color: #682145; }
+#formularioPopup .form-control { border-radius: 8px; padding: 10px 12px; border-color: #dce1e8; }
+#formularioPopup .form-control:focus { border-color: #9d5378; box-shadow: 0 0 0 .2rem #6821451a; }
+#formularioPopup textarea { resize: vertical; min-height: 88px; }
+#formularioPopup .modal-footer { padding: 16px 26px; border-top: 1px solid #e9ecef; gap: 6px; }
+#formularioPopup .modal-footer .btn { border-radius: 8px; padding: 10px 20px; }
+@media (max-width: 575px) {
+    #formularioPopup .modal-header, #formularioPopup .modal-body, #formularioPopup .modal-footer { padding-left: 16px; padding-right: 16px; }
 }

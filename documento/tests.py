@@ -122,3 +122,40 @@ class DashboardTests(SimpleTestCase):
         empty = dashboard_statistics([], date(2026, 11, 5))
         self.assertTrue(empty['no_data'])
         self.assertIn('Aún no hay oficios', render_to_string('documento/grafica.html', empty))
+
+
+class NewDocumentFormTests(SimpleTestCase):
+    def test_received_date_defaults_to_local_today_and_remains_editable(self):
+        from datetime import datetime, timezone as datetime_timezone
+        from html.parser import HTMLParser
+        from unittest.mock import patch
+        from django.test import RequestFactory
+        from django.utils import timezone
+
+        class DateInputs(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.inputs = {}
+
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == 'input' and attrs.get('type') == 'date':
+                    self.inputs[attrs['name']] = attrs
+
+        # Después de medianoche UTC todavía es el día anterior en México.
+        with timezone.override('America/Mexico_City'):
+            with patch('django.utils.timezone.now', return_value=datetime(2026, 11, 6, 2, tzinfo=datetime_timezone.utc)):
+                for depto in ['ucg', 'delegacion']:
+                    with self.subTest(depto=depto):
+                        request = RequestFactory().get(f'/oficios/{depto}/2026/')
+                        with patch('documento.views.getRegistros', return_value=[]), patch('documento.views.render') as render:
+                            views.lista_oficios(request, depto, 2026)
+                        context = render.call_args.args[2]
+                        html = render_to_string('documento/lista_oficios.html', context)
+                        parser = DateInputs()
+                        parser.feed(html)
+                        received = parser.inputs['fecha_recibido']
+                        self.assertEqual(received['value'], '2026-11-05')
+                        self.assertNotIn('readonly', received)
+                        self.assertNotIn('disabled', received)
+                        self.assertNotIn('value', parser.inputs['fecha_oficio'])
