@@ -159,3 +159,61 @@ class NewDocumentFormTests(SimpleTestCase):
                         self.assertNotIn('readonly', received)
                         self.assertNotIn('disabled', received)
                         self.assertNotIn('value', parser.inputs['fecha_oficio'])
+
+
+class FileNotificationTests(SimpleTestCase):
+    def test_upload_and_edit_queue_success_for_toast_after_reload(self):
+        from unittest.mock import patch
+        from django.contrib.messages import get_messages
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.test import RequestFactory
+        import json
+
+        for action in ['upload', 'edit']:
+            with self.subTest(action=action):
+                request = RequestFactory().post('/manejar-archivo/', {
+                    'depto': 'ucg', 'year': '2026', 'id_oficio': '2', 'action': action,
+                    'archivo': SimpleUploadedFile('prueba.pdf', b'%PDF-1.4 test'),
+                })
+                request.session = {}
+                request._messages = FallbackStorage(request)
+                with patch('documento.views.saveArchivo', return_value='archivos/prueba.pdf'), patch('documento.views.connection'):
+                    response = views.archivo(request)
+                self.assertTrue(json.loads(response.content)['success'])
+                messages = list(get_messages(request))
+                self.assertEqual(len(messages), 1)
+                self.assertEqual(messages[0].tags, 'success')
+                self.assertIn('actualizado' if action == 'edit' else 'cargado', str(messages[0]))
+
+    def test_folio_form_has_unique_labels_and_optional_multiline_note(self):
+        from html.parser import HTMLParser
+
+        class Elements(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.ids = []
+                self.labels = []
+                self.notes = []
+
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if 'id' in attrs:
+                    self.ids.append(attrs['id'])
+                if tag == 'label':
+                    self.labels.append(attrs.get('for'))
+                if tag == 'textarea' and attrs.get('name') == 'nota':
+                    self.notes.append(attrs)
+
+        html = render_to_string('documento/lista_pendientes.html', {'oficios': [
+            {'id': 2, 'tabla_origen': 'oficios_ucg_2026', 'asunto': 'Prueba'},
+            {'id': 2, 'tabla_origen': 'oficios_delegacion_2026', 'asunto': 'Otra prueba'},
+        ]})
+        parser = Elements()
+        parser.feed(html)
+        self.assertEqual(len(parser.ids), len(set(parser.ids)))
+        for label in parser.labels:
+            self.assertIn(label, parser.ids)
+        self.assertEqual(len(parser.notes), 2)
+        self.assertTrue(all('required' not in note for note in parser.notes))
+        self.assertIn('id="appToastContainer"', html)

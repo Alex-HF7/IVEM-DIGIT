@@ -348,3 +348,23 @@ footer{
 @media (max-width: 575px) {
     #formularioPopup .modal-header, #formularioPopup .modal-body, #formularioPopup .modal-footer { padding-left: 16px; padding-right: 16px; }
 }
+
+/* Asignación de folio y notificaciones compartidas. */
+.folio-modal .modal-content { border: 0; border-radius: 16px; overflow: hidden; }
+.folio-modal .modal-header { background: #682145; color: #fff; padding: 22px 24px; }
+.folio-modal .modal-title { font-size: 1.15rem; font-weight: 600; }
+.folio-modal .modal-body { padding: 24px; }
+.folio-description, .folio-required { color: #64748b; font-size: .85rem; }
+.folio-required { margin: 18px 0; }
+.folio-summary { background: #faf4f7; border-left: 3px solid #682145; border-radius: 8px; padding: 12px 16px; overflow-wrap: anywhere; }
+.folio-summary span { display: block; font-size: .75rem; color: #82546a; margin-bottom: 5px; }
+.folio-summary strong { font-size: .95rem; color: #334155; font-weight: 500; }
+.folio-modal .form-label { color: #334155; font-size: .9rem; font-weight: 500; }
+.folio-modal .form-control, .folio-modal .form-select { border-radius: 8px; padding: 10px 12px; border-color: #dce1e8; }
+.folio-modal .form-select { padding-right: 36px; }
+.folio-modal .form-control:focus, .folio-modal .form-select:focus { border-color: #9d5378; box-shadow: 0 0 0 .2rem #6821451a; }
+.folio-modal textarea { resize: vertical; }
+.folio-modal .modal-footer { background: #f8f9fa; padding: 16px 24px; }
+.folio-modal .modal-footer .btn { border-radius: 8px; padding: 10px 18px; }
+#appToastContainer { max-width: 100%; }
+#appToastContainer .toast { box-shadow: 0 6px 22px #0002; }

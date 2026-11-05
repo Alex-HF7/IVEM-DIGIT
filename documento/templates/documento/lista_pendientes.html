@@ -100,9 +100,9 @@
 {% endif %}
 
 {% for oficio in oficios %}
-<div class="modal fade" id="asignarFolioModal{{ oficio.tabla_origen }}_{{ oficio.id }}" tabindex="-1" 
-     aria-labelledby="asignarFolioModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal fade folio-modal" id="asignarFolioModal{{ oficio.tabla_origen }}_{{ oficio.id }}" tabindex="-1"
+     aria-labelledby="asignarFolioModalLabel{{ oficio.tabla_origen }}_{{ oficio.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form method="post" action="{% url 'asignar_folio' %}">
                 {% csrf_token %}
@@ -110,15 +110,18 @@
                 <input type="hidden" name="oficio_id" value="{{ oficio.id }}">
                 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="asignarFolioModalLabel">
-                        Asignar Folio a Oficio #{{ oficio.id }}
+                    <h5 class="modal-title" id="asignarFolioModalLabel{{ oficio.tabla_origen }}_{{ oficio.id }}">
+                        <i class="bi bi-bookmark-check me-2" aria-hidden="true"></i>Asignar folio · Oficio #{{ oficio.id }}
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
+                    <p class="folio-description">Completa la clasificación y el área de destino para asignar el folio.</p>
+                    <div class="folio-summary"><span>Asunto del oficio</span><strong>{{ oficio.asunto }}</strong></div>
+                    <p class="folio-required">Los campos con * son obligatorios.</p>
                     <div class="mb-3">
-                        <label for="asunto_opciones" class="form-label">Tipo de Asunto</label>
-                        <select class="form-select" id="asunto_opciones" name="asunto_opciones" required>
+                        <label for="asunto_opciones_{{ oficio.tabla_origen }}_{{ oficio.id }}" class="form-label">Tipo de asunto *</label>
+                        <select class="form-select" id="asunto_opciones_{{ oficio.tabla_origen }}_{{ oficio.id }}" name="asunto_opciones" required>
                             <option value="">Seleccione una opción</option>
                             <option value="atencion">Atención</option>
                             <option value="conocimiento">Conocimiento</option>
@@ -132,8 +135,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="area" class="form-label">Área IVEM</label>
-                        <select class="form-select" id="area" name="area" required>
+                        <label for="area_{{ oficio.tabla_origen }}_{{ oficio.id }}" class="form-label">Área IVEM *</label>
+                        <select class="form-select" id="area_{{ oficio.tabla_origen }}_{{ oficio.id }}" name="area" required>
                             <option value="">Seleccione un área</option>
                             <option value="Dir. General">Dirección General</option>
                             <option value="Del. Administración">Delegación Administración</option>
@@ -145,47 +148,19 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="nota" class="form-label">Nota:</label>
-                        <input type="text" name="nota" id="nota">
+                        <label for="nota_{{ oficio.tabla_origen }}_{{ oficio.id }}" class="form-label">Nota <small class="text-muted fw-normal">(opcional)</small></label>
+                        <textarea class="form-control" name="nota" id="nota_{{ oficio.tabla_origen }}_{{ oficio.id }}" rows="3" maxlength="255"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Asignar Folio</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-2" aria-hidden="true"></i>Asignar folio</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 {% endfor %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Pre-seleccionar valores si ya existen en el registro
-    document.querySelectorAll('[id^="asignarFolioModal"]').forEach(modal => {
-        modal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const row = button.closest('tr');
-            
-            // Aquí puedes agregar lógica para pre-seleccionar valores si es necesario
-            // Ejemplo: modal.querySelector('#asunto_opciones').value = row.dataset.asunto;
-        });
-    });
-    
-    // Validación antes de enviar
-    document.querySelectorAll('[id^="asignarFolioModal"] form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const asunto = this.querySelector('#asunto_opciones').value;
-            const area = this.querySelector('#area').value;
-            const nota = this.querySelector('#nota').value;            
-            if (!asunto || !area) {
-                e.preventDefault();
-                alert('Por favor complete todos los campos requeridos');
-                return false;
-            }
-            return true;
-        });
-    });
-});
-</script>
+
 {% endblock content %}
 

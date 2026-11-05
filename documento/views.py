@@ -411,6 +411,7 @@ def archivo(request):
                 ruta_actual = None
 
             ruta_relativa = saveArchivo(depto, year, id_oficio, archivo, ruta_anterior=ruta_actual)
+            messages.success(request, 'Archivo actualizado exitosamente' if action == 'edit' else 'Archivo cargado exitosamente')
             return JsonResponse({
                 'success': True,
                 'message': 'Archivo guardado exitosamente',
