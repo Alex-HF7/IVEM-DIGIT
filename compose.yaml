@@ -1,0 +1,56 @@
+name: ivem-digit
+services:
+  login-cache:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - login_cache:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  db:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_DB: ivem_dev
+      POSTGRES_USER: ivem
+      POSTGRES_PASSWORD: local-development-only
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ivem -d ivem_dev"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  web:
+    build: .
+    environment:
+      DJANGO_SETTINGS_MODULE: ivem_digit.settings_local
+      IVEM_LOGIN_REDIS_URL: redis://login-cache:6379/0
+      IVEM_SECRET_KEY: ${IVEM_SECRET_KEY:-}
+      IVEM_COOKIE_SECURE: ${IVEM_COOKIE_SECURE:-false}
+      IVEM_TRUSTED_PROXIES: ${IVEM_TRUSTED_PROXIES:-}
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: ivem_dev
+      DB_USER: ivem
+      DB_PASSWORD: local-development-only
+      DB_HOST: db
+      DB_PORT: "5432"
+    ports:
+      - "127.0.0.1:${IVEM_PORT:-8000}:8000"
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      login-cache:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - python manage.py migrate --noinput && python docker/init_dev.py && exec python manage.py runserver 0.0.0.0:8000 --noreload --insecure
+volumes:
+  login_cache:
+  postgres_data:
+  media_data:

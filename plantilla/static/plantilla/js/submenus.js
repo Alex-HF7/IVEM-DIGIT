@@ -1,5 +1,23 @@
 // static/js/submenus.js - Versión mejorada
 document.addEventListener('DOMContentLoaded', function() {
+    const registro = document.querySelector('.registro-dropdown');
+    if (registro) {
+        const toggle = registro.querySelector('#navbarDropdown');
+        const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+        const dropdown = bootstrap.Dropdown.getOrCreateInstance(toggle, { offset: [0, 0] });
+
+        registro.addEventListener('mouseenter', function() {
+            if (supportsHover.matches) dropdown.show();
+        });
+        registro.addEventListener('mouseleave', function() {
+            if (!supportsHover.matches) return;
+            dropdown.hide();
+            registro.querySelectorAll('.dropdown-submenu .dropdown-menu').forEach(function(menu) {
+                menu.classList.remove('show');
+            });
+        });
+    }
+
     // Manejar submenús desplegables con Bootstrap
     function setupBootstrapSubmenus() {
         const dropdownSubmenus = document.querySelectorAll('.dropdown-submenu');

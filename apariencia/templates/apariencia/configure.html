@@ -1,0 +1,51 @@
+{% extends 'plantilla/base.html' %}
+{% load static %}
+{% block title %}Apariencia e identidad{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'apariencia/configure.css' %}">
+<section class="container py-4 appearance-settings">
+  <header class="text-center mb-4"><h1><i class="bi bi-palette" aria-hidden="true"></i> Apariencia e identidad</h1><p>Personaliza la imagen del sistema y los logotipos del formato imprimible.</p></header>
+  <nav class="nav nav-pills gap-2 mb-4" aria-label="Secciones de apariencia">
+    {% if can_web %}<a class="nav-link {% if section == 'web' %}active{% endif %}" href="?section=web">Página web</a>{% endif %}
+    {% if can_print %}<a class="nav-link {% if section == 'print' %}active{% endif %}" href="?section=print">Formato imprimible</a>{% endif %}
+  </nav>
+  {% if section == 'print' %}
+  <form method="get" class="mb-4"><input type="hidden" name="section" value="print"><label for="profile-year" class="form-label">Año del formato</label><div class="d-flex gap-2"><select id="profile-year" name="year" class="form-select w-auto">{% for value,label in years %}{% if value %}<option value="{{ value }}" {% if value == year %}selected{% endif %}>{{ label }}</option>{% endif %}{% endfor %}</select><button class="btn btn-outline-primary">Consultar año</button></div></form>
+  <div class="alert alert-info">Solo se modifican las imágenes del año seleccionado. Se conservan el papel, los márgenes, las posiciones y las medidas de ambas copias.</div>
+  {% if not year %}<p>Crea primero un año en Configuración de tablas para configurar sus imágenes.</p>{% endif %}
+  {% endif %}
+  {% if preview %}<div class="alert alert-info">Vista previa sin guardar. Vuelve a la pestaña del formulario para conservar los archivos seleccionados y guardar.</div>{% endif %}
+  <div class="card border-0 shadow-sm mb-4"><div class="card-body p-4"><h2 class="h5">{% if preview %}Vista previa{% else %}Imágenes actuales{% endif %}</h2><div class="row g-3">{% for label,url in images %}<div class="col-md-6"><p class="mb-2">{{ label }}</p><div class="appearance-image"><img src="{{ url }}" alt="{{ label }}"></div></div>{% endfor %}</div>
+  {% if preview and colors %}<div class="d-flex gap-3 flex-wrap mt-4">{% for name,color in colors.items %}<span class="appearance-swatch" style="background:{{ color }}" title="{{ name }}: {{ color }}"></span>{% endfor %}<button type="button" class="btn" style="background:{{ colors.action }};color:{{ on_action }}">Botón de ejemplo</button></div>{% endif %}
+  {% if preview_html %}<div class="overflow-auto mt-4"><iframe class="appearance-print" title="Vista previa del formato impreso" sandbox srcdoc="{{ preview_html }}"></iframe></div>{% endif %}
+  </div></div>
+  {% if not preview %}
+  <form method="post" enctype="multipart/form-data" class="card border-0 shadow-sm">{% csrf_token %}
+    <div class="card-body p-4">{{ form.non_field_errors }}
+      {% if not editable %}<p class="text-muted">No tienes permiso para guardar este perfil.</p>{% endif %}
+      <fieldset {% if not editable %}disabled{% endif %}>
+      {% for field in form %}
+        {% if field.name != 'year' %}
+        <div class="mb-4 appearance-field {% if field.field.widget.input_type == 'file' %}appearance-upload{% endif %}">
+          <div class="appearance-upload-control">
+            {{ field.errors }}
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% if field.field.widget.input_type == 'file' %}
+              {% include 'apariencia/image_tools.html' %}
+            {% endif %}
+          </div>
+          {% if field.field.widget.input_type == 'file' %}
+            {% include 'apariencia/image_location.html' with name=field.name only %}
+          {% endif %}
+        </div>
+        {% else %}{{ field }}{{ field.errors }}{% endif %}
+      {% endfor %}
+      </fieldset>
+    </div>
+    <div class="card-footer d-flex flex-wrap align-items-center gap-3 p-3"><small class="text-muted me-auto">Los campos con * son obligatorios.</small>{% if editable %}<button class="btn btn-outline-primary" name="_preview" value="1" formtarget="_blank"><i class="bi bi-eye" aria-hidden="true"></i> Vista previa</button><button class="btn btn-primary" name="_save" value="1"><i class="bi bi-check2" aria-hidden="true"></i> Guardar cambios</button>{% endif %}</div>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

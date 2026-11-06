@@ -1,0 +1,20 @@
+{% if page.paginator.num_pages > 1 %}
+<nav class="list-pagination" aria-label="Navegación de páginas">
+    <span class="pagination-summary">Página {{ page.number }} de {{ page.paginator.num_pages }}</span>
+    <ul class="pagination mb-0">
+        <li class="page-item{% if not page.has_previous %} disabled{% endif %}">
+            {% if page.has_previous %}<a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ page.previous_page_number }}" aria-label="Página anterior"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
+            {% else %}<span class="page-link" aria-disabled="true"><i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden">Página anterior</span></span>{% endif %}
+        </li>
+        {% for num in page.elided_page_range %}
+            {% if num == page.paginator.ELLIPSIS %}<li class="page-item disabled"><span class="page-link pagination-ellipsis">{{ num }}</span></li>
+            {% elif num == page.number %}<li class="page-item active"><span class="page-link" aria-current="page">{{ num }}</span></li>
+            {% else %}<li class="page-item"><a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ num }}" aria-label="Página {{ num }}">{{ num }}</a></li>{% endif %}
+        {% endfor %}
+        <li class="page-item{% if not page.has_next %} disabled{% endif %}">
+            {% if page.has_next %}<a class="page-link" href="?q={{ search_query|urlencode }}&amp;page={{ page.next_page_number }}" aria-label="Página siguiente"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+            {% else %}<span class="page-link" aria-disabled="true"><i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden">Página siguiente</span></span>{% endif %}
+        </li>
+    </ul>
+</nav>
+{% endif %}

@@ -35,7 +35,7 @@ class Oficio(models.Model):
     area = models.CharField(max_length=255, choices=AREA_OPCIONES, verbose_name="Área IVEM")
     pendiente = models.BooleanField(verbose_name="Pendiente", default=True)
     archivo = models.FileField(upload_to='archivos/', blank=True, null=True, verbose_name="Archivo")
-    nota = models.CharField(max_length=255, verbose_name="Nota")
+    nota = models.CharField(max_length=255, verbose_name="Nota", null=True)
     activo = models.BooleanField(verbose_name="Activo", default=True)
 
     def __str__(self):

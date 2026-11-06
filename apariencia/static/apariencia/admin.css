@@ -1,0 +1,5 @@
+.appearance-current { display: inline-block; padding: 14px; margin: 8px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; vertical-align: top; }
+.appearance-current img { width: auto; max-width: 220px; max-height: 85px; object-fit: contain; background: #e2e5eb; }
+.appearance-current p { font-size: 12px; margin-bottom: 10px; }
+input[type=color] { min-width: 80px; height: 38px; cursor: pointer; }
+.appearance-current p,.appearance-current h3 { color: #253247; }
