@@ -46,3 +46,71 @@
   .appearance-upload { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .image-location { max-width: 340px; width: 100%; }
 }
+
+/* Controles de carga y acciones del módulo. */
+.appearance-settings .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 44px;
+  padding: .65rem 1.15rem;
+  border-radius: .7rem;
+  font-weight: 600;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.appearance-settings .btn-primary {
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--ivem-action, #0d6efd) 22%, transparent);
+}
+.appearance-settings .btn-primary:hover {
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--ivem-action, #0d6efd) 30%, transparent);
+}
+.appearance-settings .btn-outline-primary { background: white; }
+.appearance-settings .btn-outline-primary:hover {
+  background: var(--ivem-action, #0d6efd);
+  color: var(--ivem-on-action, #fff);
+}
+.appearance-settings .btn:focus-visible,
+.appearance-field input[type=file]:focus-visible {
+  outline: 3px solid var(--ivem-action, #0d6efd);
+  outline-offset: 3px;
+}
+.appearance-field input[type=file] {
+  padding: .35rem;
+  background: #f8f9fb;
+  color: var(--ivem-text, #253247);
+  font-size: .9rem;
+  line-height: 1.5;
+  transition: border-color .18s ease;
+}
+.appearance-field input[type=file]::file-selector-button {
+  margin: 0 .85rem 0 0;
+  padding: .65rem 1rem;
+  border: 1px solid transparent;
+  border-radius: .5rem;
+  background: var(--ivem-primary, #682145);
+  color: var(--ivem-on-primary, #fff);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .18s ease;
+}
+.appearance-field input[type=file]:not(:disabled):hover::file-selector-button {
+  background: var(--ivem-primary, #682145);
+  box-shadow: inset 0 0 0 2px var(--ivem-on-primary, #fff);
+  color: var(--ivem-on-primary, #fff);
+}
+.appearance-field input[type=file]:disabled::file-selector-button,
+.appearance-settings fieldset:disabled input[type=file]::file-selector-button {
+  opacity: .6;
+  cursor: not-allowed;
+}
+@media (max-width: 575px) {
+  .appearance-settings .card-footer .btn { flex: 1 1 auto; }
+  .appearance-settings .card-footer small { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .appearance-settings .btn,
+  .appearance-field input[type=file],
+  .appearance-field input[type=file]::file-selector-button { transition: none; }
+}

@@ -41,7 +41,7 @@
       {% endfor %}
       </fieldset>
     </div>
-    <div class="card-footer d-flex flex-wrap align-items-center gap-3 p-3"><small class="text-muted me-auto">Los campos con * son obligatorios.</small>{% if editable %}<button class="btn btn-outline-primary" name="_preview" value="1" formtarget="_blank">Vista previa</button><button class="btn btn-primary" name="_save" value="1"><i class="bi bi-check2" aria-hidden="true"></i> Guardar cambios</button>{% endif %}</div>
+    <div class="card-footer d-flex flex-wrap align-items-center gap-3 p-3"><small class="text-muted me-auto">Los campos con * son obligatorios.</small>{% if editable %}<button class="btn btn-outline-primary" name="_preview" value="1" formtarget="_blank"><i class="bi bi-eye" aria-hidden="true"></i> Vista previa</button><button class="btn btn-primary" name="_save" value="1"><i class="bi bi-check2" aria-hidden="true"></i> Guardar cambios</button>{% endif %}</div>
   </form>
   {% endif %}
 </section>
