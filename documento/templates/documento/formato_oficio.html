@@ -1,4 +1,6 @@
 {% load static %}
+{% static 'plantilla/img/ivem-horizontal.png' as original_left %}
+{% static 'plantilla/img/Mich-Mejor.svg' as original_right %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -102,7 +104,7 @@
     }
   </style>
 </head>
-<body onload="window.print(); setTimeout(() => window.close(), 500);">
+<body{% if not print_preview %} onload="window.print(); setTimeout(() => window.close(), 500);"{% endif %}>
 
   <!-- Parte superior -->
   <div class="page-half">
@@ -110,11 +112,11 @@
       <div class="header-logos-only">
         <div class="logo left">
           <!-- DIRECCION LOGO IVEM-->
-          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo izquierdo">
+          <img src="{{ print_branding.print_left|default:original_left }}" alt="Logo izquierdo">
         </div>
         <div class="logo right">
           <!-- DIRECCION DE LOGO DE GOBIERNO-->
-          <img src="{% static 'plantilla/img/Mich-Mejor.svg' %}" alt="Logo derecho">
+          <img src="{{ print_branding.print_right|default:original_right }}" alt="Logo derecho">
         </div>
       </div>
     </div>
@@ -151,10 +153,10 @@
      <div class="header">
       <div class="header-logos-only">
         <div class="logo left">
-          <img src="{% static 'plantilla/img/ivem-horizontal.png' %}" alt="Logo izquierdo">
+          <img src="{{ print_branding.print_left|default:original_left }}" alt="Logo izquierdo">
         </div>
         <div class="logo right">
-          <img src="{% static 'plantilla/img/Mich-Mejor.svg' %}" alt="Logo derecho">
+          <img src="{{ print_branding.print_right|default:original_right }}" alt="Logo derecho">
         </div>
       </div>
     </div>

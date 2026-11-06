@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'plantilla',
     'login',
     'documento',
-    'gestion_tables'
+    'gestion_tables',
+    'apariencia.apps.AparienciaConfig'
 ]
 
 MIDDLEWARE = [
@@ -75,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'documento.views.navbar_context',
                 'plantilla.context_processors.grupo_context',
+                'apariencia.context_processors.branding',
             ],
         },
     },

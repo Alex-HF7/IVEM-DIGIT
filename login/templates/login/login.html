@@ -4,9 +4,10 @@
 {% block body_class %}body-login{% endblock %}
 {% block navbar %}{% endblock %}
 {% block content %}
+{% static 'plantilla/img/ivem.png' as original_login_logo %}
 <main class="login-layout">
     <section class="login-brand-panel" aria-labelledby="login-brand-title">
-        <img class="login-brand-logo" src="{% static 'plantilla/img/ivem.png' %}" alt="IVEM">
+        <img class="login-brand-logo" src="{{ branding.login_logo|default:original_login_logo }}" alt="IVEM">
         <div class="login-brand-copy">
             <div class="login-document-art" aria-hidden="true"><i class="bi bi-file-earmark-text"></i><span><i class="bi bi-check2"></i></span></div>
             <h1 id="login-brand-title">Gestión de oficios</h1>

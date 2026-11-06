@@ -28,6 +28,7 @@ def error_response(request, status, csrf=False):
         html = render_to_string('errors/error.html', {
             'status': status, 'title': title, 'message': message,
             'home_url': get_script_prefix(),
+            'theme_url': get_script_prefix()+'apariencia/tema.css',
         })
         response = HttpResponse(html, status=status)
     response['Cache-Control'] = 'no-store'

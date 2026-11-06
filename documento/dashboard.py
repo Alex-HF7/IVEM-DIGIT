@@ -42,7 +42,9 @@ def dashboard_period(value, today):
         'invalid_month': invalid,
     }
 
-def dashboard_statistics(data, today):
+def dashboard_statistics(data, today, palette=None):
+    palette=palette or {}
+    chart_colors={'UCG':palette.get('primary',COLORS['UCG']), 'Delegación':palette.get('accent',COLORS['Delegación'])}
     context = {
         'current_month': f'{MONTHS[today.month - 1]} de {today.year}',
         'total_mes': 0, 'pendientes_mes': 0, 'total_oficios': len(data),
@@ -72,7 +74,7 @@ def dashboard_statistics(data, today):
     monthly = df.groupby(['mes', 'departamento']).size().reset_index(name='count')
     monthly['mes'] = monthly['mes'].map(labels)
     new = px.bar(monthly, x='mes', y='count', color='departamento',
-                 barmode='group', text='count', color_discrete_map=COLORS,
+                 barmode='group', text='count', color_discrete_map=chart_colors,
                  labels={'mes': '', 'count': 'Oficios', 'departamento': ''},
                  category_orders={'mes': [labels[month] for month in months]})
     new.update_xaxes(type='category', tickangle=-25, automargin=True)
@@ -84,7 +86,7 @@ def dashboard_statistics(data, today):
     pending_figure = None
     if not pending.empty:
         pending_figure = px.bar(pending, x='count', y='departamento', color='departamento',
-                                orientation='h', text='count', color_discrete_map=COLORS,
+                                orientation='h', text='count', color_discrete_map=chart_colors,
                                 labels={'count': 'Oficios pendientes', 'departamento': ''})
         pending_figure.update_layout(showlegend=False)
         pending_figure.update_xaxes(dtick=max(1, ceil(pending['count'].max() / 5)),
@@ -95,7 +97,7 @@ def dashboard_statistics(data, today):
     assigned_figure = None
     if not assigned.empty:
         assigned_figure = px.bar(assigned, x='count', y='area', orientation='h', text='count',
-                                 color_discrete_sequence=['#682145'],
+                                 color_discrete_sequence=[chart_colors['UCG']],
                                  labels={'count': 'Número de oficios', 'area': ''})
         assigned_figure.update_xaxes(dtick=max(1, ceil(assigned['count'].max() / 5)),
                                     tickformat='d', rangemode='tozero', gridcolor='#edf0f4')

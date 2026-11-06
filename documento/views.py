@@ -96,7 +96,10 @@ def grafica(request):
                 """, [period['period_start'], period['period_end']])
                 columns = [column[0] for column in cursor.description]
                 data.extend(dict(zip(columns, row)) for row in cursor.fetchall())
-        context = dashboard_statistics(data, period['selected_date'])
+        from apariencia.services import web_branding
+        if not hasattr(request, '_ivem_branding'):
+            request._ivem_branding = web_branding()
+        context = dashboard_statistics(data, period['selected_date'], palette=request._ivem_branding)
         if not context['no_data']:
             config = {'responsive': True, 'displayModeBar': False, 'scrollZoom': False}
             context['plot_nuevos'] = context.pop('fig_nuevos').to_html(
@@ -160,7 +163,8 @@ def imprimir_oficio(request, depto, year, record_id):
         if not row:
             raise Http404('Oficio no encontrado o sin folio.')
         data = dict(zip([column[0] for column in cursor.description], row))
-    return render(request, 'documento/formato_oficio.html', {'data': data, 'depto': depto, 'year': year})
+    from apariencia.services import print_branding
+    return render(request, 'documento/formato_oficio.html', {'data': data, 'depto': depto, 'year': year, 'print_branding': print_branding(year)})
 
 
 @require_POST

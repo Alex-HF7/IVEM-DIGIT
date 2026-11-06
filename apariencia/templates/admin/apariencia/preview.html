@@ -1,0 +1,15 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'apariencia/admin.css' %}">{% endblock %}
+{% block content %}
+<p>Vista previa: no se han guardado cambios. Puedes cerrar esta pestaña y guardar desde el formulario original.</p>
+{% if web %}
+<div class="appearance-sample" style="background:{{ colors.background }};color:{{ colors.text }};padding:24px;border-radius:12px">
+    <h2 style="color:{{ colors.primary }}">Identidad de la página</h2>
+    <p>Ejemplo del fondo y texto de la aplicación.</p>
+    <span style="background:{{ colors.action }};color:{{ on_action }};padding:10px 18px;display:inline-block;border-radius:8px">Botón principal</span>
+</div>
+{% endif %}
+{% for label,url in images %}<div class="appearance-current"><h3>{{ label }}</h3><img src="{{ url }}" alt="{{ label }}"{% if not web %} style="height:40px;max-width:120px;object-fit:contain"{% endif %}></div>{% endfor %}
+{% if not web %}<h2>Formato completo: oficio y acuse</h2><div style="overflow:auto"><iframe title="Vista previa del formato a tamaño carta" sandbox srcdoc="{{ print_preview_html }}" style="width:816px;height:1056px;border:1px solid #ddd;background:white"></iframe></div><p>Ambas copias del formato utilizan estas mismas imágenes. No se modifica ninguna medida de impresión.</p>{% endif %}
+{% endblock %}

@@ -144,3 +144,10 @@ publicar su puerto ni modificar el esquema de PostgreSQL. Para ejecutar Django
 fuera de Compose, proporcionar un Redis privado mediante `IVEM_LOGIN_REDIS_URL`.
 Antes de desplegar en producción, revisar [la guía del login](docs/login.md),
 que incluye Redis, proxies, HTTPS, clave secreta y cookies.
+
+### Apariencia e identidad
+
+El personal autorizado puede cambiar colores e imágenes desde el administrador.
+Las imágenes del formato imprimible se configuran por año y conservan todas sus
+medidas y posiciones. Véase [la guía del módulo](docs/apariencia.md), incluidas
+las dimensiones originales, recomendación de SVG y migraciones aditivas.

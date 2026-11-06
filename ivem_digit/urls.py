@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlsplit
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from documento import views as viewsDoc
@@ -10,6 +10,7 @@ from login.views import SecureLoginView
 
 
 urlpatterns = [
+    path('apariencia/', include('apariencia.urls')),
 
     #Admin y Autenticacion
     path('admin/', admin.site.urls),
