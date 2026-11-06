@@ -114,3 +114,10 @@
   .appearance-field input[type=file],
   .appearance-field input[type=file]::file-selector-button { transition: none; }
 }
+
+.appearance-image-tools { border: 1px solid #e4e7ec; border-radius: .65rem; padding: .75rem; background: #f8f9fb; }
+.appearance-image-tools summary { color: var(--ivem-primary-ink, #682145); font-weight: 600; font-size: .85rem; cursor: pointer; }
+.appearance-image-tools summary:focus-visible,
+.appearance-tool-link:focus-visible { outline: 2px solid var(--ivem-action, #0d6efd); outline-offset: 3px; }
+.appearance-tool-link { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem .7rem; border: 1px solid #d4d9e2; border-radius: .5rem; background: white; color: var(--ivem-primary-ink, #682145); font-size: .8rem; font-weight: 600; text-decoration: none; }
+.appearance-tool-link:hover { border-color: var(--ivem-primary-ink, #682145); color: var(--ivem-primary-ink, #682145); text-decoration: underline; }
