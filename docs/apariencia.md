@@ -1,11 +1,13 @@
 # Apariencia e identidad
 
-El módulo se encuentra en **Administrador → Apariencia e identidad**. El menú de
-cuenta de la aplicación incluye un acceso cuando el usuario tiene permisos.
+El módulo se encuentra en **Menú de usuario → Apariencia e identidad**, dentro
+de la interfaz de la aplicación (`/apariencia/`). También sigue disponible desde
+Django Admin. El menú solo aparece con permisos; la URL y las solicitudes POST
+comprueban los mismos permisos en el servidor.
 
 ## Página web
 
-Abrir **Apariencia de la página → Colores e imágenes de la página**.
+Abrir la pestaña **Página web**.
 
 - Cambiar color institucional, botones, fondo, texto y color secundario.
 - Reemplazar logotipos de navegación y acceso, icono y pie de página.
@@ -22,8 +24,8 @@ Las páginas de error conservan un estilo de respaldo si la base no está dispon
 
 ## Formato imprimible, por año
 
-Abrir **Imágenes del formato imprimible por año → Añadir**, seleccionar un año
-existente y subir únicamente las imágenes izquierda y derecha.
+Abrir la pestaña **Formato imprimible**, seleccionar un año existente y pulsar
+**Consultar año**. Subir únicamente las imágenes izquierda y derecha.
 
 La vista previa muestra las imágenes y el formato completo con datos ficticios,
 sin iniciar la impresión. **No se pueden editar colores, papel, márgenes,
@@ -64,9 +66,16 @@ La configuración no permite introducir HTML, JavaScript o CSS libre.
 
 ## Permisos y conservación
 
-El encargado debe tener acceso al administrador (`is_staff`) y los permisos
-correspondientes de consulta/cambio de apariencia web y consulta/alta/cambio de
-perfiles de impresión. No es necesario darle superusuario. Los permisos de
+El encargado necesita los permisos específicos, asignados a su usuario o grupo:
+
+- `apariencia.change_webappearance`: configurar la página web.
+- `apariencia.add_printidentity`: crear un perfil para un año sin configurar.
+- `apariencia.change_printidentity`: modificar o restaurar perfiles existentes.
+
+No se necesita `is_staff` para la interfaz de la aplicación. El acceso mediante
+Django Admin sí conserva ese requisito. Los superusuarios tienen acceso completo.
+La vista previa también exige permiso para guardar el perfil correspondiente.
+Los permisos de
 oficios y la configuración de tablas anuales continúan separados.
 
 Se registra quién guardó el último cambio y cuándo, además del historial nativo

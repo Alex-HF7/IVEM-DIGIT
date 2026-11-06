@@ -88,11 +88,11 @@
                                 <i class="bi bi-people-fill me-2"></i>Gestión de Usuarios
                             </a>
                         </li>
-                        {% if perms.apariencia.change_webappearance or perms.apariencia.change_printidentity %}
-                        <li><a class="dropdown-item" href="{% url 'admin:app_list' app_label='apariencia' %}"><i class="bi bi-palette me-2" aria-hidden="true"></i>Apariencia e identidad</a></li>
+                        {% endif %}
+                        {% if perms.apariencia.change_webappearance or perms.apariencia.change_printidentity or perms.apariencia.add_printidentity %}
+                        <li><a class="dropdown-item" href="{% url 'apariencia:configure' %}"><i class="bi bi-palette me-2" aria-hidden="true"></i>Apariencia e identidad</a></li>
                         {% endif %}
                         <li><hr class="dropdown-divider"></li>
-                        {% endif %}
                         <li>
                             <form action="{% url 'logout' %}" method="post" class="d-inline">
                                 {% csrf_token %}

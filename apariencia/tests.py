@@ -185,3 +185,85 @@ class AppearanceAdminTests(TestCase):
         response=client.post(self.web_url,self.colors())
         self.assertEqual(response.status_code,403)
         self.assertEqual(WebAppearance.objects.get(pk=1).primary,DEFAULT_COLORS['primary'])
+
+
+class AppearanceApplicationTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(username='appearance_operator')
+        ConfiguracionTable.objects.create(anno=2046)
+
+    def setUp(self):
+        self.media = TemporaryDirectory()
+        self.addCleanup(self.media.cleanup)
+        override = self.settings(MEDIA_ROOT=self.media.name)
+        override.enable()
+        self.addCleanup(override.disable)
+        self.url = reverse('apariencia:configure')
+        self.client.force_login(self.user)
+
+    def grant(self, *codes):
+        from django.contrib.auth.models import Permission
+        self.user.user_permissions.set(Permission.objects.filter(content_type__app_label='apariencia', codename__in=codes))
+
+    def test_anonymous_redirects_and_missing_permissions_hide_menu_and_deny_access(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(self.url).status_code, 403)
+        self.assertEqual(self.client.post(self.url, DEFAULT_COLORS).status_code, 403)
+        self.assertNotContains(self.client.get(reverse('inicio')), 'Apariencia e identidad')
+
+    def test_non_staff_with_web_permission_can_use_menu_and_save_but_not_print(self):
+        self.grant('change_webappearance')
+        response = self.client.get(self.url)
+        self.assertContains(response, '1985 × 617')
+        self.assertContains(response, 'href="' + self.url + '"')
+        self.assertNotContains(response, '?section=print')
+        self.assertEqual(self.client.get(self.url + '?section=print').status_code, 403)
+        response = self.client.post(self.url, {**DEFAULT_COLORS, 'primary': '#315577'})
+        self.assertEqual(response.status_code, 302)
+        config = WebAppearance.objects.get(pk=1)
+        self.assertEqual(config.primary, '#315577')
+        self.assertEqual(config.updated_by, self.user)
+
+    def test_preview_does_not_save_or_publish_and_invalid_images_are_rejected(self):
+        self.grant('change_webappearance')
+        response = self.client.post(self.url, {**DEFAULT_COLORS, '_preview': '1', 'site_logo_upload': svg('site_logo')})
+        self.assertContains(response, 'Vista previa sin guardar')
+        self.assertContains(response, 'data:image/svg+xml;base64,')
+        self.assertFalse(BrandImage.objects.exists())
+        response = self.client.post(self.url, {**DEFAULT_COLORS, 'site_logo_upload': svg(width=10)})
+        self.assertContains(response, 'Medidas incorrectas')
+        self.assertFalse(BrandImage.objects.exists())
+
+    def test_print_add_and_change_are_separate_and_post_cannot_change_year(self):
+        self.grant('add_printidentity')
+        url = self.url + '?section=print&year=2046'
+        self.assertEqual(self.client.get(self.url + '?section=web').status_code, 403)
+        self.assertEqual(self.client.post(url, {'year': '1999', 'print_left_upload': svg()}).status_code, 302)
+        profile = PrintIdentity.objects.get(year=2046)
+        self.assertEqual(profile.updated_by, self.user)
+        self.assertFalse(PrintIdentity.objects.filter(year=1999).exists())
+        self.assertEqual(self.client.post(url, {'restore_defaults': 'on'}).status_code, 403)
+        self.grant('change_printidentity')
+        response = self.client.post(url, {'_preview': '1'})
+        self.assertContains(response, 'srcdoc=')
+        self.assertNotContains(response, 'window.print')
+        self.assertEqual(self.client.post(url, {'restore_defaults': 'on'}).status_code, 302)
+        profile.refresh_from_db()
+        self.assertIsNone(profile.print_left)
+        self.assertTrue(BrandImage.objects.exists())
+        self.assertEqual(self.client.get(self.url + '?section=print&year=1998').status_code, 404)
+
+    def test_csrf_required_and_failed_save_preserves_configuration(self):
+        self.grant('change_webappearance')
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.force_login(self.user)
+        self.assertEqual(csrf_client.post(self.url, DEFAULT_COLORS).status_code, 403)
+        with patch('apariencia.models.WebAppearance.save', side_effect=DatabaseError('Simulado')):
+            with self.assertLogs('apariencia.views', level='ERROR'):
+                response = self.client.post(self.url, {**DEFAULT_COLORS, 'site_logo_upload': svg('site_logo')})
+        self.assertContains(response, 'No se pudieron guardar')
+        self.assertFalse(BrandImage.objects.exists())
+        self.assertEqual(list(Path(self.media.name).rglob('*.svg')), [])
