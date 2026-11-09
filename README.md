@@ -161,3 +161,9 @@ Django 5.2 LTS y librerías verificadas con Python 3.12. Consulta la
 
 Las consultas SQL no se registran automáticamente. Consulta la
 [configuración, rotación y conservación de registros](docs/registros.md).
+
+## Configuración segura del servidor
+
+El módulo de servidor exige `IVEM_SECRET_KEY` e `IVEM_ALLOWED_HOSTS`.
+Docker local conserva automáticamente su propia clave. Revisa la
+[guía antes de actualizar producción](docs/configuracion-segura.md).

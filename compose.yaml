@@ -49,6 +49,7 @@ services:
       - "127.0.0.1:${IVEM_PORT:-8000}:8000"
     volumes:
       - media_data:/app/media
+      - development_settings:/app/.local
     depends_on:
       login-cache:
         condition: service_healthy
@@ -62,3 +63,4 @@ volumes:
   login_cache:
   postgres_data:
   media_data:
+  development_settings:
