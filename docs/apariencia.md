@@ -73,7 +73,8 @@ El encargado necesita los permisos específicos, asignados a su usuario o grupo:
 - `apariencia.change_printidentity`: modificar o restaurar perfiles existentes.
 
 No se necesita `is_staff` para la interfaz de la aplicación. El acceso mediante
-Django Admin sí conserva ese requisito. Los superusuarios tienen acceso completo.
+Django Admin exige además el permiso de Acceso técnico Django y los permisos
+de los modelos correspondientes. Los superusuarios tienen acceso completo.
 La vista previa también exige permiso para guardar el perfil correspondiente.
 Los permisos de
 oficios y la configuración de tablas anuales continúan separados.

@@ -28,3 +28,10 @@ class ConfiguracionTable(models.Model):
     class Meta:
         verbose_name = "Configuración de Tabla"
         verbose_name_plural = "Configuración de Tablas"
+        permissions = [
+            ('view_all_documents', 'Consultar oficios de todos los departamentos'),
+            ('view_pending_documents', 'Consultar el listado de pendientes'),
+            ('assign_folio', 'Asignar folios a oficios'),
+            ('delete_document', 'Eliminar oficios de forma lógica'),
+            ('access_technical_admin', 'Acceder a la administración técnica Django'),
+        ]

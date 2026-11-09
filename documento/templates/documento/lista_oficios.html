@@ -115,7 +115,7 @@
                                 <i class="bi bi-pencil"></i>
                             </button>
                             {% endif %}
-                            {% if es_staff %}
+                            {% if perms.gestion_tables.delete_document %}
                             <button class="btn btn-sm btn-outline-danger" title="Eliminar oficio" aria-label="Eliminar oficio"
                             data-bs-target="#modalEliminarGlobal"
                             data-url="{% url 'eliminar_oficio' depto=depto year=year id=oficio.id %}"

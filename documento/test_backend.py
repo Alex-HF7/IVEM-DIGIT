@@ -30,8 +30,8 @@ class BackendProtectionTests(TestCase):
         cls.admin = User.objects.create_superuser(username='backend_admin', email='', password=None)
         cls.ucg = User.objects.create_user(username='backend_ucg')
         cls.delegacion = User.objects.create_user(username='backend_delegacion')
-        cls.ucg.groups.add(Group.objects.create(name='UCG'))
-        cls.delegacion.groups.add(Group.objects.create(name='Delegacion'))
+        cls.ucg.groups.add(Group.objects.get_or_create(name='UCG')[0])
+        cls.delegacion.groups.add(Group.objects.get_or_create(name='Delegacion')[0])
         ConfiguracionTable.objects.create(anno=2077)
         with connection.cursor() as cursor:
             for depto in ['ucg', 'delegacion']:

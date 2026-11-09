@@ -10,6 +10,7 @@ from login.views import SecureLoginView
 
 
 urlpatterns = [
+    path('gestion/', include('operacion.urls')),
     path('apariencia/', include('apariencia.urls')),
 
     #Admin y Autenticacion

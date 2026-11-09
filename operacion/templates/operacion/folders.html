@@ -1,0 +1,10 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Carpetas anuales{% endblock %}
+{% block icon %}bi-folder-plus{% endblock %}
+{% block heading %}Carpetas anuales{% endblock %}
+{% block subtitle %}Prepara un año de trabajo sin entrar a la administración técnica.{% endblock %}
+{% block management_content %}
+<div class="alert management-notice"><i class="bi bi-info-circle me-2" aria-hidden="true"></i>Al agregar un año se crean automáticamente las carpetas de UCG y Delegación, con sus folios independientes. Se conservan los oficios y archivos existentes.</div>
+{% include 'operacion/form.html' with form_heading='Agregar carpetas para un año' submit_label='Crear carpetas' %}
+{% if can_view %}<div class="card management-card"><div class="card-body p-4"><h2 class="h5 mb-3">Años configurados</h2><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Año</th><th>Descripción</th><th>Departamentos</th></tr></thead><tbody>{% for folder in folders %}<tr><td class="fw-semibold">{{ folder.anno }}</td><td>{{ folder.descripcion|default:'—' }}</td><td><span class="management-badge">UCG</span><span class="management-badge">Delegación</span></td></tr>{% empty %}<tr><td colspan="3" class="text-center text-muted py-4">Todavía no hay años configurados.</td></tr>{% endfor %}</tbody></table></div>{% include 'operacion/pagination.html' with page=folders %}</div></div>{% endif %}
+{% endblock %}

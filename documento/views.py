@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
 from .access import (allowed_departments, available_tables, parse_table, record_id,
-                     require_admin, require_department)
+                     require_document_permission, require_department)
 from .forms import DocumentCreateForm, DocumentEditForm, FolioForm, error_message
 from .utils import saveArchivo, buscar_oficios, DocumentConflict
 
@@ -40,7 +40,7 @@ def lista_oficios(request, depto, year):
 
 
 def lista_pendientes(request):
-    require_admin(request.user)
+    require_document_permission(request.user, 'view_pending_documents')
     try:
         tables = available_tables(allowed_departments(request.user))
         oficios, query = buscar_oficios(request, tables, pendientes=True)
@@ -119,7 +119,7 @@ def grafica(request):
 
 @require_POST
 def asignar_folio(request):
-    require_admin(request.user)
+    require_document_permission(request.user, 'assign_folio')
     depto, year = parse_table(request.POST.get('tabla_origen'))
     table = connection.ops.quote_name(require_department(request.user, depto, year))
     identifier = record_id(request.POST.get('oficio_id'))
@@ -169,7 +169,7 @@ def imprimir_oficio(request, depto, year, record_id):
 
 @require_POST
 def eliminar_oficio(request, depto, year, id):
-    require_admin(request.user)
+    require_document_permission(request.user, 'delete_document')
     table = connection.ops.quote_name(require_department(request.user, depto, year))
     identifier = record_id(id)
     try:

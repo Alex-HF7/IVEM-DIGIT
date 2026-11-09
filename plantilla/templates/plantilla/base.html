@@ -34,7 +34,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <!-- Delegacion -->
-                             {% if "Delegacion" in grupos_usuario or es_staff%}
+                             {% if "Delegacion" in grupos_usuario or can_view_all_documents %}
                             <li class="dropdown-submenu">
                                 <a class="dropdown-item dropdown-toggle" href="#">Delegacion Administrativa</a>
                                 <ul class="dropdown-menu">
@@ -49,7 +49,7 @@
                             </li>
                             {% endif %}
                             <!-- UCG -->
-                             {% if "UCG" in grupos_usuario or es_staff%}
+                             {% if "UCG" in grupos_usuario or can_view_all_documents %}
                             <li class="dropdown-submenu">
                                 <a class="dropdown-item dropdown-toggle" href="#">Unidad de Control de Gestion</a>
                                 <ul class="dropdown-menu">
@@ -65,7 +65,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    {% if user.is_staff %}
+                    {% if perms.gestion_tables.view_pending_documents %}
                     <li class="nav-item">
                         <a class="nav-link pendientes-badge" href="{% url "lista_pendientes" %}">Pendientes</a>
                     </li>
@@ -77,17 +77,19 @@
                 <div class="dropdown account-dropdown">
                     <a class="nav-link dropdown-toggle user-menu" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="account-avatar"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
-                        <span class="account-label"><strong>{{ user.username }}</strong><small>{% if user.is_staff %}Administración{% else %}Mi cuenta{% endif %}</small></span>
+                        <span class="account-label"><strong>{{ user.username }}</strong><small>{% if user.is_superuser %}Administración{% else %}Mi cuenta{% endif %}</small></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end account-menu" aria-labelledby="userDropdown">
                         <li class="account-menu-heading"><span>Sesión iniciada como</span><strong>{{ user.username }}</strong></li>
                         <li><hr class="dropdown-divider"></li>
-                        {% if user.is_staff %}
-                        <li>
-                            <a class="dropdown-item" href="{% url 'admin:auth_user_changelist' %}" target="_blank">
-                                <i class="bi bi-people-fill me-2"></i>Gestión de Usuarios
-                            </a>
-                        </li>
+                        {% if perms.auth.add_user or perms.auth.view_user %}
+                        <li><a class="dropdown-item" href="{% url 'operacion:users' %}"><i class="bi bi-people me-2" aria-hidden="true"></i>Gestión de usuarios</a></li>
+                        {% endif %}
+                        {% if perms.gestion_tables.add_configuraciontable or perms.gestion_tables.view_configuraciontable %}
+                        <li><a class="dropdown-item" href="{% url 'operacion:folders' %}"><i class="bi bi-folder-plus me-2" aria-hidden="true"></i>Carpetas anuales</a></li>
+                        {% endif %}
+                        {% if user.is_superuser or user.is_staff and perms.gestion_tables.access_technical_admin %}
+                        <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-tools me-2" aria-hidden="true"></i>Administración técnica</a></li>
                         {% endif %}
                         {% if perms.apariencia.change_webappearance or perms.apariencia.change_printidentity or perms.apariencia.add_printidentity %}
                         <li><a class="dropdown-item" href="{% url 'apariencia:configure' %}"><i class="bi bi-palette me-2" aria-hidden="true"></i>Apariencia e identidad</a></li>

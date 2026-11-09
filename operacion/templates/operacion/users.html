@@ -1,0 +1,15 @@
+{% extends 'operacion/base.html' %}
+{% block title %}Gestión de usuarios{% endblock %}
+{% block icon %}bi-people{% endblock %}
+{% block heading %}Gestión de usuarios{% endblock %}
+{% block subtitle %}Crea cuentas y asigna el acceso necesario para cada persona.{% endblock %}
+{% block management_content %}
+<div class="alert management-notice"><i class="bi bi-shield-check me-2" aria-hidden="true"></i>Las cuentas se crean activas y sin privilegios de superusuario. El acceso técnico se asigna por separado.</div>
+{% if user.is_superuser %}<details class="mb-4 management-help"><summary>¿Qué permite cada perfil?</summary><ul class="mt-3 mb-0"><li><strong>UCG / Delegacion:</strong> registrar y consultar oficios de su departamento.</li><li><strong>Administración de oficios:</strong> ambos departamentos, pendientes, folios y eliminación lógica.</li><li><strong>Gestión de usuarios:</strong> consultar cuentas y crear operadores por departamento.</li><li><strong>Gestión de carpetas:</strong> consultar y crear carpetas anuales.</li><li><strong>Acceso técnico Django:</strong> entrar al administrador; los permisos de sus módulos se asignan por separado.</li></ul></details>{% endif %}
+{% include 'operacion/form.html' with form_heading='Agregar nuevo usuario' submit_label='Crear usuario' %}
+{% if can_view %}
+<div class="card management-card"><div class="card-body p-4"><div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Cuentas registradas</h2><form method="get" class="d-flex gap-2"><label for="user-search" class="visually-hidden">Buscar usuario o nombre</label><input class="form-control" id="user-search" name="q" value="{{ query }}" placeholder="Buscar usuario o nombre" maxlength="150"><button class="btn btn-outline-primary" aria-label="Buscar"><i class="bi bi-search" aria-hidden="true"></i></button></form></div>
+<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Usuario</th><th>Nombre</th><th>Perfiles</th><th>Estado</th></tr></thead><tbody>{% for account in accounts %}<tr><td class="fw-semibold">{{ account.username }}</td><td>{{ account.get_full_name|default:'—' }}</td><td>{% for group in account.groups.all %}<span class="management-badge">{{ group.name }}</span>{% empty %}<span class="text-muted">Sin perfil asignado</span>{% endfor %}</td><td>{% if account.is_active %}Activa{% else %}Inactiva{% endif %}</td></tr>{% empty %}<tr><td colspan="4" class="text-center text-muted py-4">No se encontraron usuarios.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'operacion/pagination.html' with page=accounts %}
+</div></div>{% endif %}
+{% endblock %}

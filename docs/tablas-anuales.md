@@ -1,6 +1,8 @@
 # Operación automática de tablas anuales
 
-El personal sigue utilizando **Administrador → Configuración de tablas**.
+El personal utiliza **Menú de usuario → Carpetas anuales**, con el perfil
+Gestión de carpetas. La pantalla técnica de Configuración de tablas sigue
+disponible solo para responsables autorizados.
 No necesita SQL, comandos de migración ni reiniciar el servicio para abrir un año nuevo.
 
 ## Crear un año
@@ -9,7 +11,7 @@ No necesita SQL, comandos de migración ni reiniciar el servicio para abrir un a
    una descripción.
 2. Guardar. El sistema crea las tablas de UCG y Delegación con sus secuencias,
    funciones y triggers dentro de la misma transacción que la configuración.
-3. Si falla alguna parte, no se guarda una configuración parcial. El administrador
+3. Si falla alguna parte, no se guarda una configuración parcial. La pantalla
    muestra el error y permite volver a intentarlo; los detalles quedan en el registro técnico.
 4. El año aparece en el menú Registro y sus tablas se pueden consultar también
    en el administrador sin reiniciar el servicio.

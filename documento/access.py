@@ -27,14 +27,24 @@ def record_id(value):
     return int(value)
 
 
-def is_admin(user):
-    return user.is_authenticated and (user.is_staff or user.is_superuser)
+def has_document_permission(user, code):
+    return (user.is_authenticated and getattr(user, 'is_active', True) and
+            (user.is_superuser or user.has_perm('gestion_tables.' + code)))
+
+
+def require_document_permission(user, code):
+    if not has_document_permission(user, code):
+        raise PermissionDenied('No tienes permiso para esta operación de oficios.')
+
+
+def can_view_all_documents(user):
+    return has_document_permission(user, 'view_all_documents')
 
 
 def allowed_departments(user):
-    if is_admin(user):
+    if can_view_all_documents(user):
         return set(GROUPS)
-    if not user.is_authenticated:
+    if not user.is_authenticated or not getattr(user, 'is_active', True):
         return set()
     groups = set(user.groups.values_list('name', flat=True))
     return {depto for depto, group in GROUPS.items() if group in groups}
@@ -45,11 +55,6 @@ def require_department(user, depto, year):
     if depto not in allowed_departments(user):
         raise PermissionDenied('No tienes acceso a este departamento.')
     return name
-
-
-def require_admin(user):
-    if not is_admin(user):
-        raise PermissionDenied('Esta operación requiere permisos de administración.')
 
 
 def available_tables(departments):

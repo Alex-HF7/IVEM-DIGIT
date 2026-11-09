@@ -24,13 +24,14 @@ class DocumentURLTests(SimpleTestCase):
         context = {
             'depto': 'ucg', 'year': 2026, 'es_staff': True,
             'user': {'is_authenticated': True, 'is_staff': True},
+            'perms': {'auth': {'view_user': True}, 'gestion_tables': {'delete_document': True, 'assign_folio': True}},
             'oficios': [{'id': 7, 'folio': None, 'archivo': 'archivos/prueba.pdf'}],
         }
         html = render_to_string('documento/lista_oficios.html', context)
         self.assertIn('data-url="/oficios/ucg/2026/7/editar/"', html)
         self.assertIn('data-url="/oficios/ucg/2026/7/eliminar/"', html)
         self.assertIn('href="/documentos/archivos/prueba.pdf"', html)
-        self.assertIn('href="' + reverse('admin:auth_user_changelist') + '"', html)
+        self.assertIn('href="' + reverse('operacion:users') + '"', html)
         pending = render_to_string('documento/lista_pendientes.html', context)
         self.assertIn('href="/documentos/archivos/prueba.pdf"', pending)
 
@@ -38,7 +39,7 @@ class DocumentURLTests(SimpleTestCase):
         set_script_prefix('/ivem/')
         try:
             html = render_to_string('documento/lista_oficios.html', {
-                'depto': 'ucg', 'year': 2026, 'es_staff': True,
+                'depto': 'ucg', 'year': 2026, 'perms': {'gestion_tables': {'delete_document': True}},
                 'oficios': [{'id': 7, 'folio': None}],
             })
             self.assertIn('data-url="/ivem/oficios/ucg/2026/7/editar/"', html)
@@ -50,12 +51,13 @@ class DocumentURLTests(SimpleTestCase):
 class DynamicAdminTests(SimpleTestCase):
     def test_registers_models_before_building_admin_urls(self):
         from unittest.mock import patch
-        from django.contrib.admin import AdminSite, ModelAdmin
+        from django.contrib.admin import ModelAdmin
+        from ivem_digit.admin_site import TechnicalAdminSite
         from django.contrib.auth.models import Group, User
         from django.urls import URLResolver
         from .admin import LazyModelRegistry
 
-        site = AdminSite(name='dynamic_test')
+        site = TechnicalAdminSite(name='dynamic_test')
         site.register(User, ModelAdmin)
 
         def register_dynamic_model():
@@ -209,7 +211,7 @@ class FileNotificationTests(SimpleTestCase):
                 if tag == 'textarea' and attrs.get('name') == 'nota':
                     self.notes.append(attrs)
 
-        html = render_to_string('documento/lista_pendientes.html', {'oficios': [
+        html = render_to_string('documento/lista_pendientes.html', {'perms': {'gestion_tables': {'assign_folio': True}}, 'oficios': [
             {'id': 2, 'tabla_origen': 'oficios_ucg_2026', 'asunto': 'Prueba'},
             {'id': 2, 'tabla_origen': 'oficios_delegacion_2026', 'asunto': 'Otra prueba'},
         ]})

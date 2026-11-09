@@ -62,7 +62,7 @@ Este es un proyecto desarrollado con Django para **gestionar los oficios que ing
 
 ### Creación automática de tablas por año
 
-El personal crea el año desde **Administrador → Configuración de tablas**.
+El personal crea el año desde **Menú de usuario → Carpetas anuales**, con su permiso de gestión.
 El sistema prepara las tablas, secuencias y triggers de ambos departamentos.
 No es necesario ejecutar SQL ni reiniciar el servicio para consultar el año nuevo.
 
@@ -167,3 +167,8 @@ Las consultas SQL no se registran automáticamente. Consulta la
 El módulo de servidor exige `IVEM_SECRET_KEY` e `IVEM_ALLOWED_HOSTS`.
 Docker local conserva automáticamente su propia clave. Revisa la
 [guía antes de actualizar producción](docs/configuracion-segura.md).
+
+## Gestión operativa y perfiles
+
+Usuarios y carpetas anuales se gestionan desde el menú de usuario. Django Admin
+queda reservado al acceso técnico. Consulta [los perfiles y la migración](docs/gestion-operativa.md).

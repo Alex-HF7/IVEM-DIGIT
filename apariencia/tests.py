@@ -166,8 +166,8 @@ class AppearanceAdminTests(TestCase):
 
     def test_only_authorized_staff_can_change_appearance(self):
         self.client.force_login(self.staff)
-        self.assertEqual(self.client.get(self.web_url).status_code,403)
-        self.assertEqual(self.client.post(self.web_url,self.colors()).status_code,403)
+        self.assertRedirects(self.client.get(self.web_url), '/admin/login/?next=' + self.web_url, fetch_redirect_response=False)
+        self.assertRedirects(self.client.post(self.web_url,self.colors()), '/admin/login/?next=' + self.web_url, fetch_redirect_response=False)
         self.assertEqual(WebAppearance.objects.get(pk=1).primary,DEFAULT_COLORS['primary'])
 
     def test_database_failure_keeps_old_settings_and_cleans_new_file(self):

@@ -28,6 +28,12 @@ class PublicAuthenticationForm(AuthenticationForm):
 
 
 class PublicAdminAuthenticationForm(AdminAuthenticationForm):
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+        from operacion.roles import can_enter_admin
+        if not can_enter_admin(user):
+            raise ValidationError('Esta cuenta no tiene acceso a la administración técnica.', code='invalid_login')
+
     error_messages = {'invalid_login': GENERIC_ERROR, 'inactive': GENERIC_ERROR}
 
     def clean(self):

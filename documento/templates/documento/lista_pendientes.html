@@ -8,7 +8,7 @@
 <div class="container-fluid document-list-shell">
     <header class="document-list-heading">
         <div class="document-list-title"><h1>Listado de pendientes</h1>
-        <p class="document-list-subtitle">Oficios por asignar folio <span aria-hidden="true">·</span> Todos los departamentos</p></div>
+        <p class="document-list-subtitle">Oficios por asignar folio <span aria-hidden="true">·</span> {% if perms.gestion_tables.view_all_documents %}Todos los departamentos{% else %}Departamentos autorizados{% endif %}</p></div>
     </header>
     <div class="document-list-card">
         <div class="document-toolbar">
@@ -44,7 +44,7 @@
                             <a href="{{ media_prefix }}{{oficio.archivo}}" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver archivo PDF" aria-label="Ver archivo PDF"><i class="bi bi-file-earmark-pdf-fill" aria-hidden="true"></i></a>
                             {% else %}<span class="pending-no-file">Sin archivo</span>{% endif %}
                         </td>
-                        <td><button type="button" class="btn btn-sm btn-outline-primary pending-assign" data-bs-toggle="modal" data-bs-target="#asignarFolioModal{{ oficio.tabla_origen }}_{{ oficio.id }}"><i class="bi bi-bookmark-check me-1" aria-hidden="true"></i>Asignar folio</button></td>
+                        <td>{% if perms.gestion_tables.assign_folio %}<button type="button" class="btn btn-sm btn-outline-primary pending-assign" data-bs-toggle="modal" data-bs-target="#asignarFolioModal{{ oficio.tabla_origen }}_{{ oficio.id }}"><i class="bi bi-bookmark-check me-1" aria-hidden="true"></i>Asignar folio</button>{% else %}<span class="text-muted">Solo consulta</span>{% endif %}</td>
                     </tr>
                 {% empty %}
                     <tr><td colspan="7" class="document-empty"><i class="bi bi-check-circle" aria-hidden="true"></i>{% if search_query %}<strong>No se encontraron coincidencias</strong><p>Prueba con otra búsqueda o limpia el filtro.</p>{% else %}<strong>No hay oficios pendientes</strong><p>Todos los oficios activos tienen su folio asignado.</p>{% endif %}</td></tr>
@@ -61,6 +61,7 @@
 </div>
 </section>
 
+{% if perms.gestion_tables.assign_folio %}
 {% for oficio in oficios %}
 <div class="modal fade folio-modal" id="asignarFolioModal{{ oficio.tabla_origen }}_{{ oficio.id }}" tabindex="-1"
      aria-labelledby="asignarFolioModalLabel{{ oficio.tabla_origen }}_{{ oficio.id }}" aria-hidden="true">
@@ -123,6 +124,7 @@
     </div>
 </div>
 {% endfor %}
+{% endif %}
 
 {% endblock content %}
 

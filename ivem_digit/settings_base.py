@@ -26,7 +26,7 @@ DEBUG = os.getenv('IVEM_DEBUG', 'false').strip().lower() in {'1', 'true', 'yes'}
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'ivem_digit.admin_config.TechnicalAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'login',
     'documento',
     'gestion_tables',
+    'operacion',
     'apariencia.apps.AparienciaConfig'
 ]
 

@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.db import DatabaseError, models
 from django.http import Http404
 from django.urls import path, re_path, reverse
-from .access import available_tables, parse_table, require_admin, table_name
+from .access import available_tables, parse_table, require_document_permission, has_document_permission, table_name
 from .models import Oficio
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class ModeloDinamicoAdmin(admin.ModelAdmin):
     actions = None
 
     def has_view_permission(self, request, obj=None):
-        return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
+        return has_document_permission(request.user, 'view_all_documents')
 
     def has_module_permission(self, request):
         return self.has_view_permission(request)
@@ -88,7 +88,7 @@ def registrar_modelo_dinamico():
 
 
 def annual_documents(request, depto, year):
-    require_admin(request.user)
+    require_document_permission(request.user, 'view_all_documents')
     table = table_name(depto, year)
     LazyModelRegistry.register_all(force=True)
     model = dynamic_apps.all_models['documento'].get(f'oficios{depto}{year}'.lower())
