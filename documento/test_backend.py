@@ -204,3 +204,57 @@ class BackendProtectionTests(TestCase):
             cursor.execute('UPDATE oficios_ucg_2077 SET activo=FALSE WHERE id=1')
         self.assertEqual(self.client.get('/media/' + name).status_code,404)
         self.assertEqual(path.read_bytes(),content)
+
+    def test_audit_all_sensitive_routes_require_login_and_csrf(self):
+        anonymous = Client()
+        routes = [
+            ('get', '/inicio/'), ('get', '/oficios/ucg/2077/'),
+            ('get', '/oficios/imprimir/ucg/2077/2/'),
+            ('post', '/oficios/ucg/2077/crear/'),
+            ('post', '/oficios/ucg/2077/1/editar/'),
+            ('post', '/oficios/ucg/2077/1/eliminar/'),
+            ('post', '/pendientes/asignar-folio/'), ('post', '/manejar-archivo/'),
+        ]
+        before = self.row()
+        protected = Client(enforce_csrf_checks=True)
+        protected.force_login(self.admin)
+        for method, path in routes:
+            with self.subTest(method=method, path=path):
+                self.assertEqual(getattr(anonymous, method)(path).status_code, 302)
+                if method == 'post':
+                    self.assertEqual(protected.post(path).status_code, 403)
+        self.assertEqual(self.row(), before)
+
+    def test_audit_stored_html_is_escaped_in_listing_and_print(self):
+        payload = '<img src=x onerror="alert(1)">'
+        with connection.cursor() as cursor:
+            cursor.execute('UPDATE oficios_ucg_2077 SET asunto=%s WHERE id=2', [payload])
+        for path in ['/oficios/ucg/2077/', '/oficios/imprimir/ucg/2077/2/']:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertNotContains(response, payload)
+                self.assertContains(response, '&lt;img')
+
+    def test_audit_search_injection_is_literal_and_does_not_modify_records(self):
+        before = self.row()
+        response = self.client.get('/oficios/ucg/2077/', {'q': "' OR 1=1; DROP TABLE oficios_ucg_2077; --"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.row(), before)
+        self.assertNotContains(response, '>Con folio<')
+
+    def test_audit_encrypted_empty_and_wrong_extension_pdfs_preserve_existing_file(self):
+        name, path, content = self.old_file()
+        encrypted = BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=100, height=100)
+        writer.encrypt('audit-password')
+        writer.write(encrypted)
+        empty = BytesIO()
+        PdfWriter().write(empty)
+        for filename, data in [('encrypted.pdf', encrypted.getvalue()), ('empty.pdf', empty.getvalue()), ('image.html', content)]:
+            with self.subTest(filename=filename):
+                response = self.upload(action='edit', document=SimpleUploadedFile(filename, data))
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(self.row()[1], name)
+                self.assertEqual(path.read_bytes(), content)
