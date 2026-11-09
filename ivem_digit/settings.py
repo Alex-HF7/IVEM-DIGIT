@@ -99,24 +99,10 @@ DATABASES = {
     }
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'django_db.log',
-        },
-    },
-    'loggers': {
-        'django.db': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+# Consola por defecto; archivo rotativo opcional mediante IVEM_LOG_FILE.
+from .logging_config import build_logging
+LOGGING = build_logging(os.getenv('IVEM_LOG_FILE'))
+
 
 
 # Password validation

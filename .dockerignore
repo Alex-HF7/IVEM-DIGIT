@@ -10,3 +10,4 @@ env
 media
 staticfiles
 *.log
+*.log.*

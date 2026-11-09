@@ -1,6 +1,12 @@
 name: ivem-digit
+x-logging: &bounded-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
 services:
   login-cache:
+    logging: *bounded-logging
     image: redis:7.4-alpine
     command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
     volumes:
@@ -11,6 +17,7 @@ services:
       timeout: 3s
       retries: 30
   db:
+    logging: *bounded-logging
     image: postgres:17-bookworm
     environment:
       POSTGRES_DB: ivem_dev
@@ -24,6 +31,7 @@ services:
       timeout: 5s
       retries: 30
   web:
+    logging: *bounded-logging
     build: .
     environment:
       DJANGO_SETTINGS_MODULE: ivem_digit.settings_local

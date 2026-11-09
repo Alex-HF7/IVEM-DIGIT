@@ -156,3 +156,8 @@ las dimensiones originales, recomendación de SVG y migraciones aditivas.
 
 Django 5.2 LTS y librerías verificadas con Python 3.12. Consulta la
 [validación y el procedimiento de actualización](docs/actualizaciones/django-librerias-2026-11-09.md).
+
+## Registros operativos
+
+Las consultas SQL no se registran automáticamente. Consulta la
+[configuración, rotación y conservación de registros](docs/registros.md).
