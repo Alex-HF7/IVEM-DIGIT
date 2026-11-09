@@ -1,0 +1,6 @@
+{% if field.field.hover_help %}
+<button type="button" class="field-hint" aria-label="Ayuda: {{ field.label }}" aria-describedby="{{ field.auto_id }}_tip">
+  <i class="bi bi-question-circle" aria-hidden="true"></i>
+  <span class="field-hint-text" id="{{ field.auto_id }}_tip" role="tooltip">{{ field.field.hover_help }}</span>
+</button>
+{% endif %}

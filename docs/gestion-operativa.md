@@ -29,6 +29,12 @@ Los mensajes de éxito aparecen en la notificación habitual de la aplicación.
 | Gestión de carpetas | Consultar y crear carpetas anuales |
 | Acceso técnico Django | Entrar a Django Admin, además de necesitar `is_staff`; los permisos de sus módulos se asignan por separado |
 
+En el formulario, UCG y Delegación se muestran primero con su descripción.
+Los perfiles de gestión aparecen en Permisos adicionales, solo para el
+superusuario. Los nombres cortos son etiquetas de interfaz: los grupos y sus
+permisos no se renombran ni cambian. Los iconos de ayuda responden al cursor o
+al foco del teclado; Escape cierra la ayuda.
+
 Un usuario puede combinar perfiles. **Ningún perfil crea superusuarios**.
 El superusuario conserva el acceso de recuperación y puede crear cuentas con
 perfiles operativos desde la nueva pantalla. Si selecciona Acceso técnico Django,

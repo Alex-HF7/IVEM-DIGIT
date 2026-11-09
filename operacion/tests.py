@@ -194,3 +194,17 @@ class OperationalManagementTests(TestCase):
         with self.assertRaisesMessage(RuntimeError, 'miembros y permisos diferentes'):
             migration.create_roles(apps, SimpleNamespace(connection=connection))
         self.assertFalse(group.permissions.filter(pk=permission.pk).exists())
+
+    def test_profile_cards_preserve_advanced_selection_after_validation_error(self):
+        self.client.force_login(self.root)
+        response = self.client.get('/gestion/usuarios/')
+        self.assertContains(response, 'Delegación Administrativa')
+        self.assertContains(response, 'Acceso por departamento')
+        self.assertContains(response, 'Permisos adicionales')
+        response = self.client.post('/gestion/usuarios/', self.user_data(
+            password1='123', password2='123', groups=[Group.objects.get(name=TECHNICAL_GROUP).pk]))
+        self.assertContains(response, '<details class="advanced-profiles mt-3" open>')
+        self.assertNotContains(response, 'value="123"')
+        self.assertFalse(get_user_model().objects.filter(username='new_operator').exists())
+        self.client.force_login(self.manager)
+        self.assertNotContains(self.client.get('/gestion/usuarios/'), 'Permisos adicionales')
