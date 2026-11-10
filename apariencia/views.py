@@ -43,13 +43,14 @@ def css_text(brand):
 --ivem-primary-soft:{'#7b3154' if primary==DEFAULT_COLORS['primary'] else primary};
 --ivem-footer-image:url("{brand['footer']}");}}
 .btn-primary{{--bs-btn-bg:{action};--bs-btn-border-color:{action};--bs-btn-color:{on_color(action)};
---bs-btn-hover-bg:{mix(action,.15)};--bs-btn-hover-border-color:{mix(action,.15)};--bs-btn-hover-color:{on_color(action)};
---bs-btn-active-bg:{mix(action,.2)};--bs-btn-active-border-color:{mix(action,.2)};--bs-btn-active-color:{on_color(action)};
+--bs-btn-hover-bg:{mix(action,.15)};--bs-btn-hover-border-color:{mix(action,.15)};--bs-btn-hover-color:{on_color(mix(action,.15))};
+--bs-btn-active-bg:{mix(action,.2)};--bs-btn-active-border-color:{mix(action,.2)};--bs-btn-active-color:{on_color(mix(action,.2))};
 --bs-btn-disabled-bg:{action};--bs-btn-disabled-border-color:{action};--bs-btn-disabled-color:{on_color(action)};}}
-.btn-outline-primary{{--bs-btn-color:{action};--bs-btn-border-color:{action};--bs-btn-hover-bg:{action};--bs-btn-hover-border-color:{action};--bs-btn-hover-color:{on_color(action)};}}
+.btn-outline-primary{{--bs-btn-color:{action};--bs-btn-border-color:{action};--bs-btn-hover-bg:{action};--bs-btn-hover-border-color:{action};--bs-btn-hover-color:{on_color(mix(action,.15))};}}
 .custom-navbar .nav-link,.custom-navbar .navbar-brand,.modal-header,.login-brand-panel,
 .login-brand-copy > p,.login-brand-copy ul,.login-brand-footer,.account-label small{{color:var(--ivem-on-primary)!important;}}
 .account-avatar{{background:var(--ivem-on-primary);color:{primary};}}
+.modal-header .btn-close{{filter:{'invert(1) grayscale(100%) brightness(200%)' if on_color(primary)=='#ffffff' else 'none'};}}
 .document-file-icon,.dashboard-metric-icon,.document-eyebrow,.folio-modal legend,
 #formularioPopup legend,.document-list-bottom .page-link{{color:var(--ivem-primary-ink);}}
 .document-list-bottom .active > .page-link,.document-table th{{color:var(--ivem-on-primary);}}

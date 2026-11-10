@@ -534,3 +534,30 @@ body.body-login { background: var(--ivem-background, #f5f6fa); font-family: 'Gib
     .login-form-panel { padding: 28px 18px; }
     .login-form-card { max-width: 440px; }
 }
+
+/* Sesión compacta cuando no hay opciones de gestión. */
+.account-menu--compact { min-width: 195px; padding: 10px; }
+.account-session-status { display: flex; align-items: center; gap: 7px; padding: 5px 10px 11px; color: #64748b; font-size: .75rem; }
+.account-session-status > span { width: 6px; height: 6px; border-radius: 50%; background: var(--ivem-accent, #148575); }
+.account-logout-form { margin: 0; }
+.account-menu--compact .logout-btn { display: flex; align-items: center; width: 100%; border: 1px solid #efdae0; background: #fff7f9; font-weight: 600; }
+.account-menu--compact .logout-btn:hover, .account-menu--compact .logout-btn:focus-visible { background: #fbe9ee; color: #7c203d; border-color: #d8a9b7; }
+
+/* Un lenguaje visual común para acciones de formularios y sus accesos. */
+body .btn:not(.btn-sm):not(.month-arrow) { border-radius: .7rem; font-weight: 600; transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease; }
+body form .btn:not(.btn-sm), body .modal-footer .btn, body .document-tools > .btn { min-height: 42px; padding: .6rem 1.05rem; }
+body form .btn, body .modal-footer .btn, body .document-new-button { display: inline-flex; align-items: center; justify-content: center; gap: .3rem; }
+body form .btn-primary, body .modal-footer .btn-primary, body .document-new-button { box-shadow: 0 3px 8px color-mix(in srgb, var(--ivem-action, #0d6efd) 18%, transparent); }
+body form .btn-primary:hover, body .modal-footer .btn-primary:hover, body .document-new-button:hover { box-shadow: 0 5px 12px color-mix(in srgb, var(--ivem-action, #0d6efd) 28%, transparent); }
+body .modal-footer .btn-secondary, body .card-footer .btn-secondary { --bs-btn-bg: #f2f4f7; --bs-btn-border-color: #d7dde5; --bs-btn-color: #344054; --bs-btn-hover-bg: #e6eaf0; --bs-btn-hover-border-color: #b8c2cf; --bs-btn-hover-color: #253247; --bs-btn-active-bg: #dce2ea; --bs-btn-active-color: #253247; }
+body .btn:focus-visible { outline: 3px solid var(--ivem-action, #0d6efd); outline-offset: 3px; }
+body form input[type=file] { padding: .35rem; border-radius: .65rem; background-color: #f8f9fb; color: var(--ivem-text, #253247); }
+body form input[type=file]::file-selector-button { margin: 0 .85rem 0 0; padding: .65rem .95rem; border: 1px solid transparent; border-radius: .45rem; background: var(--ivem-primary, #682145); color: var(--ivem-on-primary, #fff); font: inherit; font-weight: 600; cursor: pointer; }
+body form .form-control[type=file]:not(:disabled):not([readonly]):hover::file-selector-button,
+body form input[type=file]:not(:disabled):hover::file-selector-button { background: var(--ivem-primary, #682145); color: var(--ivem-on-primary, #fff); box-shadow: inset 0 0 0 2px var(--ivem-on-primary, #fff); }
+body form input[type=file]:disabled::file-selector-button { opacity: .6; cursor: not-allowed; }
+@media (max-width: 575px) {
+  body .modal-footer .btn { flex: 1 1 auto; }
+  body .modal-footer .form-required-note { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { body .btn { transition: none !important; } }

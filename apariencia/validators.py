@@ -150,4 +150,5 @@ def contrast(first,second):
 
 
 def on_color(color):
-    return '#ffffff' if contrast(color,'#ffffff')>=contrast(color,'#000000') else '#000000'
+    # Prefiere texto blanco cuando cumple contraste AA (incluido el azul original).
+    return '#ffffff' if contrast(color,'#ffffff')>=4.5 else '#000000'

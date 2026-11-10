@@ -77,11 +77,15 @@
                 <div class="dropdown account-dropdown">
                     <a class="nav-link dropdown-toggle user-menu" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="account-avatar"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
-                        <span class="account-label"><strong>{{ user.username }}</strong><small>{% if user.is_superuser %}Administración{% else %}Mi cuenta{% endif %}</small></span>
+                        <span class="account-label"><strong>{{ user.username }}</strong><small>{% if user.is_superuser %}Administración{% elif has_account_actions %}Mi cuenta{% else %}Sesión{% endif %}</small></span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end account-menu" aria-labelledby="userDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end account-menu{% if not has_account_actions %} account-menu--compact{% endif %}" aria-labelledby="userDropdown">
+                        {% if has_account_actions %}
                         <li class="account-menu-heading"><span>Sesión iniciada como</span><strong>{{ user.username }}</strong></li>
                         <li><hr class="dropdown-divider"></li>
+                        {% else %}
+                        <li class="account-session-status"><span aria-hidden="true"></span>Sesión activa</li>
+                        {% endif %}
                         {% if perms.auth.add_user or perms.auth.view_user %}
                         <li><a class="dropdown-item" href="{% url 'operacion:users' %}"><i class="bi bi-people me-2" aria-hidden="true"></i>Gestión de usuarios</a></li>
                         {% endif %}
@@ -94,12 +98,12 @@
                         {% if perms.apariencia.change_webappearance or perms.apariencia.change_printidentity or perms.apariencia.add_printidentity %}
                         <li><a class="dropdown-item" href="{% url 'apariencia:configure' %}"><i class="bi bi-palette me-2" aria-hidden="true"></i>Apariencia e identidad</a></li>
                         {% endif %}
-                        <li><hr class="dropdown-divider"></li>
+                        {% if has_account_actions %}<li><hr class="dropdown-divider"></li>{% endif %}
                         <li>
-                            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            <form action="{% url 'logout' %}" method="post" class="account-logout-form">
                                 {% csrf_token %}
                                 <button type="submit" class="dropdown-item logout-btn">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Salir
+                                    <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Cerrar sesión
                                 </button>
                             </form>
                         </li>
