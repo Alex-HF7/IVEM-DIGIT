@@ -6,11 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const button = event.relatedTarget;
 
       const id = button.getAttribute('data-id');
-      const depto = button.getAttribute('data-depto');
-      const year = button.getAttribute('data-year');
 
-      // Construye la URL de eliminación
-      const url = `/oficios/${depto}/${year}/${id}/eliminar/`;
+      const url = button.getAttribute('data-url');
 
       // Actualiza el formulario
       const form = modal.querySelector('#formEliminarGlobal');

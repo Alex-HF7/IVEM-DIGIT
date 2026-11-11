@@ -1,0 +1,20 @@
+<div{% include 'django/forms/widgets/attrs.html' %} class="access-profiles">
+  <p class="profile-section-label">Acceso por departamento</p>
+  <p class="form-text mt-0">Selecciona uno o ambos departamentos si la cuenta trabajará con oficios.</p>
+  <div class="profile-grid">
+    {% for group, options, index in widget.optgroups %}{% for option in options %}{% if option.category == 'department' %}
+      {% include 'operacion/widgets/profile_option.html' %}
+    {% endif %}{% endfor %}{% endfor %}
+  </div>
+  {% if has_advanced %}
+  <details class="advanced-profiles mt-3"{% if advanced_selected %} open{% endif %}>
+    <summary>Permisos adicionales <span class="text-muted fw-normal">(opcional)</span></summary>
+    <p class="form-text">Asigna únicamente las tareas que necesita la cuenta. Administrar oficios incluye acceso a ambos departamentos.</p>
+    <div class="profile-grid">
+      {% for group, options, index in widget.optgroups %}{% for option in options %}{% if option.category == 'advanced' %}
+        {% include 'operacion/widgets/profile_option.html' %}
+      {% endif %}{% endfor %}{% endfor %}
+    </div>
+  </details>
+  {% endif %}
+</div>

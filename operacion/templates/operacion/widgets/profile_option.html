@@ -1,0 +1,4 @@
+<label class="profile-card" for="{{ option.attrs.id }}">
+  {% include "django/forms/widgets/input.html" with widget=option %}
+  <span><strong>{{ option.label }}</strong><small>{{ option.description }}</small></span>
+</label>

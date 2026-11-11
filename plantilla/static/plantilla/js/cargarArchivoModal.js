@@ -2,7 +2,6 @@ class ArchivoModal {
     constructor() {
         this.modal = new bootstrap.Modal(document.getElementById('archivoModal')); // Cambiado el ID
         this.form = document.getElementById('formArchivo'); // Cambiado el ID
-        this.alertContainer = document.getElementById('alertContainer');
         this.currentFileContainer = document.getElementById('currentFileContainer');
         this.initEvents();
     }
@@ -21,6 +20,7 @@ class ArchivoModal {
     }
     
     setupModal(element) {
+        this.resetForm();
         const button = element.closest('button');
         const isEdit = button.classList.contains('btn-editar-archivo');
 
@@ -63,13 +63,11 @@ class ArchivoModal {
             this.currentFileContainer.classList.add('d-none');
         }
         
-        this.resetForm();
         this.modal.show();
     }
     
     async handleSubmit(e) {
     e.preventDefault();
-    this.alertContainer.innerHTML = '';
     
     const submitBtn = this.form.querySelector('button[type="submit"]');
     const originalBtnText = submitBtn.textContent;
@@ -78,6 +76,11 @@ class ArchivoModal {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
         
+        const fileInput = document.getElementById('archivoInput');
+        const file = fileInput.files[0];
+        if (file && file.size > Number(fileInput.dataset.maxBytes)) {
+            throw new Error(`El PDF no puede superar ${fileInput.dataset.maxMb} MB.`);
+        }
         const formData = new FormData(this.form);
         const actionUrl = this.form.getAttribute('action'); // Obtiene la URL correcta
         
@@ -108,36 +111,23 @@ class ArchivoModal {
         }
         
         if (data.success) {
-            this.showAlert('success', data.message);
-            setTimeout(() => {
-                this.modal.hide();
-                window.location.reload();
-            }, 1500);
+            // El mensaje de Django se mostrará como toast después de recargar.
+            this.modal.hide();
+            window.location.reload();
         } else {
             throw new Error(data.message || 'Error al procesar el archivo');
         }
     } catch (error) {
         console.error('Error:', error);
-        this.showAlert('danger', error.message || 'Error al procesar la solicitud');
+        window.showAppToast('danger', error.message || 'Error al procesar la solicitud');
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = originalBtnText;
     }
 }
     
-    showAlert(type, message) {
-        this.alertContainer.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-    }
-    
     resetForm() {
         this.form.reset();
-        this.alertContainer.innerHTML = '';
-        // No resetear los campos ocultos (depto, year, id_oficio, action)
     }
 }
 
